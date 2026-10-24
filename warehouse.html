@@ -62,6 +62,23 @@ ul.lines .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .empty{color:var(--muted);font-size:14px;padding:6px 2px}
 details.sec summary{cursor:pointer;list-style:none}
 details.sec summary::-webkit-details-marker{display:none}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.stockbtn{background:transparent;color:var(--bad);border:1px solid var(--bad);border-radius:8px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer}
+.stockbtn:hover{background:rgba(255,122,107,.12)}
+.foundbtn{background:transparent;color:var(--good);border:1px solid var(--good);border-radius:8px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer}
+.issue{font-size:13px;background:rgba(255,122,107,.12);border:1px solid rgba(255,122,107,.4);border-radius:6px;padding:6px 8px;line-height:1.4}
+.issue b{color:var(--bad)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+#modal .box{background:var(--panel);border-radius:14px;padding:20px;width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px;max-height:90vh;overflow:auto}
+#modal h3{margin:0;font-family:var(--num);font-weight:400;font-size:30px;letter-spacing:1px}
+#modal label.it{display:flex;gap:10px;align-items:center;font-size:15px;padding:6px 8px;border-radius:6px;background:var(--panel2);cursor:pointer}
+#modal input[type=checkbox]{width:20px;height:20px;accent-color:#EED107}
+#modal textarea{width:100%;min-height:90px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font-family:inherit;font-size:15px}
+#modal .row{display:flex;gap:10px;justify-content:flex-end}
+#modal .cancel{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;font-size:15px}
+#modal .ok{background:var(--bad);color:#262727;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;font-size:15px}
+#modal .ok.green{background:var(--good)}
+#modal .err{color:var(--bad);font-size:13px;min-height:16px}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;gap:14px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
 #toast button{background:#262727;color:var(--accent);border:0;border-radius:6px;padding:7px 12px;font-weight:700;cursor:pointer}
 footer{color:var(--muted);font-size:12px;margin-top:4px}
@@ -70,6 +87,7 @@ footer{color:var(--muted);font-size:12px;margin-top:4px}
 </head>
 <body>
 <div class="wrap" id="app"><div id="msg">Loading orders…</div></div>
+<div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"><span id="tmsg"></span><button id="undo">Undo</button></div>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -100,7 +118,7 @@ function card(o){
   if (o.grp === 'standard') tags.push(o.late ? `<span class="tag t-late">2–3 day · day ${o.age + 1}</span>` : '<span class="tag t-std">2–3 day</span>');
   if (o.grp === 'check') tags.push('<span class="tag t-chk">Check delivery</span>');
   if (o.partial) tags.push('<span class="tag t-part">Part picked</span>');
-  if (o.section === 5) tags.push('<span class="tag t-bo">Waiting stock</span>');
+  if (o.backorder) tags.push('<span class="tag t-bo">Backordered</span>');
   if (o.web) tags.push('<span class="tag t-web">Web</span>');
   const lines = (o.lines || []);
   const shown = lines.slice(0, 6).map(l => `<li><span class="q">${(+l.qty).toLocaleString('en-GB')}×</span><span class="s">${esc(l.sku)}</span><span class="nm">${esc(l.name)}</span></li>`).join('');
@@ -114,7 +132,11 @@ function card(o){
     ${where ? `<div class="meta">${esc(where)}</div>` : ''}
     ${o.notes ? `<div class="note">${esc(o.notes)}</div>` : ''}
     ${lines.length ? `<ul class="lines">${shown}${more}</ul>` : (o.line_count ? `<div class="meta">${o.line_count} lines</div>` : '')}
-    <button class="vanbtn" data-id="${o.id}" data-no="${esc(o.no || '')}">🚐 Going on own van</button>
+    ${o.stock_issue ? `<div class="issue"><b>Can't find stock</b> · flagged ${new Date(o.stock_issue.raised_at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})}${(o.stock_issue.items||[]).length ? '<br>' + o.stock_issue.items.map(i => esc(i.sku || i.name)).join(', ') : ''}${o.stock_issue.note ? '<br>“' + esc(o.stock_issue.note) + '”' : ''}</div>` : ''}
+    <div class="btns">
+      <button class="vanbtn" data-id="${o.id}" data-no="${esc(o.no || '')}">🚐 Going on own van</button>
+      ${o.stock_issue ? `<button class="foundbtn" data-id="${o.id}" data-no="${esc(o.no || '')}">✓ Stock found</button>` : `<button class="stockbtn" data-id="${o.id}">⚠ Can't find stock</button>`}
+    </div>
   </div>`;
 }
 
@@ -153,12 +175,14 @@ function render(){
     <div class="side">
       ${section('Check delivery method', 'Delivery method in Cin7 doesn’t say which service', s3)}
       ${section('Next day – for tomorrow', 'Came in after the cut-off', s4)}
-      <details class="sec"><summary><h2>Waiting on stock <span class="n">${s5.length}</span> <span class="h">Backordered, tap to show</span></h2></summary>
+      <details class="sec" ${s5.some(o => o.stock_issue) ? "open" : ""}><summary><h2>Waiting on stock <span class="n">${s5.length}</span> <span class="h">Backordered or flagged \u201ccan\u2019t find stock\u201d · tap to show</span></h2></summary>
         ${s5.length ? `<div class="cards">${s5.map(card).join('')}</div>` : '<div class="empty">Nothing waiting.</div>'}</details>
     </div>
   </div>
   <footer>Live from Cin7 · last update ${data.last_synced ? new Date(data.last_synced).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–'} · refreshes every minute. Orders drop off once picked in Cin7.</footer>`;
   document.querySelectorAll('.vanbtn').forEach(b => b.onclick = () => toVan(b.dataset.id, b.dataset.no));
+  document.querySelectorAll('.stockbtn').forEach(b => b.onclick = () => openStock(b.dataset.id));
+  document.querySelectorAll('.foundbtn').forEach(b => b.onclick = () => openFound(b.dataset.id, b.dataset.no));
 }
 
 async function post(id, on){
@@ -180,7 +204,47 @@ document.getElementById('undo').onclick = async () => {
   hidden.delete(id); load();
 };
 
-load(); setInterval(load, 60000); setInterval(render, 30000);
+function closeModal(){ document.getElementById('modal').style.display = 'none'; }
+document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+function openStock(id){
+  const o = data.orders.find(x => x.id === id); if (!o) return;
+  const items = (o.lines || []).map((l, i) => `<label class="it"><input type="checkbox" data-i="${i}"><span><b>${(+l.qty).toLocaleString('en-GB')}×</b> ${esc(l.sku)} · ${esc(l.name)}</span></label>`).join('');
+  document.getElementById('mbox').innerHTML = `
+    <h3>Can't find stock · ${esc(o.no)}</h3>
+    <div class="sub">${esc(o.customer)}. This sends the order to the purchasing list for the office to sort.</div>
+    ${items ? `<div class="sub">Which items? (tick all that apply)</div>${items}` : ''}
+    <div class="sub">Notes, e.g. checked racking and overflow, only 3 left, stock out of date</div>
+    <textarea id="snote" placeholder="What have you checked? What's the problem?"></textarea>
+    <div class="err" id="serr"></div>
+    <div class="row"><button class="cancel" id="scancel">Cancel</button><button class="ok" id="sok">Confirm: can't find stock</button></div>`;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('scancel').onclick = closeModal;
+  document.getElementById('sok').onclick = async () => {
+    const picked = [...document.querySelectorAll('#mbox input[type=checkbox]:checked')].map(c => o.lines[+c.dataset.i]);
+    const note = document.getElementById('snote').value.trim();
+    if (!picked.length && !note) { document.getElementById('serr').textContent = 'Tick the item(s) or add a note so the office knows what to look at.'; return; }
+    document.getElementById('sok').disabled = true;
+    try {
+      const r = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({k:key, action:'stock', id, items:picked, note})});
+      if (!r.ok) throw 0; closeModal(); showToast(`${o.no} flagged to purchasing`, null); load();
+    } catch(e){ document.getElementById('serr').textContent = "Couldn't save. Check the connection and try again."; document.getElementById('sok').disabled = false; }
+  };
+}
+function openFound(id, no){
+  document.getElementById('mbox').innerHTML = `
+    <h3>Stock found · ${esc(no)}</h3>
+    <div class="sub">This clears the flag and puts the order back in the pick list.</div>
+    <textarea id="fnote" placeholder="Optional: where was it?"></textarea>
+    <div class="row"><button class="cancel" id="fcancel">Cancel</button><button class="ok green" id="fok">Confirm: stock found</button></div>`;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('fcancel').onclick = closeModal;
+  document.getElementById('fok').onclick = async () => {
+    try { await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({k:key, action:'stock_found', id, note: document.getElementById('fnote').value})}); } catch(e){}
+    closeModal(); load();
+  };
+}
+
+load(); setInterval(() => { if (document.getElementById('modal').style.display !== 'flex') load(); }, 60000); setInterval(render, 30000);
 setTimeout(() => location.reload(), 6 * 3600e3);
 </script>
 </body>
