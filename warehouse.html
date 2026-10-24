@@ -125,7 +125,7 @@ function card(o){
   const more = lines.length > 6 ? `<li class="meta">+ ${lines.length - 6} more line${lines.length - 6 === 1 ? '' : 's'}</li>` : '';
   const where = [o.town, o.postcode].filter(Boolean).join(' · ');
   return `<div class="card ${cls}">
-    <div class="top"><span class="no">${esc(o.no || '')}</span><span class="meta">${o.age === 0 ? 'today' : o.age + ' day' + (o.age === 1 ? '' : 's') + ' ago'}</span></div>
+    <div class="top"><span class="no">${esc(o.no || '')}</span><span class="meta">${o.section === 4 && o.dispatch_by ? 'goes out ' + new Date(o.dispatch_by + 'T00:00:00').toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'}) : (o.age === 0 ? 'today' : o.age + ' day' + (o.age === 1 ? '' : 's') + ' ago')}</span></div>
     <div class="cust">${esc(o.customer)}</div>
     <div class="tags">${tags.join('')}</div>
     ${o.carrier ? `<div class="carrier">“${esc(o.carrier)}”</div>` : ''}
@@ -156,7 +156,7 @@ function render(){
   const late = all.filter(o => o.late).length;
   document.getElementById('app').innerHTML = `
   <header>
-    <div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">Pick &amp; Dispatch · Bromham</div><div class="sub">Courier orders to pick, most urgent first. Collections and own-van orders aren't shown.</div></div></div>
+    <div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">Pick &amp; Dispatch · Bromham</div><div class="sub">Courier orders to pick, most urgent first. Collections and own-van orders aren't shown (own van → Van Team screen).</div></div></div>
     <div class="chips">
       <div class="chip"><span class="k">Now</span><span class="v">${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div>
       <div class="chip ${cut ? 'warn' : 'done'}"><span class="k">Next-day cut-off ${esc(data.cutoff)}</span><span class="v">${cut || 'passed'}</span></div>
@@ -174,7 +174,7 @@ function render(){
     </div>
     <div class="side">
       ${section('Check delivery method', 'Delivery method in Cin7 doesn’t say which service', s3)}
-      ${section('Next day – for tomorrow', 'Came in after the cut-off', s4)}
+      ${section('Not due out yet', 'Goes out on the next working day or later (after the cut-off, or a later Ship By date in Cin7)', s4)}
       <details class="sec" ${s5.some(o => o.stock_issue) ? "open" : ""}><summary><h2>Waiting on stock <span class="n">${s5.length}</span> <span class="h">Backordered or flagged \u201ccan\u2019t find stock\u201d · tap to show</span></h2></summary>
         ${s5.length ? `<div class="cards">${s5.map(card).join('')}</div>` : '<div class="empty">Nothing waiting.</div>'}</details>
     </div>

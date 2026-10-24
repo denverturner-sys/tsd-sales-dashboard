@@ -71,6 +71,12 @@ footer{margin-top:18px;font-size:12px;color:var(--muted);line-height:1.6}
 #login button{background:var(--accent);color:#262727;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
 #err{color:var(--bad);font-size:14px;min-height:18px}
 #app{display:none}
+#tabs{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px 0;max-width:1900px;margin:0 auto;border-bottom:1px solid var(--line)}
+#tabs button{background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:700;font-size:15px;cursor:pointer}
+#tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+#tabs button:hover{color:var(--ink)}
+.framepane{display:none} .framepane iframe{display:block;width:100%;height:calc(100vh - 52px);border:0;background:var(--bg)}
+#app.tabbed{max-width:none;padding:0} #app.tabbed #salesPane{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
 </style>
 </head>
 <body>
@@ -126,7 +132,7 @@ document.getElementById('lf').addEventListener('submit', async e => {
 
 async function logout(){
   try { await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'logout', token})}); } catch(e){}
-  token = null; store.del('tsd_me_token'); showLogin();
+  token = null; store.del('tsd_me_token'); const a = document.getElementById('app'); a.innerHTML = ''; a.classList.remove('tabbed'); showLogin();
 }
 
 async function load(){
@@ -141,6 +147,30 @@ async function load(){
     const app = document.getElementById('app');
     if (!app.innerHTML) { app.style.display='block'; app.innerHTML = '<p class="muted">Couldn\'t load your figures. Retrying shortly.</p>'; }
   }
+}
+
+let activeTab = (() => { try { return localStorage.getItem('tsd_me_tab') || 'sales'; } catch(e){ return 'sales'; } })();
+function ensureShell(j){
+  const app = document.getElementById('app');
+  if (document.getElementById('salesPane')) return;
+  const screens = j.screens || [];
+  if (!screens.length) { app.innerHTML = '<div id="salesPane"></div>'; return; }
+  app.classList.add('tabbed');
+  app.innerHTML = `<nav id="tabs"><button data-t="sales">My sales</button>${screens.map(sc => `<button data-t="${esc(sc.id)}">${esc(sc.name)}</button>`).join('')}</nav>
+    <div id="salesPane"></div>${screens.map(sc => `<div class="framepane" id="pane-${esc(sc.id)}" data-src="${esc(sc.url)}"></div>`).join('')}`;
+  document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => showTab(b.dataset.t));
+  if (!screens.some(sc => sc.id === activeTab)) activeTab = 'sales';
+  showTab(activeTab);
+}
+function showTab(t){
+  activeTab = t; try { localStorage.setItem('tsd_me_tab', t); } catch(e){}
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  const sp = document.getElementById('salesPane'); if (sp) sp.style.display = t === 'sales' ? '' : 'none';
+  document.querySelectorAll('.framepane').forEach(p => {
+    const on = p.id === 'pane-' + t;
+    if (on && !p.firstChild) p.innerHTML = `<iframe src="${p.dataset.src}" title="${t}"></iframe>`;
+    p.style.display = on ? 'block' : 'none';
+  });
 }
 
 function render(j){
@@ -183,10 +213,11 @@ function render(j){
   const tops = (d.top_customers||[]).map((c,i) => `<tr><td class="muted">${i+1}</td><td><b>${esc(c.customer)}</b></td><td class="r muted">${c.orders} order${c.orders===1?'':'s'}</td><td class="r"><b>${gbp(c.sales)}</b></td></tr>`).join('');
   const quiet = (d.quiet||[]).map(c => `<tr><td><b>${esc(c.customer)}</b></td><td>${dmy(c.last_order)}<br><span class="bad" style="font-size:12px;font-weight:700">${c.days_since} days ago</span></td><td class="muted">every ~${c.usual_gap} days</td><td class="r"><b>${gbp(c.spend)}</b></td></tr>`).join('');
 
-  app.innerHTML = `
+  ensureShell(j);
+  document.getElementById('salesPane').innerHTML = `
   <header>
     <div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">${esc(j.viewing)} · ${esc(month)}</div><div class="sub">${esc(today)} · day ${d.wd_elapsed} of ${d.wd_total}</div></div></div>
-    <div class="hright">${j.me.is_admin ? `<a class="btn" style="text-decoration:none" href="./?k=SXvQrDsWVxGMpb49b6COcuVTd9leXYgb">Company dashboard</a>` : ''}${people}<button class="btn" id="lo">Log out</button></div>
+    <div class="hright">${people}<button class="btn" id="lo">Log out</button></div>
   </header>
   <div class="grid">
     <div class="card c5">
