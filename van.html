@@ -130,10 +130,11 @@ function card(o){
   let extra = '', btns = '';
   if (o.stage === 'to_book') {
     btns = `<button class="btn go" data-a="push" data-id="${o.id}">Send to Track-POD</button>
-            <button class="btn out" data-a="out" data-id="${o.id}">Not a van order</button>`;
+            <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>`;
     if (o.ship_by) extra = `<div class="meta">Needed by ${dshort(o.ship_by)}</div>`;
   } else if (o.stage === 'booked') {
     extra = `<div class="meta">${o.driver ? 'Driver ' + esc(o.driver) : 'No driver yet'}${o.eta ? ' · ETA ' + new Date(o.eta).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : ''}${o.route_status ? ' · route ' + esc(o.route_status.toLowerCase()) : ''}</div>`;
+    btns = `<button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>`;
   } else {
     extra = `<div class="meta">Delivered ${dshort(o.tp_date)}${o.signed_by ? ' · signed by ' + esc(o.signed_by) : ''}${o.photo ? ' · photo taken' : ''}</div>`;
   }
@@ -225,13 +226,23 @@ function openPush(id){
 }
 function openOut(id){
   const o = data.orders.find(x => x.id === id); if (!o) return;
+  const inTp = o.stage === 'booked';
   document.getElementById('mbox').innerHTML = `
-    <h3>Not a van order · ${esc(o.no)}</h3>
-    <div class="sub">This sends it back to the Pick &amp; Dispatch screen to go by courier. If the delivery method in Cin7 is wrong, fix it there too.</div>
-    <div class="row"><button class="btn" id="oc">Cancel</button><button class="btn go" id="ook">Send back to pick screen</button></div>`;
+    <h3>Send to courier · ${esc(o.no)}</h3>
+    <div class="sub">${esc(o.customer)}. This takes it off the van list and puts it on the Pick &amp; Dispatch screen to go by courier. If the delivery method in Cin7 is wrong, update it there too.</div>
+    ${inTp ? `<label class="sub" style="display:flex;gap:10px;align-items:flex-start;color:var(--ink)"><input type="checkbox" id="odel" checked style="width:20px;height:20px;accent-color:#EED107;margin-top:1px">
+      <span>Also delete it from Track-POD (booked for ${dshort(o.tp_date)}${o.route && o.route !== o.no ? ', route ' + esc(o.route) : ''}) so it doesn't go out on the van as well</span></label>` : ''}
+    <div class="err" id="oerr"></div>
+    <div class="row"><button class="btn" id="oc">Cancel</button><button class="btn go" id="ook">Send to courier</button></div>`;
   document.getElementById('modal').style.display = 'flex';
   document.getElementById('oc').onclick = closeModal;
-  document.getElementById('ook').onclick = async () => { await post({action:'van', id, on:false}); closeModal(); toast(`${o.no} sent back to the pick screen.`); load(); };
+  document.getElementById('ook').onclick = async () => {
+    const del = inTp && document.getElementById('odel').checked;
+    document.getElementById('ook').disabled = true;
+    const j = await post({action:'to_courier', id, delete_tp: del});
+    if (!j.ok) { document.getElementById('oerr').textContent = j.error || 'Something went wrong. Try again.'; document.getElementById('ook').disabled = false; return; }
+    closeModal(); toast(`${o.no} moved to courier dispatch${del ? ' and removed from Track-POD' : ''}.`); load();
+  };
 }
 
 load();
