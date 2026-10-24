@@ -63,6 +63,8 @@ ul.lines .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 details.sec summary{cursor:pointer;list-style:none}
 details.sec summary::-webkit-details-marker{display:none}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.shipbtn{margin-top:4px;width:100%;background:var(--good);color:#262727;border:0;border-radius:8px;padding:11px 12px;font-weight:700;font-size:15px;cursor:pointer}
+.shipbtn:hover{filter:brightness(1.08)}
 .stockbtn{background:transparent;color:var(--bad);border:1px solid var(--bad);border-radius:8px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer}
 .stockbtn:hover{background:rgba(255,122,107,.12)}
 .foundbtn{background:transparent;color:var(--good);border:1px solid var(--good);border-radius:8px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer}
@@ -133,6 +135,8 @@ function card(o){
     ${o.notes ? `<div class="note">${esc(o.notes)}</div>` : ''}
     ${lines.length ? `<ul class="lines">${shown}${more}</ul>` : (o.line_count ? `<div class="meta">${o.line_count} lines</div>` : '')}
     ${o.stock_issue ? `<div class="issue"><b>Can't find stock</b> · flagged ${new Date(o.stock_issue.raised_at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})}${(o.stock_issue.items||[]).length ? '<br>' + o.stock_issue.items.map(i => esc(i.sku || i.name)).join(', ') : ''}${o.stock_issue.note ? '<br>“' + esc(o.stock_issue.note) + '”' : ''}</div>` : ''}
+    ${o.fulfil_error ? `<div class="issue"><b>Cin7 wouldn't ${esc(o.fulfil_error.step === 'start' ? 'start fulfilment' : o.fulfil_error.step)}</b> · ${new Date(o.fulfil_error.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}<br>“${esc(o.fulfil_error.message)}”<br>Check the order in Cin7, fix it, then try again.</div>` : ''}
+    ${o.section !== 5 && !o.backorder && !o.stock_issue ? `<button class="shipbtn" data-id="${o.id}">✓ Pick, pack &amp; ship</button>` : ''}
     <div class="btns">
       <button class="vanbtn" data-id="${o.id}" data-no="${esc(o.no || '')}">🚐 Going on own van</button>
       ${o.stock_issue ? `<button class="foundbtn" data-id="${o.id}" data-no="${esc(o.no || '')}">✓ Stock found</button>` : `<button class="stockbtn" data-id="${o.id}">⚠ Can't find stock</button>`}
@@ -182,6 +186,7 @@ function render(){
   <footer>Live from Cin7 · last update ${data.last_synced ? new Date(data.last_synced).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–'} · refreshes every minute. Orders drop off once picked in Cin7.</footer>`;
   document.querySelectorAll('.vanbtn').forEach(b => b.onclick = () => toVan(b.dataset.id, b.dataset.no));
   document.querySelectorAll('.stockbtn').forEach(b => b.onclick = () => openStock(b.dataset.id));
+  document.querySelectorAll('.shipbtn').forEach(b => b.onclick = () => openShip(b.dataset.id));
   document.querySelectorAll('.foundbtn').forEach(b => b.onclick = () => openFound(b.dataset.id, b.dataset.no));
 }
 
@@ -228,6 +233,38 @@ function openStock(id){
       const r = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({k:key, action:'stock', id, items:picked, note})});
       if (!r.ok) throw 0; closeModal(); showToast(`${o.no} flagged to purchasing`, null); load();
     } catch(e){ document.getElementById('serr').textContent = "Couldn't save. Check the connection and try again."; document.getElementById('sok').disabled = false; }
+  };
+}
+function openShip(id){
+  const o = data.orders.find(x => x.id === id); if (!o) return;
+  document.getElementById('mbox').innerHTML = `
+    <h3>Pick, pack &amp; ship · ${esc(o.no)}</h3>
+    <div class="sub" style="font-size:16px;color:var(--ink)">Are you sure you want to pick, pack and ship this order?</div>
+    <div class="sub">${esc(o.customer)}${o.carrier ? ' · “' + esc(o.carrier) + '”' : ''}<br>This authorises all three steps in Cin7 so it goes to Shiptheory on its next scan.</div>
+    <label class="sub" style="display:flex;align-items:center;gap:12px;color:var(--ink);font-size:16px">Number of boxes / parcels
+      <span style="display:flex;align-items:center;gap:6px">
+        <button type="button" class="cancel" id="bminus" style="padding:6px 14px;font-size:18px">−</button>
+        <input id="boxes" type="number" min="1" max="50" value="1" inputmode="numeric" style="width:70px;text-align:center;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:18px;font-family:inherit">
+        <button type="button" class="cancel" id="bplus" style="padding:6px 14px;font-size:18px">+</button>
+      </span></label>
+    <div class="err" id="xerr"></div>
+    <div class="row"><button class="cancel" id="xno" style="min-width:110px">No</button><button class="ok green" id="xyes" style="min-width:110px">Yes</button></div>`;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('xno').onclick = closeModal;
+  const bx = document.getElementById('boxes');
+  const clampB = v => Math.max(1, Math.min(50, Math.round(+v || 1)));
+  document.getElementById('bminus').onclick = () => { bx.value = clampB(+bx.value - 1); };
+  document.getElementById('bplus').onclick = () => { bx.value = clampB(+bx.value + 1); };
+  document.getElementById('xyes').onclick = async () => {
+    const boxes = clampB(bx.value); bx.value = boxes;
+    const yes = document.getElementById('xyes'), no = document.getElementById('xno');
+    yes.disabled = true; no.disabled = true; yes.textContent = 'Working in Cin7…';
+    let j = {ok:false, error:'No response'};
+    try { const r = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({k:key, action:'fulfil', id, boxes})}); j = await r.json(); } catch(e){}
+    if (j.ok) { closeModal(); hidden.add(id); render(); showToast(j.already ? `${o.no} was already fulfilled in Cin7.` : `${o.no} picked, packed and shipped (${j.boxes || boxes} box${(j.boxes || boxes) === 1 ? '' : 'es'}). Queued for Shiptheory.`, null); setTimeout(load, 3000); return; }
+    document.getElementById('xerr').innerHTML = `Cin7 stopped at the <b>${esc(j.step || '?')}</b> step: “${esc(j.error || 'unknown error')}”.<br>Check the order in Cin7.`;
+    yes.textContent = 'Try again'; yes.disabled = false; no.disabled = false; no.textContent = 'Close';
+    no.onclick = () => { closeModal(); load(); };
   };
 }
 function openFound(id, no){
