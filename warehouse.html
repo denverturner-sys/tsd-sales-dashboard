@@ -85,9 +85,16 @@ details.sec summary::-webkit-details-marker{display:none}
 #toast button{background:#262727;color:var(--accent);border:0;border-radius:6px;padding:7px 12px;font-weight:700;cursor:pointer}
 footer{color:var(--muted);font-size:12px;margin-top:4px}
 #msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
+#search{max-width:1900px;margin:0 auto;padding:14px 20px 0;display:flex;gap:10px;align-items:center}
+#search input{flex:1;max-width:620px;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 14px;font-size:18px;font-family:inherit}
+#search input:focus{outline:none;border-color:var(--accent)}
+#search button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:15px;font-family:inherit}
+#search .hint{color:var(--muted);font-size:13px}
+.where{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent)}
 </style>
 </head>
 <body>
+<div id="search"><input id="q" type="search" placeholder="Find an order: number, customer, postcode, SKU or product…" autocomplete="off"><button id="qclear" style="display:none">Clear</button><span class="hint">Press / to search · Esc to clear</span></div>
 <div class="wrap" id="app"><div id="msg">Loading orders…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"><span id="tmsg"></span><button id="undo">Undo</button></div>
@@ -149,6 +156,22 @@ function section(title, hint, list, extra=''){
     ${list.length ? `<div class="cards">${list.map(card).join('')}</div>` : '<div class="empty">Nothing here.</div>'}</section>`;
 }
 
+const SECTION_NAME = {1:'Due out today', 2:'2–3 day', 3:'Check delivery method', 4:'Not due out yet', 5:'Waiting on stock'};
+let query = '';
+const norm = t => String(t ?? '').toLowerCase().replace(/[\s\-]/g, '');
+function matches(o, q){
+  const qn = norm(q), digits = q.replace(/\D/g, '');
+  if (digits.length >= 3 && String(o.no || '').replace(/\D/g, '').replace(/^0+/, '').includes(digits.replace(/^0+/, ''))) return true;
+  const hay = [o.no, o.customer, o.postcode, o.town, o.carrier, o.notes, ...(o.lines || []).flatMap(l => [l.sku, l.name])].map(norm).join('|');
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(norm(w)));
+}
+function renderSearch(all){
+  const hits = all.filter(o => matches(o, query));
+  return `<section class="sec urgent"><h2>Search: “${esc(query)}” <span class="n">${hits.length}</span> <span class="h">across every section on this screen</span></h2>
+    ${hits.length ? `<div class="cards">${hits.map(o => `<div><div class="where">${SECTION_NAME[o.section] || ''}</div>${card(o)}</div>`).join('')}</div>`
+      : `<div class="empty">Nothing matches. If it's a real order, it's probably already picked, on the own-van list, a collection, or from more than 60 days ago. Orders appear here within a couple of minutes of being authorised in Cin7.</div>`}</section>`;
+}
+
 function render(){
   if (!data) return;
   const all = data.orders.filter(o => !hidden.has(o.id));
@@ -171,7 +194,7 @@ function render(){
       <div class="chip"><span class="k">On own van list</span><span class="v">${data.van_count + hidden.size}</span></div>
     </div>
   </header>
-  <div class="layout">
+  ${query ? renderSearch(all) : `<div class="layout">
     <div>
       ${section('Due out today', 'AM and next-day orders, plus 2–3 day orders on day 3 or later', s1, 'urgent')}
       ${section('2–3 day', 'Oldest first', s2)}
@@ -182,7 +205,7 @@ function render(){
       <details class="sec" ${s5.some(o => o.stock_issue) ? "open" : ""}><summary><h2>Waiting on stock <span class="n">${s5.length}</span> <span class="h">Backordered or flagged \u201ccan\u2019t find stock\u201d · tap to show</span></h2></summary>
         ${s5.length ? `<div class="cards">${s5.map(card).join('')}</div>` : '<div class="empty">Nothing waiting.</div>'}</details>
     </div>
-  </div>
+  </div>`}
   <footer>Live from Cin7 · last update ${data.last_synced ? new Date(data.last_synced).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–'} · refreshes every minute. Orders drop off once picked in Cin7.</footer>`;
   document.querySelectorAll('.vanbtn').forEach(b => b.onclick = () => toVan(b.dataset.id, b.dataset.no));
   document.querySelectorAll('.stockbtn').forEach(b => b.onclick = () => openStock(b.dataset.id));
@@ -281,6 +304,15 @@ function openFound(id, no){
   };
 }
 
+const qEl = document.getElementById('q'), qClear = document.getElementById('qclear');
+let qTimer;
+qEl.addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => { query = qEl.value.trim(); qClear.style.display = query ? '' : 'none'; render(); window.scrollTo(0, 0); }, 150); });
+const clearSearch = () => { qEl.value = ''; query = ''; qClear.style.display = 'none'; render(); };
+qClear.onclick = () => { clearSearch(); qEl.focus(); };
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== qEl && !document.activeElement?.matches('input,textarea')) { e.preventDefault(); qEl.focus(); qEl.select(); }
+  if (e.key === 'Escape' && document.activeElement === qEl) { clearSearch(); qEl.blur(); }
+});
 load(); setInterval(() => { if (document.getElementById('modal').style.display !== 'flex') load(); }, 60000); setInterval(render, 30000);
 setTimeout(() => location.reload(), 6 * 3600e3);
 </script>
