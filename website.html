@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Website · TSD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#262727; --panel:#323333; --panel2:#3B3C3C; --line:#474949; --ink:#FFFFFF; --muted:#B9BCBC;
+  --accent:#EED107; --good:#7DDB98; --bad:#FF7A6B; --blue:#8EC5FF;
+  --num:'Bebas Neue','DIN Condensed','Arial Narrow',Arial,sans-serif;
+  --body:Barlow,'Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px}
+button,input,select,textarea{font-family:inherit;font-size:15px}
+.wrap{padding:16px 20px 28px;max-width:1700px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+header .l{display:flex;align-items:center;gap:16px}
+header img{height:44px}
+.title{font-family:var(--num);font-size:36px;letter-spacing:1px;line-height:1}
+.sub{color:var(--muted);font-size:13px}
+nav#tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:14px}
+nav#tabs button{background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:700;cursor:pointer}
+nav#tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+nav#tabs .n{background:var(--line);color:var(--ink);border-radius:999px;padding:1px 7px;font-size:12px;margin-left:6px}
+nav#tabs .n.hot{background:var(--accent);color:#262727}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--panel);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;border:2px solid transparent}
+.tile.click{cursor:pointer} .tile.click:hover{border-color:var(--line)}
+.tile .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--num);font-size:42px;line-height:1}
+.tile .h{font-size:13px;color:var(--muted)}
+.tile.hot{border-color:var(--accent)} .tile.hot .v{color:var(--accent)} .tile.red .v{color:var(--bad)} .tile.green .v{color:var(--good)}
+.sec{background:var(--panel);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.sec h2{margin:0 0 10px;font-family:var(--num);font-weight:400;font-size:26px;letter-spacing:1px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.sec h2 .h{font-family:var(--body);font-size:13px;color:var(--muted);letter-spacing:0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.r,th.r{text-align:right;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap;margin:1px 3px 1px 0}
+.t-good{background:var(--good);color:#262727} .t-bad{background:var(--bad);color:#262727} .t-warn{background:var(--accent);color:#262727}
+.t-out{background:transparent;border:1px solid var(--muted);color:var(--muted)} .t-blue{background:transparent;border:1px solid var(--blue);color:var(--blue)}
+.muted{color:var(--muted)} .bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--accent)}
+.btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted)} .btn.go{background:var(--accent);color:#262727;border-color:var(--accent)} .btn.sm{padding:3px 8px;font-size:12px}
+.btn[disabled]{opacity:.35;cursor:default}
+input.txt,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+input.txt:focus,textarea:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
+input.pos{width:54px;text-align:center;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:3px 4px}
+.addform{display:grid;grid-template-columns:160px minmax(200px,2fr) 220px minmax(160px,2fr) auto;gap:8px;align-items:center}
+@media (max-width:1100px){.addform{grid-template-columns:1fr 1fr}}
+.rank{font-family:var(--num);font-size:24px;color:var(--muted);width:36px;text-align:center}
+tr.bumped td{background:rgba(238,209,7,.08)}
+.bumpnote{font-size:12px;color:var(--accent)}
+.acts{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:1100px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.empty{color:var(--muted);font-size:14px;padding:8px 2px}
+.wait{background:var(--panel2);border-left:4px solid var(--accent);border-radius:8px;padding:12px 14px;font-size:14px;line-height:1.5}
+.bars{display:flex;align-items:flex-end;gap:2px;height:110px;padding-top:6px;border-bottom:1px solid var(--line)}
+.bars div{flex:1;background:var(--accent);border-radius:2px 2px 0 0;min-height:1px;position:relative}
+.bars div.red{background:var(--bad)}
+.meter{height:12px;background:var(--line);border-radius:999px;position:relative;margin:6px 0}
+.meter .f{height:100%;background:var(--accent);border-radius:999px;max-width:100%}
+.meter .m{position:absolute;top:-5px;width:3px;height:22px;background:var(--ink)}
+a{color:var(--blue)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+#modal .box{background:var(--panel);border-radius:14px;padding:20px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px}
+#modal h3{margin:0;font-family:var(--num);font-weight:400;font-size:30px;letter-spacing:1px}
+#modal .row{display:flex;gap:10px;justify-content:flex-end}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+#login form{background:var(--panel);border-radius:14px;padding:28px 24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
+#login img{height:50px;align-self:flex-start}
+#login input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px}
+#login button{background:var(--accent);color:#262727;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
+#lerr{color:var(--bad);font-size:14px;min-height:18px}
+#msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
+footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="login">
+  <form id="lf" autocomplete="on">
+    <img src="data:image/png;base64,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" alt="Tiling Supplies Direct">
+    <div class="title">Website</div>
+    <div class="sub">Log in with your work email and PIN.</div>
+    <input id="em" type="email" placeholder="you@tilingsuppliesdirect.co.uk" autocomplete="username" required>
+    <input id="pin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password" required>
+    <button type="submit">Log in</button>
+    <div id="lerr"></div>
+  </form>
+</div>
+<div class="wrap" id="app" style="display:none"><div id="msg">Loading website dashboard…</div></div>
+<div id="modal"><div class="box" id="mbox"></div></div>
+<div id="toast"></div>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/web';
+const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
+const LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcUAAAC6CAYAAADfwlYkAAAACXBIWXMAABYlAAAWJQFJUiTwAAAfZUlEQVR4nO2df2wc5ZnH3xACBuN4ydWN45Sz24MY1Eo2BO6HVMmbXO+qo4X4pJ5IDL2YA4PSP4gT06NSo9iOqARSnRhUNU0Mh9P2SKVDwobCXXUVWUv3T0sCjsSVJuVgLYiTYEh2bYJMQ/Dp2byTbja7874z876z77zv9yOt+OHZ2Wdmduc7z/M+PxYtLCwMM8baGUg0n37yRs3s+9tazn363pUqj+OKq/46X9/4o6zs9ibZceb0jz+pb/xxh0o7AIgRui+nynxcBhdBH5fzE48bR0L57NxpNjfTz86cGlF6AIuXrGSppt3sytq/ox9ls2h7smP25Gb2ce4/jLFjyVVfzik15jzd/KWLdID9ih5oexljkwHtbOf7rcQof+lCxzHJXjPRsfmJUZDr5keaH+M6wXaH+bkaY4zp+J47y+Wun4CkQjf/M6eG2JlTe9ln5+aUHQWJUF3DI+zqVI/U9rbbUYYWgx4iRQ+05bwMESnBPnV7KTqOSfaa5QSiqPO6t/DPlv2MNsbYM4yxAS748B4VAVFMIHTzn5t5XOnN/7LFdax22QOsruFR6ffosoPEsHZZn/R75ma2xSGGwH5E3pku2rmo1YfYP0VPDjDG7tXswTsDRDFBfJwbKYjQubPHlBntiSGJ0GWLr5V6j812AOdJx+x1pSIIYjHkNWbhMUYHopgAPjnz32z25CPs7PybSo29OvVPbOnyJ6RFiOzITW9SLkK1y3pYXcOgtB3zc8+x/InvQQyBDuIWxWEFgugxysOwIAIQRYMhEZqb+QH748e/UWokiWFdQz9bvOQvpLa33Q4Aiujk63RxQAK2UeHnNPP1RYRRIwBRNJjT792tdJ3siqv/itU3DrElNaultj939v/Y6WP3KRchU+wAoAxtPKQZR0Znr+R2Uzw0KpOE0wtRjAZE0WAo4SR/YltkA0mE6hq+T2UNUtuTCM3NDCovrzDFjoiMCsJrw/zGWoktIUoKQLykeamDbkRlHFNlMktJ9Hb5vCdOUbcSiKLBUNLJRx/uDr12FrasYW5mSOlJITvqGx9jNXXfkrZDR+2lIrL8VQnRzWgSyRDGE5co+j08MR7KLX2AGuai1+/zvnZ8x8JzWVINdwUStaCcL3h/ki2/4S0pQTwvQtvY+2+1KhXEYjtkBLHYDkMFEbhBZwxHKeoidtgnoiAKj6pqJOAk8BQNh0RNtuwgbFnD7MnvW1nzCEBImnkSjHRbwRCImhD4eXo67XIeiGICoDZnH07dWdFQ1BpWsuOh/1W2U+Aa6SonrIjC8BNoz6kHiGICoMQUSlIpl30ZpqxBV82jKXYU1V5+qnTnwCU6kcXpJhDFhEBZm8XeYk3d1wtlDag1DGcHAAKwLucoEMWEQN4iCeFn53KJLa/In+hj83O/Um5HkJpHACSp58kwKJ9xDIhiglh2nXyWuO21hkHtAKACUz4jydIQRfeAKFqGaaOcdNQ8BrEDAAFeJmc5YewUzJasJn5ijezUCEAULUGXGFIm59LlP0jkfMX5uec+B/EEElAIZnOZzUzO7pRtEQcCAlG0AIyUutQOqr1cfMWfr4QoAgkyFUSRVWFqBqgyEMUEo2uEUl1DnxU1j4uVWQMsx0/0OiGKbgFRTCgkALnph5Qaj5FSwFFyvK1auV6kKM1wDIhiQqFeopctVtOezZSaR1PsAE4yVkEUTZk6kZLol+ohaloPfIAoJhQKKVICTBRvESOlALhAxmfyRFxTM/wgQTwgue1gjIOSrQOimGCCNAsv5vz0it3SIkSZnLMnNysXoSU1N7Glyx+HGAITIFHM86L9UjoNEEUQExDFhENlCrLeYthaQ1NqHlXbAUAJJIzrypwUrCs6BEQx4ZCwfJz7d991NcrkJBGiTE5ZaK5htWsemSY7AKhAJVH0RkkBB4AoWkBps3APjJQCIBCi0gzgABBFCyg3Wqp2WQ+raxiUFiFdNY+m2AGABJM+vVARQnUEiKIleN4iag0BiAR5ixvL7KDaopjjg4U92iskBYGIQBQtgbzFxtZpaY+MMjlPH7tPuQiRx3rtyqelxfDs/KHCSCkddqRW/OiI0p0CF6gkitUWoMkSYc5g8r4eIIoWISOIjo2Umle6c+ACaOnmOBBFR6CyhrmZfnbm1IjSAw5T82iCHQBUIOvT8g04AETRcmyvNcR8RaCBDETRXSCKFnN+yO/jymsNqbyiruFR6ffosiNo7SUAkviNkgKWA1G0lJm3b2Fn599UdnBJrnkEICBo6eYwEEVLqam7XZkoUnnF0uVPSIsQlVfkpjcprzUMasenn7xRc/mVX1FqA3CGCWR3usllrp8AW6HwJq23RYFEaPkNb7BU00+lhIjE8INsulAvqVIQw9pxerq7VZkRwDWQheooEEWLoTW3MFBZQ8OX/qcgQjL1hlRecerdzoIYqqw3DGOHJ8poAgAighCqoyB8ajFBR0thviIAF5j0GSUVBynBZ8gOHAYBgShaTn3jY+zUu9/2Pciw5RVzM0NKTx7ZQfbW1H1L2g4dNY8AcCpNzVCBaJK/n+il0OJNHxBFyyGBueLqH5UNJ2K+IgC+jGkUxUnB3zv4uKpsmb/1Ct6L9dAIQBQdoHS0VNjyitmT39dS81htO0AgWkI0x07qTVq33aLOOSTK3SUCSoLYL9hvOSEFkkAUHcAbLfXpJ7/DfEUQlY0VGmb7sSihZz3rM0pKBaLOOfS317kNWcnJGIchitGAKDoCTa5ghVBl8kZKzZ58RGkjAgACUGlqhgqGJTvnNAcQ5lFc3GhAFB0B8xUBCMWYRlEkj25c4bplHqIYHYgiKGBSeQXNV5yf+xUuDDAB3euKvXyNVkU2abdEVisQAFF0HF1iuKTmJrZ0+eOoNQRJJ6d5lFSWi2ImojDei4YDaoAoOooLI6Vqr30QWTlABbpHSXlT9UdDfE6ee5sImyoCouggtF53+r27lZdXLF3+A9NqHj9QtmPgMmMxjJKa5Nml3VzkROI4xYVwGCFTtSxaWFjIoBu8W5Agvf9WqxIxMnyk1ESImjoATCDFRbK9pOVbhodcUXahCXiKDkKiQd5U/sS2SAdf19BnRK1hUDsASAA5LoDoThMzEEVHIRH56MPdoQTKlPKKoHYAAIAIiKLDkLeYm35I+gRQeQU1AZAVobPzhwrlFarFsKbu66y+cQhiCABQDuYpOgwlo8gMIiYx/LPmF9jnWjLScw1z0//MZt7+qvL5imTHsuvGpOz47Nz7eOgDAAQCNw3HSTXtvqhZeDEkmPR32VpDSuCZPbnZmJrHs5/87ssNXzyo1BYAgN1AFB3HaxZe7NHZMlJqyVVfVmYLAMANIIrgwmgpKmsgEaIkHFnmZrYpF0NT7AAAuAdEERS8xVTTk4WBxBgpBQBwGYgiKCAboqTyitz0JuUiVLush9U1DEqL4fzccyx/4nsQQwCAUiCKQAqMlAIAuABEEfhCmZynj92nXIRMqXkEAIBiIIqgLCbNV8RIKQBAXEAUwSVQJufczJDSE0PlFfWNjxWSeWSg8oq5mX525tQILhAAIDYgikArptQ8AgCADBBFcAlUEhFVlLzyirqGR6XfQ2JI5RUQQwBAtYAogkugsggaGBykWbiHSfMVa675+w+V7RAA4AQQRVAWCncGFSoqr1i6/AlpMdRV81hkx3tKdwwAsB6IIqiI7GgpzFe8iBbGWCefmN5S8rdJ/soonJxeOpm9FL8htd509zDvDWtPOXRMkm8pc/5F5Pj1UYnoHOueoi+6HpP8uIMgOqYwqDwPaf4qd+yZot9g2eNetLCwQH/sUHyAwBI+yKYrileY8gqqNZyf+5XSk0N20HzFJTWrS/80wX8ccUCfMxDgtzTOt496Exb9fhf5/I1sPhDyvWHt8eMwY2yUMTam4AZJ57Y/5HunuA2jCq6P6BwPclt1Iboea0I8/IiOKQwqzkMvfzVLbJtnjA3z10XiiHmKwBcSvVKK5yvKCKI3X/HkH76iVBCL7SgjiHEyzG8SQcRgHWPsdcZYdzUNN4w2xtguxtg7moVCBN1UN/PrMxbC8wXxkuIPL7skBZGo5w9N2VKvF6IIfPFGS7EL8xWflBbD87WG2wpiqLL4nuxYdt3PpO3QzCi/gYblGQhjWfr5ja7agrSu3I0TGEOKe7ptIQ2q5++/cH2xpgiEUGjy7PxriZuvGAMUqtmo4GOe4TfeMGt4NtPGHzo6q3yM9dxjbA+x/gb0MhpBEMteX3iKQAiFJmWFiMor3n+rtdARR5Ugnp+v2McavvRqIDs+nFqjc8pwSnGIr5rhQpNZZ4gn3YxrZBxp/v1QQTN/yEX4FKiBROjkH64vZKuqFsPPX3+k0ARAptTjIjs+m9MZCenkT5iq6ECIriKmiNHmEBmtQB+9ivdcePhC+BREwqSRUrMnH2Fn59+M64LKeC8TRSHRFolQa7eGH7oNNPMHBtXlEmHo5IlVoLqkJLzEfEkmc1qQDEffszREEYQC8xWFmaZbytw8h3lGYyXiKh+pJqVlHin+MDAg8Lw7FYtiuVKETr5GJbIDouiP7jITJvFbyfNtSr8zw4LEuDTCpyAQlERD5RUfTt2pVIi88opU00+lBJHKPE6926ncDklEYc6pCjdO+oHu83lf1ISBJJLj50p0E43jgWFMIqkHNd1mIPoNVqox7eWCWQmIIgjO/Nx/KTtrS2puMqLmMSCiMoExn7+JMkxdrYkbFfw9rrW8DG8i4AfqFquPtt8gRBEEgpJdqOF3VLyax4YvvRao5nHm7b9JwsBhv7R9UacWV5NtcoIneNmibFW2+IGEqOoT5Rr4heFTEEUQGMoEJVELA2WUkhguv+EtqfIKTwxVl3kAIzEhkYYZZAeInzYk2oBQyDYL9zBlpFRMILyWbFCg7zAQRRCKIKOlqNbQETH08EsKmeSZj35/BwD4I2p0nvZZOxz1W1eEKILQ1Dc+xk69++2Kb09QeUVQRJ5EG08MKbd+mEM7NwC00+2T0ew7pgpriiA0NXXfutAsvBj6f8tveEO6vOLs/KHCiCrV5RVLrrzpjKarOylICmFoCQaAVkQPls1h2wNCFEEkikdLFY9ykq01pPKKmbe/qqnm8Wdvaby6oh/lRkeK8QGoBjLRloEw6/sIn4JIUDkFhUmvqv+29BgnyiidPblZeWkF1TwuXf54XOOkxiTaTI3xMCoSNwBQzz5B68TmMFNW4CmCyFCYNEitIZVXqJ6vGKTmURGjvHONH96sNmSjJgtcr2QgavjA+IOrzHYXgCiCWNBRa0hlHvWNj0rXPGpAZt2wDcIojSkTKFCcnwwyvOm+iI1BhBHhU6AVHeUVYWoeNTHKeymKepZ6wphGKLUiKUHXGpFXrtoWP1A24093gPX0qOvu9FnvSGznhVmFyTcQRaAFKq/ITW9SXmtYu6yH1TUMVlsMi+nmgiearegJY6dEqzcXEa37xHXO2iUecvBg409zjG35snwizS6JbaWEEeFToBQSQ6+8QqUgUjIPlXnUNz5pkiAy7jXIzkBs49sjPHcx3RLjmOLwztISYTaZcB2Il2HB9JliNvIEuIrRAHiKQCl//HhCeXnFtSuflm4AUCW8G+kzEh9fXxRKdTEMtxDyfaobHhwI+T6/6QugenRLevmMJ99UXM6ApwiUcn6dry7yLoPWPBoACeO9kmZ4wgiPUY4pg8QIomguaYmxXx5tlR60IIpAKRTapGbhYaHyimXX/Ux6vqJhhBFGZKWKMaU70D6sBxtNjgujbIi7rVy4HKIIlEPeYtDRUl6tIZVXUPu4BBNGGEFlJoLWmWkiH2DtGFQPTxiDrDFe9NCFNUWgBdnRUl55Bc1otIgga4xt/EeJXqmXcjhoNxJN5FFOE4gJAx72vAxTv443Hv3c3oLNEEWgBdFoKYNqDXUxykNtYxLlGv1F24PzPMEfFKotRBP8BotrI0/GkIe8IMI47K3xI3wKtJFq2l1211Re8fnrjxS8Q0sF0SMTwNOBp3g+oYbE8Is8VFktQczz8Nsa7iFCEJNLt2Qotc0TUXiKQBuUKENZpF6JRtD5ipaQ4WuMolCqt7Zh+w240oDlyZhFcEuFkpi47QD6kfUY6UFsFKIItEKjpWhwMP0zgdmkqhjloZnNgv11ShSxJx1TEosmkeTkFL0SdYz0t3aET4FWSAgTWl6hmgGJ/p0mJJUAYCM5yezhNDxFAILT4jPRIVchLJfjwugXRu3AtQBACr9G4tkKyxDeVA2/3xlEEYAQdPOM0XJM+PxgxyTWFluQ2AGAEL82fYM+iWvDAlFMIXwKQHzkJLptmDJTEAAbEa0jd0AUAYgXzOIDoHoIM4shigDEC9L9AYhOlKHTvu91ck1xdm6O/fbVV9nRI0fY0aNH2ezs3EV/X7q0jq1atYqtam1lf3nbbWxpXfSpD8AZRMkycU/GSPuEjDClAySVrM8gY9EShN8A5HwkUfzx7t1sZGQkyi5C0dPTw76zaVPgt5IQPvvss2xiQtxEvXibjo4O1tXVVRDIKNx8yy1Kjr+29pqCaN9662q2ds0aduONNyrZL5BG5O21+4RJRUIUNLyaEQix3w0CoghsxC8zVfj7cyJ8Sp5h75Yt7MEHH5QSxFLoPfRe2gftq9qcOfMRe/311woPJBu6utg/3P4N9vz4eNXtcgiRcFXKfOsVPaWGCK+Kth+oMJ6qXdDhAxPmgcn4Jcw0+9QkippjZK0Pn/7+979nW7b2sRMnjkfeF4njXXetZ7t2DhnlndGx7RgcZPv372c7h3ayL6xsMsAqqxFlsHmTvYeLRKtbos1UmA4rovc0FzVoznKBbJG4OSAhKB66BZ5NOYJun4RjGg04Ikz0/dzFH/y8faa4UIqWNzJWiyJ5dff3PFDwrFRBAkT7fPnll4xba/zD0aNs/fr17KmRvQip6meci18lOkIU44eZ6j7JEwf8PFBqX/V8DLaA4DQLrl0SCXNMQR8IMzyy4jeBZqPkhIxixqwOn/b2blEqiB60T9q3iZBtJNomhHktR3WP0nwEIVI9hHcKfUGB4eQ0PLjRNI2ctaJIa2y07qYL2rep63gkjNu3bzfAEqvJKF53izI7cDhiinopmDAPksAAf5hURSEXwFpR3LtnrxWfERZa/6RsW6CVbkU/yvGInmeuaDxOVPYhdAoSQlbhA9y9XntFK0WRxEBFYo0I+gxK5DEVKj8BWsnyhIIowjiuSNC8uY1R2KdQXAGIg1EF3/t7i5cgIiXarGhqYjffLK69O378uJRINTauYCtWrJD6XD8OZOSXQ+gz13dtYDe1thb+m9biMpkMe+mXv5R6//iLLypPail3TqnJQND1UfIW6XjQfEArk0XZnEEW9fM8XKNybXKU2yNqehyHLQDERdjv/RR/CLxIMCKJ4j+uW1d4iZAt8r/jjm+GKsov5dChQ1Lb3bBqFXtqZOQS0fja2rVs9erVhTIHVZ8VhH97+qmKW//6lVfY0A+HpD1h8prpeIBWvPDlAJ+J2MnTwUsz46b4j3eMv3S0fJvk3mua21RpsGqe3wxU2zJqSJKOyIa4JpFk+dSGaiG6HmHOg45jivqdKf7ee7+/cgJ5uOh7X/YzrSzJoNIEGR7u66voRZHYv/jCi8JkHdnPUgUJHHXWuf32b0h5jtTKDqIYG1n+tGqCx5WpkjipzoQNS7WOv5SsTzOHONBxPap9TH5Evu7WrSnKrvFR2FTUtu2OO+9Q+pmqICHv6togtbeDB9V7sgAAYCvWiaJsfV5r6yrhNt46o6rPVAn1PAUAAKAWZ0dHUUNtESZ3hZG1TWetJgAA2AbmKQIAAAAcZ0XxaMwJMgAAAMzHySHDxPRxuZIGmTpM1AECAIAdOCuKVErx3rFp4Zglv5pBAAAAdmFd+DTIdPwXXsBgXgAAAH/CyjXFGyQyS1mhN+h+jFgCAABwAStFkVq0yUAdYXb/5CfVNhcAAIAhOC2KxC/278eIJQAAAAWsFEXq9Ult3GTZurWvkHQDAADAbaytU1wv2RuU8TDq1r6tWF8EAADHsVYUacpFEG+RSjTu7+mBMAIAgMNYK4pUUN/3cF+g90AYAQDAbaxu80Zrix0dQQYxnxfGu+5aH/s4KAAAANXH+t6nO3bsCBRGJWiq/f09D0AYAQBRSBe9UjiTycD6Nm8URt21c6ggcjKT6j1oW3rPUyN7jR4hBapGN38FwZsInmOMTWqYDO+3P/q83hD7HGaMtQfYfpIfn/fvk3xSuyqC2iNDL7czKp1Fr/oK+5pgjI3xifi5CJ8X5vsXBFXnJHE40fuURG1gcIB99+GHA72PhHFDVxfb3t9fSNwBoIgWxliw2Pyl2+f5TX444g2y0v5V0B5wv+W2PcyPcbQK9sgQ1YtL82Nrlti2g78G+Gs45GeG+f4FwVnP1pnRUbS+SOIWhh2Dg+z5cfRJBcohb6Kfe1KdFp/eNsbYM9yTte1mS97aAUlBLIau/S5FDwpAIU7NUyRvL4ow/vqVV5TbBAC/QT6vORxmAh2WCWMnF/sobIQwmoVzQ4ZJGPfs2cNqa68J/N6B/gEk3wCd6FgvM402HjZMOimFYrbR8khBonBy8j6Nl6IEmqDCSGuMW7b2oY4R6KI+whpTktjM18SSTK9PMk0YXLjuicBJUWQ8+SaMMFK5xvbt27XZBZynwwLBkCFMJqxJqLa/2YEoQSJwdvI+48L48ssvFbrYUNG+LBMTE4XEG2SkAh8mypRItDD/dH2P7gSFGAdL/lv2GHUJQKk9MgQtGUlLHN9ESVlDJ/cG/RJyugOIraicJy3ITt0nOG6VZTSJwmlRZLyO8amRkcDCOPTDIfa3a9cW3g9AGTIVhC3F/9bmc9LSCTqhYY9RVzlBHA8ToutzuMw2Y1wg3/F5X5AHhYxAGAcE53hUQ52sFTgbPi3GE0bZif2Mry/+/Oc/j8M8YBc5iaSKpIfRZI6RJThMLLK70vpglntolUD41AAgihwSxp1DOwOtMT777H7NVgFLoZvjlM+hqUzgqBZZ7jH5Yaso+nlgfmFJG6574oEoFvGFlU1s584h6e3JW0TtIgiJC2s2Krr0JBG/a4uQpeFAFEugco2enh7p7TMZfMcBqICTvTNBsoEoluGee+6Rnqxx6OChmK0DIDG46imCBGNd9ulvX32VHTx40HebFU1NvuUUtL64vmsDG965U/h5VLdIxfzIQgUAgORjnSiSII6MjPhuc/PNtwhrDOnvMqJIUOs3CrsCAABINgifVoA8vyAlGgAAAJIPRNGH1atXS20nCtcC4Cii0gUXu6ZQZt4inxeoMhBFH+quCT5JAwBwAYgiSBwQRQXUIskGgHL4dWgRFfYDUBWc7H16/Phxqe3mPvpIarubWlsjWhQc2bmOlFQEQBUQjVbSVeAr2zc2C08VlMNJUZQtozh0yNwaxN9gHROYCwniLoF1uuYHHpDcbtCSYcdAMdaFT2+99Vap7UTNvN87Ni09NYNGUMUJCfovJPuutt4YvxcLnCJT9KIONgsSgvgEvDRgKtaJoqxAUTPvSiFIEp2tfVul9kMNxOMs3KfmBDTmirxdGVahrATopaPo5TcqyuMwPDRgMtaFT0mgqEWbSDSomfeGri62fsMGtib9p2WIN48cKXhhsqKTXqN+9N2/3Hd/2f9/9OjRgt1BoJmPABjCOB+ki/ZvwFisXFMkofrFfrnwIm0nu205ZGsZg/D6668p2U9HRwfazwFTmOIeIgQRGI2VJRl3d90dy+dQ6FTULq6adHV1GWsbcI5met7jniIAxmKlKNJcxG9885vaP6era4P2zwgLlWKgHyswkGckp/IDUBWsLd7/1+9+N9AU/aBQX9TvbNqkbf9RoOPesWOHkbYBoLEcgwlaqBW/kOwDymKtKNJa2sCgnu99QXQGzPxNkW1PjewteMsAxMCaohfV/u1jjOUFH9uMMCowFauL97+2di3b3t/PdgwOKtunJzpx1ybKQN4ribWJtgFrKe5M4/17C//3Zp+DphDqqINfi5Sg/Z2uTj9AEus72lAiDLVh27K1T7rMohK0TkdhSdO8MBJqWt+85557kG0KTCDLPUG/7jLqa5mSQbvgvGBSRpVxos0beU7/+fJL7PnxcbZ3z97A4khi2HV3V8HzNAXyCqkwP51OG2UXAJwML8Oo5C3Wc68JJRrAKGIRxTvvXCfVfq2paaVWO8hrpBd1sqHeodTGbfrYdOFvXpPwFStWFP5J7dFIdG679TZlnuGePXsi74MEHt4gSAhZQQi1HeFCYBqxiCKJikkhRxKWaqy7oUQCOEaGt4ADIDFgniIAAADAgSgCAAAAHIgiAAAAwIEoAgBAfLTgXJsNRBGA+EkhAcVq/GowIYqGA1EEIH5ELc4O45oYjaiMxK/hud+1x3U3AIgiAPHRzhtR7xJ84iSuidFkBcZtriB+o4K6TdF+QQw40dEGgCrQz19hQEF7eBZCvHNNwHMusy2NyOrl27bwByI/QSTGAtgANAFRBMAs8o42yk4S5NFNSKwLt/GXLBBFA0D4FACzwJy/ZKD6Oj2BPrBmAFEEwBwmNA/gNY1Ugm2nsOi4on3l8TBkDhBFAMzgsCBr0Ub85gomgW4FGaN5XsIBL9EQIIoAVJc8n1jfbuGNUZSQkvSavRwXtLAe4xR/P7KNDeJyXBBgMaZ+t/NcMMb4y1YvQXT+bfCMc/w4OnkIVCaxZoonUw3DQzSPRQsLYTKYAQAAlKGFe38tRa8cf0DI8YchOCKmwhj7f9xeki53EKVoAAAAAElFTkSuQmCC';
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+let token = store.get('tsd_me_token');
+let tab = store.get('tsd_web_tab') || 'overview';
+let J = null, D = null, A = null, timer, showDone = false;
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gbp = (v, dp=0) => v == null ? '–' : '£' + Number(v).toLocaleString('en-GB',{minimumFractionDigits:dp,maximumFractionDigits:dp});
+const n0 = v => v == null ? '–' : Number(v).toLocaleString('en-GB',{maximumFractionDigits:0});
+const n1 = v => v == null ? '–' : Number(v).toLocaleString('en-GB',{maximumFractionDigits:1});
+const pctChg = (a, b) => (b == null || b == 0 || a == null) ? null : Math.round((a - b) / b * 100);
+const chg = (a, b) => { const p = pctChg(a, b); return p == null ? '' : `<span class="${p >= 0 ? 'good' : 'bad'}">${p >= 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`; };
+const dmy = s => s ? new Date(String(s).length <= 10 ? s + 'T12:00:00' : s).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '–';
+const dt = s => s ? new Date(s).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '–';
+const hm = s => s ? new Date(s).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–';
+const secs = ms => ms == null ? '–' : (ms/1000).toFixed(1) + 's';
+function toast(t, ms=3500){ const e = document.getElementById('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(e._t); e._t = setTimeout(() => e.style.display = 'none', ms); }
+function modal(html){ document.getElementById('mbox').innerHTML = html; document.getElementById('modal').style.display = 'flex'; }
+function closeModal(){ document.getElementById('modal').style.display = 'none'; }
+document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+// ---------- auth ----------
+function showLogin(msg){ clearInterval(timer); document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; document.getElementById('lerr').textContent = msg || ''; }
+document.getElementById('lf').addEventListener('submit', async e => {
+  e.preventDefault(); const err = document.getElementById('lerr'); err.textContent = 'Checking…';
+  try {
+    const r = await fetch(ME_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'login', email: document.getElementById('em').value, pin: document.getElementById('pin').value})});
+    const j = await r.json(); if (!j.ok) { err.textContent = j.error || 'Login failed'; return; }
+    token = j.token; store.set('tsd_me_token', token); document.getElementById('pin').value = ''; start();
+  } catch(x) { err.textContent = "Can't reach the server. Check your connection."; }
+});
+async function api(body){
+  const r = await fetch(API, body ? {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('Error ' + r.status));
+  return j;
+}
+async function refresh(){
+  try { J = await api(); D = J.data; A = J.ads; render(); }
+  catch(x){ if (x.message === 'login') return; if (!D) document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}<br><span class="sub">Retrying shortly.</span></div>`; else toast(x.message); }
+}
+function start(){
+  document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block';
+  refresh(); clearInterval(timer);
+  timer = setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input,textarea,select')) refresh(); }, 180000);
+}
+function setTab(t){ tab = t; store.set('tsd_web_tab', t); render(); window.scrollTo(0,0); }
+async function act(body, msg){ try { const j = await api(body); if (j.ok === false) throw new Error(j.error); if (msg) toast(msg); await refresh(); return true; } catch(x){ toast(x.message, 5000); return false; } }
+
+// ---------- render ----------
+function render(){
+  if (!D) return;
+  const bumps = D.todo.filter(t => t.bump).length, p = D.payments;
+  const tabs = [['overview','Overview'], ['todo','Products to add', D.todo.length, bumps > 0 && J.me.can_rank], ['payments','Payments & orders', p.lost_30d, p.lost_30d > 0],
+    ['products','Products'], ['ads','Google Ads'], ['speed','Speed & uptime']];
+  const body = {overview: renderOverview, todo: renderTodo, payments: renderPayments, products: renderProducts, ads: renderAds, speed: renderSpeed}[tab]();
+  const y = window.scrollY;
+  const s = D.synced;
+  const warn = [];
+  if (s.variations_pending > 0) warn.push(`Still loading product variations from the website (${s.variations_pending} products to go). Matching SKUs will be patchy until that finishes.`);
+  if (s.orders_from && new Date(s.orders_from) > new Date(Date.now() - 360*86400000)) warn.push('Still loading the last year of website orders. Comparisons with last year fill in once that finishes.');
+  document.getElementById('app').innerHTML = `
+    <header><div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">Website</div>
+      <div class="sub">Orders ${hm(s.orders)} · payments ${hm(s.stripe)} · uptime ${hm(s.uptime)} · ${esc(J.me.name)}</div></div></div>
+      <div><button class="btn" onclick="refresh()">Refresh</button></div></header>
+    <nav id="tabs">${tabs.map(([id,l,n,hot]) => `<button class="${id===tab?'on':''}" onclick="setTab('${id}')">${l}${n != null ? `<span class="n ${hot?'hot':''}">${n}</span>` : ''}</button>`).join('')}</nav>
+    ${body}
+    <footer>${warn.map(w => `<b class="warn">${esc(w)}</b><br>`).join('')}Web sales are WooCommerce orders that are processing, completed or on account (on-hold). Payment failures come straight from Stripe, so they include attempts that never became an order. "Came back" means the same customer or order paid within 3 days.</footer>`;
+  window.scrollTo(0, y);
+}
+function tile(k, v, h, cls, go){ return `<div class="tile ${cls||''} ${go ? 'click' : ''}" ${go ? `onclick="${go}"` : ''}><div class="k">${k}</div><div class="v">${v}</div><div class="h">${h}</div></div>`; }
+
+function renderOverview(){
+  const w = D.web_totals || {}, p = D.payments, up = D.uptime, slow = (up.avg24 || []).filter(u => u.url !== '/').sort((a,b) => b.avg_ms - a.avg_ms)[0];
+  const mob = (D.pagespeed || []).filter(x => x.strategy === 'mobile' && x.score != null);
+  const mobAvg = mob.length ? Math.round(mob.reduce((a,x) => a + Number(x.score), 0) / mob.length) : null;
+  const bumps = D.todo.filter(t => t.bump).length, old = D.todo.filter(t => t.days > 30).length;
+  const mtd = A?.mtd;
+  return `<div class="tiles">
+    ${tile('Web sales, 28 days', gbp(w.rev28), `${n0(w.orders28)} orders ${chg(w.rev28, w.rev_prev)} vs previous 28${w.rev_ly ? ' · ' + chg(w.rev28, w.rev_ly) + ' vs last year' : ''}`, '', "setTab('products')")}
+    ${tile('Orders under £50', w.orders28 ? Math.round(w.under50_28 / w.orders28 * 100) + '%' : '–', `${n0(w.under50_28)} of ${n0(w.orders28)} web orders`, '', "setTab('products')")}
+    ${tile('Payments lost', p.lost_30d, `${gbp(p.lost_value_30d)} declined and never came back (30 days)`, p.lost_30d ? 'red' : '', "setTab('payments')")}
+    ${tile('Blocked as fraud', p.blocked_30d, 'by Stripe Radar, 30 days', p.blocked_30d > 20 ? 'hot' : '', "setTab('payments')")}
+    ${tile('Stuck orders', D.stuck_orders.length, 'failed or pending, 14 days', D.stuck_orders.length ? 'red' : '', "setTab('payments')")}
+    ${tile('Products to add', D.todo.length, `${old} over 30 days old${bumps ? ` · <b class="warn">${bumps} asking to move up</b>` : ''}`, bumps && J.me.can_rank ? 'hot' : '', "setTab('todo')")}
+    ${tile('Uptime, 7 days', up.uptime_pct7 != null ? up.uptime_pct7 + '%' : '–', `${(up.fails7 || []).length} failed checks`, (up.uptime_pct7 ?? 100) < 99.5 ? 'red' : 'green', "setTab('speed')")}
+    ${tile('Slowest page today', slow ? secs(slow.avg_ms) : '–', slow ? esc(pageName(slow.url)) + ' (server response)' : 'waiting for checks', slow && slow.avg_ms > 2500 ? 'red' : '', "setTab('speed')")}
+    ${tile('Mobile speed score', mobAvg ?? '–', mobAvg == null ? 'waiting for the PageSpeed key' : 'out of 100 (Google)', mobAvg != null && mobAvg < 50 ? 'red' : '', "setTab('speed')")}
+    ${tile('Ads spend this month', mtd ? gbp(mtd.cost) : '–', mtd ? `of ${gbp(A.budget_month)} · ${gbp(mtd.value)} sales tracked` : 'waiting for the Ads script', '', "setTab('ads')")}
+  </div>
+  <div class="grid2">
+    <div class="sec"><h2>Dropping off <span class="h">web sales down by half or more vs the previous 4 weeks</span></h2>${prodTable(D.dropping.slice(0, 10), true)}</div>
+    <div class="sec"><h2>Lost payments <span class="h">latest declines that didn't come back</span></h2>${payTable(D.payments.recent.filter(x => !x.came_back).slice(0, 10), true)}</div>
+  </div>`;
+}
+
+// ---------- products to add ----------
+function renderTodo(){
+  const rank = J.me.can_rank, n = D.todo.length;
+  const rows = D.todo.map((t, i) => `<tr class="${t.bump ? 'bumped' : ''}">
+    <td class="rank">${i + 1}</td>
+    <td><b>${esc(t.name)}</b>${t.sku ? `<div class="muted">${esc(t.sku)}${t.avail != null ? ` · ${n0(t.avail)} in stock` : ''}${t.on_site ? ' · <span class="warn">on the site as a draft</span>' : ''}</div>` : ''}
+      ${t.note ? `<div class="muted" style="font-size:13px">${esc(t.note)}</div>` : ''}
+      ${t.bump ? `<div class="bumpnote">↑ ${esc(t.bump_by)} asked to move this up${t.bump_note ? ': ' + esc(t.bump_note) : ''}</div>` : ''}</td>
+    <td>${esc(t.reason || '')}</td>
+    <td>${esc(t.added_by || '')}<div class="muted">${dmy(t.added_at)}</div></td>
+    <td class="r ${t.days > 30 ? 'bad' : t.days > 14 ? 'warn' : ''}"><b>${t.days}</b> days</td>
+    <td><select onchange="act({action:'todo_status', id:${t.id}, status:this.value}, 'Updated')">
+      ${[['todo','To do'],['waiting','Waiting on info/images'],['in_progress','In progress'],['live','Live (done)']].map(([v,l]) => `<option value="${v}" ${t.status===v?'selected':''}>${l}</option>`).join('')}</select></td>
+    <td><div class="acts">${rank ? `
+      <button class="btn sm" title="To the top" onclick="moveTo(${t.id},1)" ${i===0?'disabled':''}>⤒</button>
+      <button class="btn sm" title="Up one" onclick="moveTo(${t.id},${i})" ${i===0?'disabled':''}>↑</button>
+      <button class="btn sm" title="Down one" onclick="moveTo(${t.id},${i+2})" ${i===n-1?'disabled':''}>↓</button>
+      <input class="pos" type="number" min="1" max="${n}" value="${i+1}" title="Type a position" onchange="moveTo(${t.id}, +this.value)">
+      ${t.bump ? `<button class="btn sm" onclick="act({action:'todo_unbump', id:${t.id}}, 'Request cleared')">Leave where it is</button>` : ''}`
+      : (t.bump ? '<span class="muted">Asked</span>' : `<button class="btn sm" onclick="askBump(${t.id}, '${esc(t.name).replace(/'/g,'&#39;')}')">Ask to move up</button>`)}
+      ${(rank || t.added_by === J.me.name) ? `<button class="btn sm" onclick="removeItem(${t.id}, '${esc(t.name).replace(/'/g,'&#39;')}')">Remove</button>` : ''}</div></td></tr>`).join('');
+  return `<div class="sec"><h2>Add a product <span class="h">${rank ? 'goes to the bottom; move it wherever you want' : 'goes to the bottom of the list; use "Ask to move up" if it matters'}</span></h2>
+    <div class="addform">
+      <input class="txt" id="a_sku" placeholder="Cin7 SKU (optional)">
+      <input class="txt" id="a_name" placeholder="Product name (filled from Cin7 if you give a SKU)">
+      <select id="a_reason">${J.reasons.map(r => `<option>${esc(r)}</option>`).join('')}</select>
+      <input class="txt" id="a_note" placeholder="Note (optional)">
+      <button class="btn go" onclick="addItem()">Add to list</button>
+    </div></div>
+  <div class="sec"><h2>To add to the website <span class="h">${n} product${n===1?'':'s'} · ${rank ? 'you set the order' : 'Etienne sets the order'} · ticks itself off when the SKU goes live on the site</span></h2>
+    ${n ? `<table><thead><tr><th>#</th><th>Product</th><th>Why</th><th>Added</th><th class="r">On list</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">Nothing on the list.</div>'}</div>
+  <div class="sec"><h2>Recently added to the site <button class="btn sm" onclick="showDone=!showDone;render()">${showDone ? 'Hide' : 'Show'} (${D.done.length})</button>
+    <span class="h">average ${D.done.length ? Math.round(D.done.reduce((a,x) => a + x.days, 0) / D.done.length) : '–'} days from list to live</span></h2>
+    ${showDone ? (D.done.length ? `<table><thead><tr><th>Product</th><th>Added by</th><th class="r">Added</th><th class="r">Live</th><th class="r">Took</th></tr></thead><tbody>
+      ${D.done.map(d => `<tr><td>${esc(d.name)} <span class="muted">${esc(d.sku || '')}</span></td><td>${esc(d.added_by || '')}</td><td class="r">${dmy(d.added_at)}</td><td class="r">${dmy(d.done_at)}</td><td class="r">${d.days} days</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nothing done in the last 60 days yet.</div>') : ''}</div>
+  <div class="sec"><h2>Selling in Cin7 but not on the website <span class="h">${D.suggestions_total} products · sold to 2+ orders by phone/counter in the last 12 weeks, or £500+ in Sage last year</span></h2>
+    ${D.synced.variations_pending > 0 ? `<div class="wait">Still reading every product variation from the website (${D.synced.variations_pending} products to go, about ${Math.ceil(D.synced.variations_pending / 40) * 2} minutes). This list appears once that's done; until then it would wrongly show products that are on the site as variations.</div>`
+    : D.suggestions.length ? `<table><thead><tr><th>SKU</th><th>Product</th><th>Supplier</th><th class="r">Orders (12 wks)</th><th class="r">Sales (12 wks)</th><th class="r">Sage last year</th><th class="r">In stock</th><th></th></tr></thead><tbody>
+      ${D.suggestions.map(s => `<tr><td>${esc(s.sku)}</td><td>${esc(s.name)}</td><td class="muted">${esc(s.supplier_name || s.brand || '')}</td><td class="r">${n0(s.orders12w)}</td><td class="r">${gbp(s.rev12w)}</td><td class="r">${s.sage_rev ? gbp(s.sage_rev) : '–'}</td><td class="r">${n0(s.avail)}</td>
+        <td><div class="acts"><button class="btn sm go" onclick="addSuggestion('${esc(s.sku).replace(/'/g,'&#39;')}')">Add to list</button>${J.me.can_rank ? `<button class="btn sm" title="Not one for the website" onclick="act({action:'suggest_dismiss', sku:'${esc(s.sku).replace(/'/g,'&#39;')}'}, 'Hidden')">Not for web</button>` : ''}</div></td></tr>`).join('')}
+    </tbody></table>` : '<div class="empty">Nothing obvious missing.</div>'}</div>`;
+}
+async function addItem(){
+  const sku = document.getElementById('a_sku').value.trim(), name = document.getElementById('a_name').value.trim();
+  if (!sku && !name) return toast('Give it a SKU or a name');
+  await act({action:'todo_add', sku, name, reason: document.getElementById('a_reason').value, note: document.getElementById('a_note').value}, 'Added to the bottom of the list');
+}
+const addSuggestion = sku => act({action:'todo_add', sku, reason:'Sells in Cin7, not on website'}, 'Added to the bottom of the list');
+const moveTo = (id, pos) => act({action:'todo_move', id, pos}, null);
+function askBump(id, name){
+  modal(`<h3>Ask to move up</h3><div>${name}</div><textarea id="bnote" rows="3" placeholder="Why should this jump the queue? e.g. Two contractors asked this week"></textarea>
+    <div class="row"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn go" id="mgo">Send to Etienne</button></div>`);
+  document.getElementById('mgo').onclick = () => { const note = document.getElementById('bnote').value; closeModal(); act({action:'todo_bump', id, note}, 'Etienne will see the request'); };
+}
+function removeItem(id, name){
+  modal(`<h3>Remove from the list?</h3><div>${name}</div><div class="row"><button class="btn" onclick="closeModal()">No</button><button class="btn go" id="mgo">Yes, remove</button></div>`);
+  document.getElementById('mgo').onclick = () => { closeModal(); act({action:'todo_remove', id}, 'Removed'); };
+}
+
+// ---------- payments ----------
+const REASON = {highest_risk_level:"Blocked by Stripe's fraud filter", elevated_risk_level:'Flagged risky by Stripe', generic_decline:'Bank declined (no reason given)',
+  do_not_honor:'Bank said no', insufficient_funds:'Not enough money', partner_insufficient_funds:'Not enough money', incorrect_cvc:'Wrong security code', invalid_cvc:'Wrong security code',
+  expired_card:'Card expired', incorrect_number:'Wrong card number', card_declined:'Card declined', transaction_not_allowed:"Card can't be used for this", authentication_required:'Failed bank check (3D Secure)',
+  card_velocity_exceeded:'Card limit hit', lost_card:'Card reported lost', stolen_card:'Card reported stolen', fraudulent:'Bank suspects fraud', pickup_card:'Bank says take card', invalid_pin:'Wrong PIN',
+  invalid_account:'Account closed or invalid', processing_error:'Payment system error', invalid_amount:'Amount rejected', payment_intent_generic_payment_failed:'Payment failed', unknown:'Unknown'};
+const why = r => REASON[r] || String(r || 'unknown').replace(/_/g, ' ');
+function payTable(list, compact){
+  if (!list.length) return '<div class="empty">None.</div>';
+  return `<table><thead><tr><th>When</th><th>Customer</th><th class="r">Amount</th><th>Why</th>${compact ? '' : '<th>Order</th><th>Paid with</th>'}<th>After</th></tr></thead><tbody>
+    ${list.map(x => `<tr><td>${dt(x.at)}</td><td>${esc(x.name || '')}<div class="muted">${esc(x.email || '')}</div></td><td class="r">${gbp(x.amount, 2)}</td>
+      <td>${esc(why(x.reason))}</td>${compact ? '' : `<td>${x.order ? esc(x.order) + `<div class="muted">${esc(x.order_status || '')}</div>` : '<span class="muted">none</span>'}</td><td class="muted">${esc(x.method || '')}</td>`}
+      <td>${x.came_back ? '<span class="tag t-good">Paid later</span>' : '<span class="tag t-bad">Lost</span>'}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderPayments(){
+  const p = D.payments, max = Math.max(1, ...p.by_day.map(d => d.n));
+  return `<div class="tiles">
+    ${tile('Card payments taken', n0(p.ok_30d), 'last 30 days', 'green')}
+    ${tile('Failed attempts', n0(p.failed_30d), `${gbp(p.failed_value_30d)} tried`, '')}
+    ${tile('Lost for good', n0(p.lost_30d), `${gbp(p.lost_value_30d)} · no payment within 3 days`, p.lost_30d ? 'red' : '')}
+    ${tile('Blocked as fraud', n0(p.blocked_30d), "Stripe Radar's highest-risk block", p.blocked_30d > 20 ? 'hot' : '')}
+    ${tile('Stuck orders', D.stuck_orders.length, 'failed / pending on the website, 14 days', D.stuck_orders.length ? 'red' : '')}
+  </div>
+  <div class="grid2">
+    <div class="sec"><h2>Why payments failed <span class="h">last 30 days</span></h2>
+      <table><thead><tr><th>Reason</th><th class="r">Attempts</th><th class="r">Lost</th></tr></thead><tbody>
+      ${p.reasons.map(r => `<tr><td>${esc(why(r.reason))}<div class="muted" style="font-size:12px">${esc(r.reason)}</div></td><td class="r">${r.n}</td><td class="r ${r.lost ? 'bad' : ''}">${r.lost}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">None</td></tr>'}</tbody></table>
+      ${p.blocked_30d > 10 ? `<div class="wait" style="margin-top:10px">Lots of fraud blocks usually means bots testing stolen cards (many small attempts, odd emails, bursts at night). That's Radar doing its job. If the names below look like real trade customers, check the Radar rules in Stripe, because genuine buyers are being turned away.</div>` : ''}</div>
+    <div class="sec"><h2>Failures per day <span class="h">red = fraud blocks</span></h2>
+      <div class="bars">${p.by_day.map(d => `<div title="${dmy(d.d)}: ${d.n} failed, ${d.blocked} blocked" style="height:${d.n / max * 100}%;background:linear-gradient(to top, var(--bad) ${d.blocked / Math.max(1,d.n) * 100}%, var(--accent) 0)"></div>`).join('')}</div>
+      <div class="muted" style="font-size:12px;margin-top:4px">${p.by_day.length ? dmy(p.by_day[0].d) + ' – ' + dmy(p.by_day[p.by_day.length-1].d) : ''}</div></div>
+  </div>
+  <div class="sec"><h2>Failed payments <span class="h">most recent first · "Lost" ones are worth a phone call</span></h2>${payTable(p.recent, false)}</div>
+  <div class="sec"><h2>Stuck website orders <span class="h">failed or pending payment, last 14 days (account orders excluded)</span></h2>
+    ${D.stuck_orders.length ? `<table><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Payment</th><th class="r">Total</th><th class="r">Placed</th></tr></thead><tbody>
+      ${D.stuck_orders.map(o => `<tr><td><b>${esc(o.number)}</b></td><td>${esc(o.name || '')}<div class="muted">${esc(o.email || '')}</div></td><td><span class="tag ${o.status==='failed'?'t-bad':'t-out'}">${esc(o.status)}</span></td><td class="muted">${esc(o.payment || '')}</td><td class="r">${gbp(o.total, 2)}</td><td class="r">${dt(o.created)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">None.</div>'}</div>`;
+}
+
+// ---------- products ----------
+function prodTable(list, compact){
+  if (!list.length) return '<div class="empty">Nothing yet.</div>';
+  return `<table><thead><tr><th>Product</th><th class="r">Last 28 days</th><th class="r">Previous 28</th>${compact ? '' : '<th class="r">Same time last year</th>'}<th class="r">Change</th></tr></thead><tbody>
+    ${list.map(x => `<tr><td>${esc(x.name)}<div class="muted">${esc(x.sku)}</div></td><td class="r">${gbp(x.rev28)}</td><td class="r">${gbp(x.rev_prev)}</td>${compact ? '' : `<td class="r">${x.rev_ly ? gbp(x.rev_ly) : '–'}</td>`}<td class="r">${chg(x.rev28, x.rev_prev)}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderProducts(){
+  const w = D.web_totals || {}, b = D.basics;
+  return `<div class="tiles">
+    ${tile('Web sales, 28 days', gbp(w.rev28), `${chg(w.rev28, w.rev_prev)} vs previous 28 days`, '')}
+    ${tile('Same 28 days last year', w.rev_ly ? gbp(w.rev_ly) : '–', w.rev_ly ? chg(w.rev28, w.rev_ly) + ' this year' : 'still loading history', '')}
+    ${tile('Live products', n0(b.live), 'on the website', '')}
+    ${tile('No photo', n0(b.no_image), `${n0(b.one_image)} with only one`, b.no_image ? 'red' : '')}
+    ${tile('Thin description', n0(b.thin_desc), 'under ~30 words', '')}
+    ${tile('No meta description', n0(b.no_meta), `${n0(b.no_kw)} with no focus keyword (Yoast)`, '')}
+  </div>
+  <div class="sec"><h2>Where web orders come from <span class="h">last 28 days, from WooCommerce order attribution</span></h2>
+    ${D.sources.length ? `<table><thead><tr><th>Source</th><th class="r">Orders</th><th class="r">Sales</th><th class="r">Avg order</th><th class="r">Under £50</th></tr></thead><tbody>
+      ${D.sources.map(s => `<tr><td>${esc(s.src)}</td><td class="r">${n0(s.orders)}</td><td class="r">${gbp(s.revenue)}</td><td class="r">${gbp(s.aov)}</td><td class="r ${s.pct_under_50 > 40 ? 'bad' : ''}">${s.pct_under_50}%</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Loading orders…</div>'}</div>
+  <div class="grid2">
+    <div class="sec"><h2>Top web sellers <span class="h">the ones worth polishing first</span></h2>${prodTable(D.top.slice(0, 20), true)}</div>
+    <div class="sec"><h2>Dropping off <span class="h">down 50%+ vs the previous 4 weeks (was £150+)</span></h2>${prodTable(D.dropping, true)}</div>
+  </div>
+  <div class="sec"><h2>Live on the site, but none in stock in Cin7 <span class="h">showing "in stock" online with zero available at either site</span></h2>
+    ${D.oos_live.length ? `<table><thead><tr><th>Product</th><th>SKU</th><th class="r">Web sales, 90 days</th><th class="r">Cin7 available</th></tr></thead><tbody>
+      ${D.oos_live.map(x => `<tr><td><a href="${esc(x.permalink || '#')}" target="_blank" rel="noopener">${esc(x.name)}</a></td><td class="muted">${esc(x.sku)}</td><td class="r">${x.rev90 ? gbp(x.rev90) : '–'}</td><td class="r bad">${n0(x.avail)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">None.</div>'}</div>
+  <div class="sec"><h2>Product pages missing the basics <span class="h">best sellers first: no photo, thin description or no meta description</span></h2>
+    ${b.list.length ? `<table><thead><tr><th>Product</th><th class="r">Photos</th><th class="r">Description</th><th>Meta description</th><th>Focus keyword</th><th class="r">Web sales, 90 days</th></tr></thead><tbody>
+      ${b.list.map(x => `<tr><td><a href="${esc(x.permalink || '#')}" target="_blank" rel="noopener">${esc(x.name)}</a></td><td class="r ${x.images ? '' : 'bad'}">${x.images}</td>
+        <td class="r ${x.desc_len < 200 ? 'bad' : ''}">${x.desc_len < 200 ? 'thin' : 'ok'}</td><td>${x.meta_desc ? '<span class="good">yes</span>' : '<span class="bad">missing</span>'}</td>
+        <td>${x.focus_kw ? '<span class="good">yes</span>' : '<span class="muted">none</span>'}</td><td class="r">${x.rev90 ? gbp(x.rev90) : '–'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">All good.</div>'}</div>
+  <div class="wait">Coming once Google access is sorted: search terms you rank 5th–15th for (quick SEO wins), pages dropping in Google, and "lots of views, few sales" products from GA4.</div>`;
+}
+
+// ---------- ads ----------
+function renderAds(){
+  const src = D.sources.find(s => s.src === 'Google Ads');
+  const fromSite = src ? `<div class="sec"><h2>Google Ads orders on the website <span class="h">last 28 days, from WooCommerce order attribution</span></h2>
+    <div class="tiles" style="margin:0">${tile('Orders from ads', n0(src.orders), '', '')}${tile('Sales from ads', gbp(src.revenue), '', '')}${tile('Avg order', gbp(src.aov), '', '')}${tile('Under £50', src.pct_under_50 + '%', 'the orders the budget cut was meant to shed', src.pct_under_50 > 40 ? 'red' : '')}</div></div>` : '';
+  if (!A) return `${fromSite}<div class="wait"><b>Waiting for the Google Ads script.</b> Once it's pasted into Google Ads (Tools → Bulk actions → Scripts) and run, this tab shows spend against the £1,800 budget, every campaign this week vs last week, search terms costing money with no sales, and Shopping products that spend without selling. Instructions are in "Google Ads script.txt" in the 06. Claude folder.</div>`;
+  const m = A.mtd, pace = m.days ? m.cost / m.days * m.month_days : 0, maxD = Math.max(1, ...A.daily.map(d => d.cost));
+  const roas = (v, c) => c ? (v / c).toFixed(1) + 'x' : '–';
+  return `<div class="tiles">
+    ${tile('Spent this month', gbp(m.cost), `of ${gbp(A.budget_month)} · on pace for ${gbp(pace)}`, pace > A.budget_month * 1.05 ? 'red' : '')}
+    ${tile('Sales tracked', gbp(m.value), `${n1(m.conv)} conversions`, '')}
+    ${tile('Return on spend', roas(m.value, m.cost), 'sales ÷ spend, month to date', m.cost && m.value / m.cost < 4 ? 'red' : 'green')}
+    ${tile('Cost per sale', m.conv ? gbp(m.cost / m.conv, 2) : '–', 'month to date', '')}
+  </div>
+  <div class="sec"><h2>Budget this month</h2><div class="meter"><div class="f" style="width:${Math.min(100, m.cost / A.budget_month * 100)}%"></div><div class="m" style="left:${m.days / m.month_days * 100}%" title="Where you should be today"></div></div>
+    <div class="muted" style="font-size:13px">${gbp(m.cost)} spent of ${gbp(A.budget_month)}. The white line is where spend should be by today.</div>
+    <div class="bars" style="margin-top:12px">${A.daily.map(d => `<div title="${dmy(d.date)}: ${gbp(d.cost,2)} spend, ${gbp(d.value)} sales" style="height:${d.cost / maxD * 100}%"></div>`).join('')}</div>
+    <div class="muted" style="font-size:12px;margin-top:4px">Daily spend, last 60 days (to ${dmy(A.last_date)})</div></div>
+  ${fromSite}
+  <div class="sec"><h2>Campaigns <span class="h">last 7 days vs the 7 before · flagged where cost per sale rose or sales fell</span></h2>
+    <table><thead><tr><th>Campaign</th><th>Status</th><th class="r">Spend 7d</th><th class="r">Sales 7d</th><th class="r">Return</th><th class="r">Conv 7d</th><th class="r">vs prev week</th><th class="r">Spend 30d</th><th class="r">Return 30d</th><th></th></tr></thead><tbody>
+    ${A.campaigns.map(c => { const cpaNow = c.conv7 ? c.cost7 / c.conv7 : null, cpaPrev = c.conv_prev ? c.cost_prev / c.conv_prev : null;
+      const flag = (c.cost7 > 20 && !c.conv7) ? '<span class="tag t-bad">Spending, no sales</span>' : (cpaNow && cpaPrev && cpaNow > cpaPrev * 1.3) ? '<span class="tag t-warn">Cost per sale up</span>' : (c.value_prev && c.value7 < c.value_prev * 0.6) ? '<span class="tag t-warn">Sales down</span>' : '';
+      const lim = (c.status_reasons || []).some(r => /BUDGET/.test(r)) ? '<span class="tag t-blue">Limited by budget</span>' : '';
+      return `<tr><td>${esc(c.campaign)}<div class="muted">${esc((c.channel || '').toLowerCase())}</div></td><td>${esc((c.primary_status || c.status || '').toLowerCase().replace(/_/g,' '))}</td>
+        <td class="r">${gbp(c.cost7)}</td><td class="r">${gbp(c.value7)}</td><td class="r">${roas(c.value7, c.cost7)}</td><td class="r">${n1(c.conv7)}</td><td class="r">${chg(c.value7, c.value_prev)}</td>
+        <td class="r">${gbp(c.cost30)}</td><td class="r">${roas(c.value30, c.cost30)}</td><td>${flag}${lim}</td></tr>`; }).join('')}</tbody></table></div>
+  <div class="grid2">
+    <div class="sec"><h2>Search terms wasting money <span class="h">£5+ spent, no sales, last 30 days: candidates for negative keywords</span></h2>
+      ${A.wasted_terms.length ? `<table><thead><tr><th>Search term</th><th>Campaign</th><th class="r">Clicks</th><th class="r">Spent</th></tr></thead><tbody>
+        ${A.wasted_terms.map(t => `<tr><td>${esc(t.search_term)}</td><td class="muted">${esc(t.campaign)}</td><td class="r">${n0(t.clicks)}</td><td class="r bad">${gbp(t.cost, 2)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">None.</div>'}</div>
+    <div class="sec"><h2>Search terms that sell <span class="h">last 30 days</span></h2>
+      ${A.best_terms.length ? `<table><thead><tr><th>Search term</th><th class="r">Spent</th><th class="r">Sales</th></tr></thead><tbody>
+        ${A.best_terms.map(t => `<tr><td>${esc(t.search_term)}</td><td class="r">${gbp(t.cost, 2)}</td><td class="r good">${gbp(t.conv_value)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">None.</div>'}</div>
+    <div class="sec"><h2>Shopping products spending, not selling <span class="h">£5+, last 30 days</span></h2>
+      ${A.products_waste.length ? `<table><thead><tr><th>Product</th><th class="r">Clicks</th><th class="r">Spent</th></tr></thead><tbody>
+        ${A.products_waste.map(t => `<tr><td>${esc(t.title || t.item_id)}</td><td class="r">${n0(t.clicks)}</td><td class="r bad">${gbp(t.cost, 2)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">None.</div>'}</div>
+    <div class="sec"><h2>Best Shopping products <span class="h">last 30 days</span></h2>
+      ${A.products_best.length ? `<table><thead><tr><th>Product</th><th class="r">Spent</th><th class="r">Sales</th><th class="r">Return</th></tr></thead><tbody>
+        ${A.products_best.map(t => `<tr><td>${esc(t.title || t.item_id)}</td><td class="r">${gbp(t.cost, 2)}</td><td class="r good">${gbp(t.conv_value)}</td><td class="r">${t.roas}x</td></tr>`).join('')}</tbody></table>` : '<div class="empty">None.</div>'}</div>
+  </div>`;
+}
+
+// ---------- speed ----------
+const pageName = u => ({'/':'Homepage','/shop':'Shop page','/cart':'Basket','/checkout':'Checkout'}[u] || (u.startsWith('/product') ? 'Product page' : u));
+function renderSpeed(){
+  const up = D.uptime, avg = Object.fromEntries((up.avg24 || []).map(a => [a.url, a]));
+  const maxH = Math.max(1, ...up.hourly.map(h => h.ms || 0));
+  const ps = D.pagespeed || [];
+  const psRows = [...new Set(ps.map(p => p.url))].map(u => { const m = ps.find(p => p.url === u && p.strategy === 'mobile') || {}, d = ps.find(p => p.url === u && p.strategy === 'desktop') || {};
+    const sc = s => s == null ? '–' : `<span class="${s >= 90 ? 'good' : s >= 50 ? 'warn' : 'bad'}"><b>${s}</b></span>`;
+    return `<tr><td>${esc(pageName(u))}</td><td class="r">${sc(m.score)}</td><td class="r">${secs(m.lcp_ms)}</td><td class="r">${sc(d.score)}</td><td class="r">${secs(d.lcp_ms)}</td>
+      <td class="r">${m.field_lcp_ms ? secs(m.field_lcp_ms) : '–'}</td><td>${m.field_category ? esc(m.field_category.toLowerCase()) : '<span class="muted">not enough visitors</span>'}</td></tr>`; }).join('');
+  return `<div class="tiles">
+    ${tile('Uptime, 7 days', up.uptime_pct7 != null ? up.uptime_pct7 + '%' : '–', 'checked every 5 minutes', (up.uptime_pct7 ?? 100) < 99.5 ? 'red' : 'green')}
+    ${(up.latest || []).map(l => tile(pageName(l.url), l.ok ? secs(avg[l.url]?.avg_ms) : 'DOWN', l.ok ? `average today · slowest 10%: ${secs(avg[l.url]?.p90_ms)}` : `${l.status || 'no response'} at ${hm(l.at)}`, !l.ok ? 'red' : (avg[l.url]?.avg_ms > 2500 ? 'red' : ''))).join('')}
+  </div>
+  <div class="sec"><h2>Server response time <span class="h">average across shop, product, basket and checkout pages, last 48 hours</span></h2>
+    <div class="bars">${up.hourly.map(h => `<div class="${h.ms > 3000 ? 'red' : ''}" title="${dt(h.h)}: ${secs(h.ms)}" style="height:${(h.ms || 0) / maxH * 100}%"></div>`).join('')}</div>
+    <div class="muted" style="font-size:12px;margin-top:6px">How long the server takes to send the page, before the browser draws anything. Under 1 second is good; 3+ seconds and people start leaving. The homepage is cached so it's fast; shop, product, basket and checkout pages aren't.</div></div>
+  <div class="sec"><h2>Google speed scores <span class="h">PageSpeed Insights, run every morning · "Real visitors" is Google's data from actual Chrome users</span></h2>
+    ${ps.length ? `<table><thead><tr><th>Page</th><th class="r">Mobile score</th><th class="r">Mobile load</th><th class="r">Desktop score</th><th class="r">Desktop load</th><th class="r">Real visitors (mobile)</th><th>Google's verdict</th></tr></thead><tbody>${psRows}</tbody></table>`
+      : '<div class="wait">Waiting for the PageSpeed key. Make it in Google Cloud (Credentials → Create credentials → API key, restricted to PageSpeed Insights API) and save it as pagespeed_api.txt in the 06. Claude folder.</div>'}</div>
+  <div class="sec"><h2>Failed checks <span class="h">last 7 days</span></h2>
+    ${up.fails7.length ? `<table><thead><tr><th>When</th><th>Page</th><th>Result</th></tr></thead><tbody>${up.fails7.map(f => `<tr><td>${dt(f.at)}</td><td>${esc(pageName(f.url))}</td><td class="bad">${f.status || ''} ${esc(f.error || '')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No failures.</div>'}</div>
+  <div class="wait">Coming with GA4 access: how long people take to get from basket to paid, and where they drop out of checkout.</div>`;
+}
+
+if (token) start(); else showLogin();
+</script>
+</body>
+</html>
