@@ -278,5 +278,25 @@ load();
 setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && document.activeElement?.id !== 'addno') load(); }, 60000);
 setTimeout(() => location.reload(), 6 * 3600e3);
 </script>
+<script>
+// Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
+// (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
+(function(){
+  const BUILD = '20261026145731';
+  const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
+    return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
+  let newer = false;
+  async function check(){
+    try {
+      if (!newer) {
+        const t = await (await fetch(location.href, {cache:'reload'})).text();   // also refreshes the browser's saved copy
+        const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD);
+      }
+      if (newer && !busy()) location.reload();
+    } catch(e){}
+  }
+  setInterval(check, 120000);
+})();
+</script>
 </body>
 </html>
