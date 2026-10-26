@@ -149,7 +149,8 @@ function card(o){
   if (o.grp === 'standard') tags.push(o.late ? `<span class="tag t-late">2–3 day · day ${o.age + 1}</span>` : '<span class="tag t-std">2–3 day</span>');
   if (o.grp === 'check') tags.push('<span class="tag t-chk">Check delivery</span>');
   if (o.partial) tags.push('<span class="tag t-part">Part picked</span>');
-  if (o.backorder) tags.push('<span class="tag t-bo">Backordered</span>');
+  if (o.backorder) tags.push(o.stock_in === 'all' ? '<span class="tag t-next">Backorder stock now in</span>' : '<span class="tag t-bo">Backordered</span>');
+  if (o.backorder && o.stock_in === 'some') tags.push('<span class="tag t-next">Some stock now in</span>');
   if (o.part_shipped) tags.push('<span class="tag t-part">Part sent already</span>');
   if (COLL) tags.push('<span class="tag t-std">Collection</span>');
   if (o.web) tags.push('<span class="tag t-web">Web</span>');
@@ -167,7 +168,7 @@ function card(o){
     ${lines.length ? `<ul class="lines">${shown}${more}</ul>` : (o.line_count ? `<div class="meta">${o.line_count} lines</div>` : '')}
     ${o.stock_issue ? `<div class="issue"><b>Can't find stock</b> · flagged ${new Date(o.stock_issue.raised_at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})}${(o.stock_issue.items||[]).length ? '<br>' + o.stock_issue.items.map(i => esc(i.sku || i.name)).join(', ') : ''}${o.stock_issue.note ? '<br>“' + esc(o.stock_issue.note) + '”' : ''}</div>` : ''}
     ${o.fulfil_error ? `<div class="issue"><b>Cin7 wouldn't ${esc(o.fulfil_error.step === 'start' ? 'start fulfilment' : o.fulfil_error.step)}</b> · ${new Date(o.fulfil_error.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}<br>“${esc(o.fulfil_error.message)}”<br>Check the order in Cin7, fix it, then try again.</div>` : ''}
-    ${o.section !== 5 && !o.backorder && !o.stock_issue ? `<button class="shipbtn" data-id="${o.id}">${COLL ? '✓ Collected' : '✓ Pick, pack &amp; ship'}</button>` : ''}
+    ${o.section !== 5 && (!o.backorder || o.stock_in === 'all') && !o.stock_issue ? `<button class="shipbtn" data-id="${o.id}">${COLL ? '✓ Collected' : '✓ Pick, pack &amp; ship'}</button>` : ''}
     ${canPart(o) ? `<button class="partbtn" data-id="${o.id}">📦 ${COLL ? 'Collect what we have' : (o.part_shipped ? 'Send the next part' : 'Send what we have')}</button>` : ''}
     <div class="btns">
       ${COLL ? `<button class="collbtn" data-id="${o.id}" data-no="${esc(o.no || '')}">🚚 Back to delivery</button>`
