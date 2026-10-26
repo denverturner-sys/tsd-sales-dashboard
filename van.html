@@ -75,6 +75,8 @@ ul.lines .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #modal input[type=date]{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:16px;color-scheme:dark}
 #modal .row{display:flex;gap:10px;justify-content:flex-end}
 #modal .err{color:var(--bad);font-size:13px;min-height:16px}
+.warnbox{background:rgba(238,209,7,.12);border:1px solid var(--accent);border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.4}
+.plist{font-size:13px;margin:2px 0 4px;padding-left:18px}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
 footer{color:var(--muted);font-size:12px;margin-top:4px}
 #msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
@@ -129,12 +131,14 @@ function card(o){
   if (o.stage === 'booked') tags += o.route && o.route !== o.no ? `<span class="tag t-route">Route ${esc(o.route)}</span>` : '<span class="tag t-draft">Not routed yet</span>';
   let extra = '', btns = '';
   if (o.stage === 'to_book') {
-    btns = `<button class="btn go" data-a="push" data-id="${o.id}">Send to Track-POD</button>
-            <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>`;
+    btns = `<button class="btn go" data-a="push" data-id="${o.id}">${o.backorder ? '📦 Send what we have to Track-POD' : 'Send to Track-POD'}</button>
+            <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
+            <button class="btn out" data-a="coll" data-id="${o.id}">🏪 Collection</button>`;
     if (o.ship_by) extra = `<div class="meta">Needed by ${dshort(o.ship_by)}</div>`;
   } else if (o.stage === 'booked') {
     extra = `<div class="meta">${o.driver ? 'Driver ' + esc(o.driver) : 'No driver yet'}${o.eta ? ' · ETA ' + new Date(o.eta).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : ''}${o.route_status ? ' · route ' + esc(o.route_status.toLowerCase()) : ''}</div>`;
-    btns = `<button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>`;
+    btns = `<button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
+            <button class="btn out" data-a="coll" data-id="${o.id}">🏪 Collection</button>`;
   } else {
     extra = `<div class="meta">Delivered ${dshort(o.tp_date)}${o.signed_by ? ' · signed by ' + esc(o.signed_by) : ''}${o.photo ? ' · photo taken' : ''}</div>`;
   }
@@ -192,7 +196,8 @@ function render(){
   document.getElementById('addbtn').onclick = addOrder;
   document.getElementById('addno').onkeydown = e => { if (e.key === 'Enter') addOrder(); };
   document.querySelectorAll('[data-a=push]').forEach(b => b.onclick = () => openPush(b.dataset.id));
-  document.querySelectorAll('[data-a=out]').forEach(b => b.onclick = () => openOut(b.dataset.id));
+  document.querySelectorAll('[data-a=out]').forEach(b => b.onclick = () => openOut(b.dataset.id, false));
+  document.querySelectorAll('[data-a=coll]').forEach(b => b.onclick = () => openOut(b.dataset.id, true));
 }
 
 async function addOrder(){
@@ -203,6 +208,13 @@ async function addOrder(){
   await load(); setTimeout(() => { addMsg = ''; }, 8000);
 }
 
+function partWarn(o){
+  const l = o.lines || [], li = (x, q) => `<li><b>${(+q).toLocaleString('en-GB')}×</b> ${esc(x.sku)} · ${esc(x.name)}</li>`;
+  const going = l.filter(x => (+x.qty || 0) > (+x.bo || 0)), staying = l.filter(x => (+x.bo || 0) > 0);
+  return `<div class="warnbox">⚠ <b>This order is part backordered, so it will go in two deliveries.</b><br>That means a second van trip for the rest. Only do this if the customer needs it now. <b>Are you sure you want to continue?</b></div>
+    <div class="sub" style="color:var(--ink)"><b>Going on the van</b></div><ul class="plist">${going.map(x => li(x, x.qty - (+x.bo || 0))).join('') || '<li>Nothing is in stock yet</li>'}</ul>
+    <div class="sub" style="color:var(--ink)"><b>Staying on backorder</b> (book it again when it arrives)</div><ul class="plist">${staying.map(x => li(x, x.bo)).join('')}</ul>`;
+}
 function openPush(id){
   const o = data.orders.find(x => x.id === id); if (!o) return;
   const def = o.ship_by && o.ship_by >= data.next_working_day ? o.ship_by : data.next_working_day;
@@ -210,9 +222,10 @@ function openPush(id){
     <h3>Send to Track-POD · ${esc(o.no)}</h3>
     <div class="sub">${esc(o.customer)}<br>${esc(o.address || [o.town, o.postcode].filter(Boolean).join(', '))}</div>
     <label class="sub">Delivery date <input type="date" id="pdate" value="${def}" min="${data.today}"></label>
-    <div class="sub">It goes into Track-POD with the address, contact, items and notes, ready to add to a route.</div>
+    ${o.backorder ? partWarn(o) : ''}
+    <div class="sub">It goes into Track-POD with the address, contact, ${o.backorder ? 'in-stock items' : 'items'} and notes, ready to add to a route.</div>
     <div class="err" id="perr"></div>
-    <div class="row"><button class="btn" id="pc">Cancel</button><button class="btn go" id="pok">Send to Track-POD</button></div>`;
+    <div class="row"><button class="btn" id="pc">Cancel</button><button class="btn go" id="pok">${o.backorder ? 'Yes, send what we have' : 'Send to Track-POD'}</button></div>`;
   document.getElementById('modal').style.display = 'flex';
   document.getElementById('pc').onclick = closeModal;
   document.getElementById('pok').onclick = async () => {
@@ -220,28 +233,29 @@ function openPush(id){
     if (!date) { document.getElementById('perr').textContent = 'Pick a date.'; return; }
     document.getElementById('pok').disabled = true; document.getElementById('pok').textContent = 'Sending…';
     const j = await post({action:'tp_push', id, date});
-    if (!j.ok) { document.getElementById('perr').textContent = j.error || 'Track-POD didn\'t accept it.'; document.getElementById('pok').disabled = false; document.getElementById('pok').textContent = 'Send to Track-POD'; return; }
+    if (!j.ok) { document.getElementById('perr').textContent = j.error || 'Track-POD didn\'t accept it.'; document.getElementById('pok').disabled = false; document.getElementById('pok').textContent = 'Try again'; return; }
     closeModal(); toast(j.already ? `${o.no} was already in Track-POD. Linked up.` : `${o.no} sent to Track-POD for ${dshort(date)}.`); load();
   };
 }
-function openOut(id){
+function openOut(id, coll){
   const o = data.orders.find(x => x.id === id); if (!o) return;
   const inTp = o.stage === 'booked';
+  const what = coll ? 'Collection' : 'Send to courier';
   document.getElementById('mbox').innerHTML = `
-    <h3>Send to courier · ${esc(o.no)}</h3>
-    <div class="sub">${esc(o.customer)}. This takes it off the van list and puts it on the Pick &amp; Dispatch screen to go by courier. If the delivery method in Cin7 is wrong, update it there too.</div>
+    <h3>${what} · ${esc(o.no)}</h3>
+    <div class="sub">${esc(o.customer)}. ${coll ? 'This takes it off the van list and puts it on the Collections screen for the trade counter.' : 'This takes it off the van list and puts it on the Pick &amp; Dispatch screen to go by courier.'} If the delivery method in Cin7 is wrong, update it there too.</div>
     ${inTp ? `<label class="sub" style="display:flex;gap:10px;align-items:flex-start;color:var(--ink)"><input type="checkbox" id="odel" checked style="width:20px;height:20px;accent-color:#EED107;margin-top:1px">
       <span>Also delete it from Track-POD (booked for ${dshort(o.tp_date)}${o.route && o.route !== o.no ? ', route ' + esc(o.route) : ''}) so it doesn't go out on the van as well</span></label>` : ''}
     <div class="err" id="oerr"></div>
-    <div class="row"><button class="btn" id="oc">Cancel</button><button class="btn go" id="ook">Send to courier</button></div>`;
+    <div class="row"><button class="btn" id="oc">Cancel</button><button class="btn go" id="ook">${coll ? 'Move to collections' : 'Send to courier'}</button></div>`;
   document.getElementById('modal').style.display = 'flex';
   document.getElementById('oc').onclick = closeModal;
   document.getElementById('ook').onclick = async () => {
     const del = inTp && document.getElementById('odel').checked;
     document.getElementById('ook').disabled = true;
-    const j = await post({action:'to_courier', id, delete_tp: del});
+    const j = await post({action: coll ? 'to_collection' : 'to_courier', id, delete_tp: del});
     if (!j.ok) { document.getElementById('oerr').textContent = j.error || 'Something went wrong. Try again.'; document.getElementById('ook').disabled = false; return; }
-    closeModal(); toast(`${o.no} moved to courier dispatch${del ? ' and removed from Track-POD' : ''}.`); load();
+    closeModal(); toast(`${o.no} moved to ${coll ? 'collections' : 'courier dispatch'}${del ? ' and removed from Track-POD' : ''}.`); load();
   };
 }
 
