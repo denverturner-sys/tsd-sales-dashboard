@@ -132,7 +132,8 @@ function lines(o){
   return l.length ? `<ul class="lines">${shown}${l.length > 6 ? `<li class="meta">+ ${l.length - 6} more</li>` : ''}</ul>` : '';
 }
 function pickTag(o){
-  if (o.backorder) return '<span class="tag t-bo">Backordered</span>';
+  if (o.backorder && o.stock_in === 'all') return '<span class="tag t-pick">Backorder stock now in</span>';
+  if (o.backorder) return '<span class="tag t-bo">Backordered</span>' + (o.stock_in === 'some' ? '<span class="tag t-pick">Some stock now in</span>' : '');
   if (o.pick === 'PICKED') return '<span class="tag t-ok">Picked</span>';
   if (o.pick === 'PARTIALLY PICKED') return '<span class="tag t-pick">Part picked</span>';
   return '<span class="tag t-pick">Not picked</span>';
@@ -145,7 +146,7 @@ function card(o){
   if (o.stage === 'booked') tags += o.route && o.route !== o.no ? `<span class="tag t-route">Route ${esc(o.route)}</span>` : '<span class="tag t-draft">Not routed yet</span>';
   let extra = '', btns = '';
   if (o.stage === 'to_book') {
-    btns = `<button class="btn go" data-a="push" data-id="${o.id}">${o.backorder ? '📦 Send what we have to Track-POD' : 'Send to Track-POD'}</button>
+    btns = `<button class="btn go" data-a="push" data-id="${o.id}">${o.backorder && o.stock_in !== 'all' ? '📦 Send what we have to Track-POD' : 'Send to Track-POD'}</button>
             <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
             <button class="btn out" data-a="coll" data-id="${o.id}">🏪 Collection</button>`;
     if (o.ship_by) extra = `<div class="meta">Needed by ${dshort(o.ship_by)}</div>`;
@@ -236,10 +237,10 @@ function openPush(id){
     <h3>Send to Track-POD · ${esc(o.no)}</h3>
     <div class="sub">${esc(o.customer)}<br>${esc(o.address || [o.town, o.postcode].filter(Boolean).join(', '))}</div>
     <label class="sub">Delivery date <input type="date" id="pdate" value="${def}" min="${data.today}"></label>
-    ${o.backorder ? partWarn(o) : ''}
-    <div class="sub">It goes into Track-POD with the address, contact, ${o.backorder ? 'in-stock items' : 'items'} and notes, ready to add to a route.</div>
+    ${o.backorder && o.stock_in !== 'all' ? partWarn(o) : ''}
+    <div class="sub">It goes into Track-POD with the address, contact, ${o.backorder && o.stock_in !== 'all' ? 'in-stock items' : 'items'} and notes, ready to add to a route.</div>
     <div class="err" id="perr"></div>
-    <div class="row"><button class="btn" id="pc">Cancel</button><button class="btn go" id="pok">${o.backorder ? 'Yes, send what we have' : 'Send to Track-POD'}</button></div>`;
+    <div class="row"><button class="btn" id="pc">Cancel</button><button class="btn go" id="pok">${o.backorder && o.stock_in !== 'all' ? 'Yes, send what we have' : 'Send to Track-POD'}</button></div>`;
   document.getElementById('modal').style.display = 'flex';
   document.getElementById('pc').onclick = closeModal;
   document.getElementById('pok').onclick = async () => {
