@@ -45,10 +45,13 @@ header img{height:48px}
 #search button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:15px;font-family:inherit}
 .issue{font-size:12px;background:rgba(255,122,107,.12);border:1px solid var(--bad);border-radius:6px;padding:6px 8px;line-height:1.4}
 .btn.ship{background:var(--good);color:#262727;border-color:var(--good)}
-.addbar{display:flex;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 12px;margin-bottom:14px;flex-wrap:wrap}
-.addbar input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:16px;width:220px;text-transform:uppercase}
+.topbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.topbar #search{flex:1 1 520px;margin:0}
+.topbar #search input{max-width:none;padding:14px 16px;font-size:19px}
+.addbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.addbar input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:15px;width:130px;text-transform:uppercase}
 .addbar input:focus{outline:2px solid var(--accent);border-color:transparent}
-.addbar button{background:var(--accent);color:#262727;border:0;border-radius:8px;padding:10px 16px;font-weight:700;font-size:15px;cursor:pointer}
+.addbar button{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-weight:700;font-size:14px;cursor:pointer}
 .addbar .msg{font-size:14px}
 .layout{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
 @media (max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}}
@@ -113,7 +116,10 @@ footer{color:var(--muted);font-size:12px;margin-top:4px}
   document.body.prepend(n);
 })();
 </script>
-<div class="wrap" style="padding-bottom:0"><div id="search"><input id="q" type="search" placeholder="Find an order: number, customer, address, postcode, SKU or product…" autocomplete="off"><button id="qclear" style="display:none">Clear</button><span class="sub">Press / to search · Esc to clear</span></div></div>
+<div class="wrap" style="padding-bottom:0"><div class="topbar">
+  <div id="search"><input id="q" type="search" placeholder="🔍 Find an order: number, customer, address, postcode, SKU or product…" autocomplete="off"><button id="qclear" style="display:none">Clear</button></div>
+  <div class="addbar"><span class="sub">Not on the list?</span><input id="addno" placeholder="SO-09123" autocomplete="off"><button id="addbtn">Add to van list</button><span class="msg" id="addmsg"></span></div>
+</div></div>
 <div class="wrap" id="app"><div id="msg">Loading van orders…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
@@ -219,12 +225,6 @@ function render(){
       <div class="chip"><span class="k">Delivered (3 days)</span><span class="v">${done.length}</span></div>
     </div>
   </header>
-  <div class="addbar">
-    <strong>Add an order to the van list:</strong>
-    <input id="addno" placeholder="SO-09123" autocomplete="off">
-    <button id="addbtn">Add</button>
-    <span class="msg" id="addmsg">${addMsg}</span>
-  </div>
   ${query ? (() => { const hits = all.filter(o => matches(o, query)); return `<section class="sec urgent"><h2>Search: “${esc(query)}” <span class="n">${hits.length}</span> <span class="h">across every section on this screen</span></h2>
     ${hits.length ? `<div class="cards">${hits.map(o => `<div><div class="meta" style="font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px">${STAGE[o.stage] || ''}${o.tp_date ? ' · ' + dshort(o.tp_date) : ''}</div>${card(o)}</div>`).join('')}</div>`
       : '<div class="empty">Nothing matches. If it\'s a van order it may not be on this list yet: add it by number above.</div>'}</section>`; })() : `<div class="layout">
@@ -239,8 +239,6 @@ function render(){
     </div>
   </div>`}
   <footer>Orders from Cin7 · last update ${data.last_synced ? new Date(data.last_synced).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–'} · Track-POD checked ${data.tp_synced ? new Date(data.tp_synced).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–'} (every 10 minutes). Van orders = anything already in Track-POD, "own van" deliveries in Cin7, and anything moved here from the pick screen. Orders with no delivery method go to "Check delivery method" on Pick &amp; Dispatch.</footer>`;
-  document.getElementById('addbtn').onclick = addOrder;
-  document.getElementById('addno').onkeydown = e => { if (e.key === 'Enter') addOrder(); };
   document.querySelectorAll('[data-a=push]').forEach(b => b.onclick = () => openPush(b.dataset.id));
   document.querySelectorAll('[data-a=out]').forEach(b => b.onclick = () => openOut(b.dataset.id, false));
   document.querySelectorAll('[data-a=coll]').forEach(b => b.onclick = () => openOut(b.dataset.id, true));
@@ -251,8 +249,9 @@ async function addOrder(){
   const v = document.getElementById('addno').value.trim(); if (!v) return;
   document.getElementById('addmsg').textContent = 'Adding…';
   const j = await post({action:'van_add', number:v});
-  addMsg = j.ok ? `<span style="color:var(--good)">${esc(j.no)} (${esc(j.customer)}) added.</span>` : `<span style="color:var(--bad)">${esc(j.error || 'Could not add')}</span>`;
-  await load(); setTimeout(() => { addMsg = ''; }, 8000);
+  document.getElementById('addmsg').innerHTML = j.ok ? `<span style="color:var(--good)">${esc(j.no)} (${esc(j.customer)}) added.</span>` : `<span style="color:var(--bad)">${esc(j.error || 'Could not add')}</span>`;
+  if (j.ok) document.getElementById('addno').value = '';
+  await load(); setTimeout(() => { document.getElementById('addmsg').innerHTML = ''; }, 8000);
 }
 
 function partWarn(o){
@@ -306,7 +305,7 @@ function openFul(id){
   document.getElementById('fc').onclick = closeModal;
   document.getElementById('fok').onclick = async () => {
     const b = document.getElementById('fok'); b.disabled = true; b.textContent = 'Working in Cin7…';
-    const j = await post({action:'fulfil', id, boxes: 1, part});
+    const j = await post({action:'fulfil', id, boxes: 1, part, van: true});
     if (!j.ok) { document.getElementById('ferr').innerHTML = `Cin7 stopped at the <b>${esc(j.step || '?')}</b> step: “${esc(j.error || 'unknown error')}”`; b.disabled = false; b.textContent = 'Try again'; return; }
     closeModal(); toast(`${o.no} ${j.already ? 'was already fulfilled in Cin7' : 'picked, packed & shipped in Cin7'} ✓`); load();
   };
@@ -341,6 +340,8 @@ document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement !== qEl && !document.activeElement?.matches('input,textarea')) { e.preventDefault(); qEl.focus(); qEl.select(); }
   if (e.key === 'Escape' && document.activeElement === qEl) { clearSearch(); qEl.blur(); }
 });
+document.getElementById('addbtn').onclick = addOrder;
+document.getElementById('addno').onkeydown = e => { if (e.key === 'Enter') addOrder(); };
 load();
 setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && document.activeElement?.id !== 'addno') load(); }, 60000);
 setTimeout(() => location.reload(), 6 * 3600e3);
@@ -349,7 +350,7 @@ setTimeout(() => location.reload(), 6 * 3600e3);
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261026225305';
+  const BUILD = '20261026231700';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
