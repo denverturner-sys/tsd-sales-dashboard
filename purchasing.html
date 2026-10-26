@@ -122,7 +122,7 @@ let token = store.get('tsd_me_token');
 let tab = store.get('tsd_purch_tab') || 'today';
 let loc = store.get('tsd_purch_loc') || 'Bromham';
 let boFilter = 'due', boSearch = '', openBo = null;
-let M = null, S = {}, H = {}, me = null;
+let M = null, S = {}, H = {}, me = null, C = null, claimShowDone = false;
 const openSup = new Set();
 const edits = {};   // supplier_id -> {pid: qty or null(excluded)}
 let timer;
@@ -171,11 +171,12 @@ async function api(path, body){
 
 // ---------- loading ----------
 async function loadMain(){ const j = await api('?view=main'); me = j.me; M = j.data; }
+async function loadClaims(){ try { const j = await api('?view=claims'); C = j.data; } catch(x){ if (x.message === 'login') throw x; } }
 async function loadSup(force){ if (!S[loc] || force) { const j = await api('?view=suppliers&loc=' + encodeURIComponent(loc)); S[loc] = j.data; } }
 async function loadHealth(force){ if (!H[loc] || force) { const j = await api('?view=health&loc=' + encodeURIComponent(loc)); H[loc] = j.data; } }
 async function refresh(full){
   try {
-    await loadMain();
+    await Promise.all([loadMain(), loadClaims()]);
     if (tab === 'suppliers') await loadSup(full);
     if (tab === 'health') await loadHealth(full);
     render();
@@ -213,6 +214,7 @@ function render(){
     ['suppliers','Supplier Orders', null],
     ['health','Stock Health', null],
     ['pos','Open POs', s.po_open, s.po_overdue > 0],
+    ['claims','Supplier Claims', C ? C.filter(c => c.status === 'open' || c.status === 'chasing').length : null, C ? C.some(c => c.status === 'open') : false],
   ];
   const locPick = (tab === 'suppliers' || tab === 'health') ? `<select onchange="setLoc(this.value)">${['Bromham','Wootton Bassett'].map(l => `<option ${l===loc?'selected':''}>${l}</option>`).join('')}</select>` : '';
   let body = '';
@@ -221,6 +223,7 @@ function render(){
   else if (tab === 'backorders') body = renderBackorders();
   else if (tab === 'suppliers') body = renderSuppliers();
   else if (tab === 'health') body = renderHealth();
+  else if (tab === 'claims') body = renderClaims();
   else body = renderPos();
   const keepScroll = window.scrollY;
   document.getElementById('app').innerHTML = `
@@ -253,6 +256,65 @@ function renderToday(){
     <div class="sec"><h2>No PO behind it <span class="h">order these or the customer waits forever</span></h2>${noPo.length ? boTable(noPo.slice(0, 12), true) : '<div class="empty">Every backorder has stock on order.</div>'}</div>
   </div>
   <div class="sec"><h2>Overdue POs <span class="h">chase the supplier</span></h2>${overduePos.length ? poTable(overduePos) : '<div class="empty">None overdue. Set expected dates on the Open POs tab so this works.</div>'}</div>`;
+}
+
+// ---------- supplier claims (from goods in) ----------
+const CK = {short:['Short','red'], damaged:['Damaged','red'], wrong:['Wrong item','red'], over:['Extra sent',''], no_po:['No PO',''], other:['Other','']};
+const CS = {open:'Open', chasing:'Chasing', credited:'Credited', resolved:'Resolved', written_off:'Written off'};
+const gbp2 = v => '£' + (+v || 0).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+function claimCard(c){
+  const val = c.qty && c.unit_price ? c.qty * c.unit_price : null;
+  const k = CK[c.kind] || [c.kind, ''];
+  const live = c.status === 'open' || c.status === 'chasing';
+  return `<div class="sec" style="margin-bottom:10px;background:var(--panel2)">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">
+      <div><span class="tag ${k[1] === 'red' ? 'red' : ''}" style="${k[1] === 'red' ? 'background:var(--bad);color:#262727' : 'border:1px solid var(--line)'}">${k[0]}</span>
+        <b>${c.qty ? (+c.qty).toLocaleString('en-GB') + '× ' : ''}${esc(c.sku || '')}</b> ${esc(c.name || '')}</div>
+      <div>${val != null ? `<b>${gbp2(val)}</b> · ` : ''}<span class="tag" style="border:1px solid var(--line)">${CS[c.status] || c.status}</span></div>
+    </div>
+    <div class="sub" style="margin-top:4px">${c.po_number ? esc(c.po_number) + ' · ' : ''}${esc(c.location || '')} · raised by ${esc(c.raised_by || '?')} ${ago(c.raised_at)}${c.credit_ref ? ' · credit ref <b>' + esc(c.credit_ref) + '</b>' : ''}${c.updated_by ? ' · last update ' + esc(c.updated_by) : ''}</div>
+    ${c.note ? `<div style="white-space:pre-wrap;font-size:14px;margin-top:6px">${esc(c.note)}</div>` : ''}
+    ${(c.photos || []).length ? `<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">${c.photos.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" style="width:88px;height:88px;object-fit:cover;border-radius:8px" alt="photo"></a>`).join('')}</div>` : ''}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+      ${live ? `${c.status === 'open' ? `<button class="btn" onclick="claimSet(${c.id},'chasing')">Chasing supplier</button>` : ''}
+        <button class="btn go" onclick="claimSet(${c.id},'credited')">Credit received</button>
+        <button class="btn" onclick="claimSet(${c.id},'resolved')">Sorted, no credit needed</button>
+        <button class="btn" onclick="claimSet(${c.id},'written_off')">Write off</button>`
+      : `<button class="btn sm" onclick="claimSet(${c.id},'open')">Reopen</button>`}
+      <button class="btn sm" onclick="claimSet(${c.id},null)">Add note</button>
+    </div></div>`;
+}
+function renderClaims(){
+  if (!C) return '<div class="sec"><div class="empty">Loading claims…</div></div>';
+  const live = C.filter(c => c.status === 'open' || c.status === 'chasing'), done = C.filter(c => !(c.status === 'open' || c.status === 'chasing'));
+  const value = live.reduce((s, c) => s + (c.qty && c.unit_price ? c.qty * c.unit_price : 0), 0);
+  const by = {}; live.forEach(c => (by[c.supplier || 'Unknown supplier'] = by[c.supplier || 'Unknown supplier'] || []).push(c));
+  const sups = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
+  return `<div class="tiles">
+      ${tile('Open claims', live.length, live.filter(c => c.status === 'open').length + ' not chased yet', live.some(c => c.status === 'open') ? 'hot' : '', '')}
+      ${tile('Value to recover', gbp2(value), 'at PO cost price', value ? 'red' : '', '')}
+      ${tile('Suppliers', sups.length, 'with something outstanding', '', '')}
+    </div>
+    ${sups.length ? sups.map(s => `<div class="sec"><h2>${esc(s)} <span class="h">${by[s].length} claim${by[s].length === 1 ? '' : 's'} · ${gbp2(by[s].reduce((t, c) => t + (c.qty && c.unit_price ? c.qty * c.unit_price : 0), 0))}</span></h2>${by[s].map(claimCard).join('')}</div>`).join('')
+      : '<div class="sec"><div class="empty">Nothing to claim. Shorts, damages, wrong items and deliveries with no PO from the Goods In screen land here.</div></div>'}
+    ${done.length ? `<div class="sec"><h2>Closed in the last 60 days <span class="h">${done.length}</span> <button class="btn sm" onclick="claimShowDone=!claimShowDone;render()">${claimShowDone ? 'Hide' : 'Show'}</button></h2>${claimShowDone ? done.map(claimCard).join('') : ''}</div>` : ''}`;
+}
+function claimSet(id, status){
+  const c = (C || []).find(x => x.id === id); if (!c) return;
+  const needRef = status === 'credited';
+  modal(`<h3>${status ? (CS[status] || status) : 'Note'} · ${esc(c.sku || c.kind)}</h3>
+    <div class="sub">${esc(c.supplier || '')}${c.po_number ? ' · ' + esc(c.po_number) : ''}</div>
+    ${needRef ? '<input id="cref" placeholder="Credit note number (optional)" style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:15px">' : ''}
+    <textarea id="cnote" rows="3" placeholder="${status === 'chasing' ? 'e.g. Emailed Mapei rep, ref 12345' : 'Note (optional)'}"></textarea>
+    <div class="err" id="cerr"></div>
+    <div class="row"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn go" id="cok">Save</button></div>`);
+  document.getElementById('cok').onclick = async () => {
+    const note = document.getElementById('cnote').value.trim();
+    if (!status && !note) { document.getElementById('cerr').textContent = 'Write a note first.'; return; }
+    try { const j = await api('', {action:'claim_update', id, status: status || c.status, note, credit_ref: needRef ? document.getElementById('cref').value.trim() : undefined});
+      if (j.ok === false) throw new Error(j.error); closeModal(); await loadClaims(); render(); toast('Saved'); }
+    catch(x){ document.getElementById('cerr').textContent = x.message || "Couldn't save"; }
+  };
 }
 
 // ---------- can't find ----------
@@ -441,7 +503,7 @@ if (token) start(); else showLogin();
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261026145731';
+  const BUILD = '20261026161357';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;

@@ -29,6 +29,12 @@ header img{height:48px}
 .chip .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
 .chip .v{font-family:var(--num);font-size:28px;line-height:1.05}
 .chip.warn .v{color:var(--accent)}
+#search{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+#search input{flex:1;max-width:620px;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 14px;font-size:18px;font-family:inherit}
+#search input:focus{outline:none;border-color:var(--accent)}
+#search button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:15px;font-family:inherit}
+.issue{font-size:12px;background:rgba(255,122,107,.12);border:1px solid var(--bad);border-radius:6px;padding:6px 8px;line-height:1.4}
+.btn.ship{background:var(--good);color:#262727;border-color:var(--good)}
 .addbar{display:flex;gap:10px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 12px;margin-bottom:14px;flex-wrap:wrap}
 .addbar input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:16px;width:220px;text-transform:uppercase}
 .addbar input:focus{outline:2px solid var(--accent);border-color:transparent}
@@ -91,12 +97,13 @@ footer{color:var(--muted);font-size:12px;margin-top:4px}
 (function(){ // tabs between the warehouse screens; add &nav=0 to a link to hide them (e.g. the trade counter)
   const q = new URLSearchParams(location.search); if (q.get('nav') === '0') return;
   const k = encodeURIComponent(q.get('k') || ''), here = location.pathname.endsWith('van.html') ? 'van' : q.get('tab') === 'collections' ? 'coll' : 'pick';
-  const t = [['pick','Pick &amp; Dispatch','warehouse.html?k=' + k], ['van','Van Team','van.html?k=' + k], ['coll','Collections','warehouse.html?k=' + k + '&tab=collections']];
+  const t = [['pick','Pick &amp; Dispatch','warehouse.html?k=' + k], ['van','Van Team','van.html?k=' + k], ['coll','Collections','warehouse.html?k=' + k + '&tab=collections'], ['gi','Goods In','goodsin.html?k=' + k]];
   const n = document.createElement('nav'); n.id = 'tabs';
   n.innerHTML = t.map(([id, label, url]) => `<a href="${url}" class="${id === here ? 'on' : ''}">${label}</a>`).join('');
   document.body.prepend(n);
 })();
 </script>
+<div class="wrap" style="padding-bottom:0"><div id="search"><input id="q" type="search" placeholder="Find an order: number, customer, address, postcode, SKU or product…" autocomplete="off"><button id="qclear" style="display:none">Clear</button><span class="sub">Press / to search · Esc to clear</span></div></div>
 <div class="wrap" id="app"><div id="msg">Loading van orders…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
@@ -146,13 +153,14 @@ function card(o){
   if (o.stage === 'booked') tags += o.route && o.route !== o.no ? `<span class="tag t-route">Route ${esc(o.route)}</span>` : '<span class="tag t-draft">Not routed yet</span>';
   let extra = '', btns = '';
   if (o.stage === 'to_book') {
-    btns = `<button class="btn go" data-a="push" data-id="${o.id}">${o.backorder && o.stock_in !== 'all' ? '📦 Send what we have to Track-POD' : 'Send to Track-POD'}</button>
+    btns = `<button class="btn go" data-a="push" data-id="${o.id}">${o.backorder && o.stock_in !== 'all' ? '📦 Send what we have: Track-POD + Cin7' : 'Send to Track-POD &amp; fulfil'}</button>
             <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
             <button class="btn out" data-a="coll" data-id="${o.id}">🏪 Collection</button>`;
     if (o.ship_by) extra = `<div class="meta">Needed by ${dshort(o.ship_by)}</div>`;
   } else if (o.stage === 'booked') {
     extra = `<div class="meta">${o.driver ? 'Driver ' + esc(o.driver) : 'No driver yet'}${o.eta ? ' · ETA ' + new Date(o.eta).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : ''}${o.route_status ? ' · route ' + esc(o.route_status.toLowerCase()) : ''}</div>`;
-    btns = `<button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
+    btns = `${o.ship !== 'SHIPPED' ? `<button class="btn ship" data-a="ful" data-id="${o.id}">✓ Pick, pack &amp; ship in Cin7</button>` : ''}
+            <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
             <button class="btn out" data-a="coll" data-id="${o.id}">🏪 Collection</button>`;
   } else {
     extra = `<div class="meta">Delivered ${dshort(o.tp_date)}${o.signed_by ? ' · signed by ' + esc(o.signed_by) : ''}${o.photo ? ' · photo taken' : ''}</div>`;
@@ -166,11 +174,22 @@ function card(o){
     ${o.carrier ? `<div class="carrier">“${esc(o.carrier)}”</div>` : ''}
     ${o.notes ? `<div class="note">${esc(o.notes)}</div>` : ''}
     ${extra}
+    ${o.stage === 'booked' ? `<div class="meta">Cin7: ${o.ship === 'SHIPPED' ? '<b style="color:var(--good)">shipped ✓</b>' : o.ship === 'PARTIALLY SHIPPED' ? 'part shipped' : '<b style="color:var(--accent)">not fulfilled yet</b>'}</div>` : ''}
+    ${o.fulfil_error && o.ship !== 'SHIPPED' ? `<div class="issue"><b>Cin7 wouldn't ${esc(o.fulfil_error.step)}</b> · ${new Date(o.fulfil_error.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}<br>“${esc(o.fulfil_error.message)}”</div>` : ''}
     ${o.stage !== 'delivered' ? lines(o) : ''}
     ${btns ? `<div class="btns">${btns}</div>` : ''}
   </div>`;
 }
 
+let query = '';
+const norm = t => String(t ?? '').toLowerCase().replace(/[\s\-]/g, '');
+function matches(o, q){
+  const digits = q.replace(/\D/g, '');
+  if (digits.length >= 3 && String(o.no || '').replace(/\D/g, '').replace(/^0+/, '').includes(digits.replace(/^0+/, ''))) return true;
+  const hay = [o.no, o.customer, o.address, o.town, o.postcode, o.contact, o.phone, o.carrier, o.notes, o.route, o.driver, ...(o.lines || []).flatMap(l => [l.sku, l.name])].map(norm).join('|');
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(norm(w)));
+}
+const STAGE = {to_book:'To book', booked:'Booked in Track-POD', delivered:'Delivered'};
 function render(){
   if (!data) return;
   const all = data.orders;
@@ -196,9 +215,11 @@ function render(){
     <button id="addbtn">Add</button>
     <span class="msg" id="addmsg">${addMsg}</span>
   </div>
-  <div class="layout">
+  ${query ? (() => { const hits = all.filter(o => matches(o, query)); return `<section class="sec urgent"><h2>Search: “${esc(query)}” <span class="n">${hits.length}</span> <span class="h">across every section on this screen</span></h2>
+    ${hits.length ? `<div class="cards">${hits.map(o => `<div><div class="meta" style="font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px">${STAGE[o.stage] || ''}${o.tp_date ? ' · ' + dshort(o.tp_date) : ''}</div>${card(o)}</div>`).join('')}</div>`
+      : '<div class="empty">Nothing matches. If it\'s a van order it may not be on this list yet: add it by number above.</div>'}</section>`; })() : `<div class="layout">
     <div>
-      <section class="sec urgent"><h2>To book in Track-POD <span class="n">${toBook.length}</span> <span class="h">Pick a date and send. It lands in Track-POD ready to route.</span></h2>
+      <section class="sec urgent"><h2>To book in Track-POD <span class="n">${toBook.length}</span> <span class="h">Pick a date and send. It lands in Track-POD ready to route, and is picked, packed &amp; shipped in Cin7.</span></h2>
         ${toBook.length ? `<div class="cards">${toBook.map(card).join('')}</div>` : '<div class="empty">All van orders are in Track-POD.</div>'}</section>
     </div>
     <div class="side">
@@ -206,13 +227,14 @@ function render(){
       <details class="sec"><summary style="cursor:pointer;list-style:none"><h2>Delivered <span class="n">${done.length}</span> <span class="h">Last 3 days · tap to show</span></h2></summary>
         ${done.length ? `<div class="cards">${done.map(card).join('')}</div>` : '<div class="empty">None yet.</div>'}</details>
     </div>
-  </div>
+  </div>`}
   <footer>Orders from Cin7 · last update ${data.last_synced ? new Date(data.last_synced).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–'} · Track-POD checked ${data.tp_synced ? new Date(data.tp_synced).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '–'} (every 10 minutes). Van orders = anything already in Track-POD, blank or "own van" deliveries in Cin7, and anything moved here from the pick screen.</footer>`;
   document.getElementById('addbtn').onclick = addOrder;
   document.getElementById('addno').onkeydown = e => { if (e.key === 'Enter') addOrder(); };
   document.querySelectorAll('[data-a=push]').forEach(b => b.onclick = () => openPush(b.dataset.id));
   document.querySelectorAll('[data-a=out]').forEach(b => b.onclick = () => openOut(b.dataset.id, false));
   document.querySelectorAll('[data-a=coll]').forEach(b => b.onclick = () => openOut(b.dataset.id, true));
+  document.querySelectorAll('[data-a=ful]').forEach(b => b.onclick = () => openFul(b.dataset.id));
 }
 
 async function addOrder(){
@@ -238,18 +260,45 @@ function openPush(id){
     <div class="sub">${esc(o.customer)}<br>${esc(o.address || [o.town, o.postcode].filter(Boolean).join(', '))}</div>
     <label class="sub">Delivery date <input type="date" id="pdate" value="${def}" min="${data.today}"></label>
     ${o.backorder && o.stock_in !== 'all' ? partWarn(o) : ''}
-    <div class="sub">It goes into Track-POD with the address, contact, ${o.backorder && o.stock_in !== 'all' ? 'in-stock items' : 'items'} and notes, ready to add to a route.</div>
+    <div class="sub">It goes into Track-POD with the address, contact, ${o.backorder && o.stock_in !== 'all' ? 'in-stock items' : 'items'} and notes, ready to add to a route. <b style="color:var(--ink)">It's also picked, packed &amp; shipped in Cin7${o.backorder && o.stock_in !== 'all' ? ' (just what\'s on the shelf; the rest stays on backorder)' : ''}.</b></div>
     <div class="err" id="perr"></div>
-    <div class="row"><button class="btn" id="pc">Cancel</button><button class="btn go" id="pok">${o.backorder && o.stock_in !== 'all' ? 'Yes, send what we have' : 'Send to Track-POD'}</button></div>`;
+    <div class="row"><button class="btn" id="pc">Cancel</button><button class="btn go" id="pok">${o.backorder && o.stock_in !== 'all' ? 'Yes, send what we have' : 'Send &amp; fulfil'}</button></div>`;
   document.getElementById('modal').style.display = 'flex';
   document.getElementById('pc').onclick = closeModal;
   document.getElementById('pok').onclick = async () => {
     const date = document.getElementById('pdate').value;
     if (!date) { document.getElementById('perr').textContent = 'Pick a date.'; return; }
-    document.getElementById('pok').disabled = true; document.getElementById('pok').textContent = 'Sending…';
-    const j = await post({action:'tp_push', id, date});
+    document.getElementById('pok').disabled = true; document.getElementById('pok').textContent = 'Sending to Track-POD and Cin7…';
+    const j = await post({action:'tp_push', id, date, fulfil: true});
     if (!j.ok) { document.getElementById('perr').textContent = j.error || 'Track-POD didn\'t accept it.'; document.getElementById('pok').disabled = false; document.getElementById('pok').textContent = 'Try again'; return; }
-    closeModal(); toast(j.already ? `${o.no} was already in Track-POD. Linked up.` : `${o.no} sent to Track-POD for ${dshort(date)}.`); load();
+    const tp = j.already ? `${o.no} was already in Track-POD (linked up)` : `${o.no} sent to Track-POD for ${dshort(date)}`;
+    if (j.fulfil && !j.fulfil.ok) {
+      document.getElementById('mbox').innerHTML = `<h3>Half done · ${esc(o.no)}</h3>
+        <div class="sub" style="color:var(--ink)">✓ ${tp}.</div>
+        <div class="issue" style="font-size:14px"><b>✗ Cin7 stopped at the ${esc(j.fulfil.step || '?')} step</b><br>“${esc(j.fulfil.error || 'unknown error')}”</div>
+        <div class="sub">Sort it in Cin7, then use <b>✓ Pick, pack &amp; ship in Cin7</b> on the order's card (it's now under Booked).</div>
+        <div class="row"><button class="btn go" id="hok">OK</button></div>`;
+      document.getElementById('hok').onclick = () => { closeModal(); load(); }; return;
+    }
+    closeModal(); toast(`${tp} · ${j.fulfil?.already ? 'already fulfilled in Cin7' : j.fulfil?.part ? 'in-stock items picked, packed & shipped in Cin7' : 'picked, packed & shipped in Cin7'} ✓`); load();
+  };
+}
+function openFul(id){
+  const o = data.orders.find(x => x.id === id); if (!o) return;
+  const part = o.backorder && o.stock_in !== 'all';
+  document.getElementById('mbox').innerHTML = `
+    <h3>Pick, pack &amp; ship · ${esc(o.no)}</h3>
+    <div class="sub">${esc(o.customer)}. This authorises pick, pack and ship in Cin7 for this van order${part ? ': <b style="color:var(--ink)">only what\'s on the shelf; the rest stays on backorder</b>' : ''}. It doesn't change anything in Track-POD.</div>
+    ${part ? partWarn(o) : ''}
+    <div class="err" id="ferr"></div>
+    <div class="row"><button class="btn" id="fc">Cancel</button><button class="btn go" id="fok">Yes, fulfil in Cin7</button></div>`;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('fc').onclick = closeModal;
+  document.getElementById('fok').onclick = async () => {
+    const b = document.getElementById('fok'); b.disabled = true; b.textContent = 'Working in Cin7…';
+    const j = await post({action:'fulfil', id, boxes: 1, part});
+    if (!j.ok) { document.getElementById('ferr').innerHTML = `Cin7 stopped at the <b>${esc(j.step || '?')}</b> step: “${esc(j.error || 'unknown error')}”`; b.disabled = false; b.textContent = 'Try again'; return; }
+    closeModal(); toast(`${o.no} ${j.already ? 'was already fulfilled in Cin7' : 'picked, packed & shipped in Cin7'} ✓`); load();
   };
 }
 function openOut(id, coll){
@@ -274,6 +323,14 @@ function openOut(id, coll){
   };
 }
 
+const qEl = document.getElementById('q'), qClear = document.getElementById('qclear'); let qT;
+qEl.addEventListener('input', () => { clearTimeout(qT); qT = setTimeout(() => { query = qEl.value.trim(); qClear.style.display = query ? '' : 'none'; render(); window.scrollTo(0, 0); }, 150); });
+const clearSearch = () => { qEl.value = ''; query = ''; qClear.style.display = 'none'; render(); };
+qClear.onclick = () => { clearSearch(); qEl.focus(); };
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== qEl && !document.activeElement?.matches('input,textarea')) { e.preventDefault(); qEl.focus(); qEl.select(); }
+  if (e.key === 'Escape' && document.activeElement === qEl) { clearSearch(); qEl.blur(); }
+});
 load();
 setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && document.activeElement?.id !== 'addno') load(); }, 60000);
 setTimeout(() => location.reload(), 6 * 3600e3);
@@ -282,7 +339,7 @@ setTimeout(() => location.reload(), 6 * 3600e3);
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261026145731';
+  const BUILD = '20261026161357';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
