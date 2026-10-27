@@ -94,6 +94,25 @@ input[type=date]{color-scheme:dark}
 #lerr{color:var(--bad);font-size:14px;min-height:18px}
 #msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
 footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
+/* backorder ownership + "ring them" box */
+.bolay{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+@media (max-width:1200px){.bolay{grid-template-columns:minmax(0,1fr)} .bolay .ring{order:-1}}
+.ring{background:var(--panel);border-radius:14px;padding:14px;border:2px solid var(--line);position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto}
+.ring.hot{border-color:var(--accent)}
+.ring.flash{animation:flash 1.2s ease-in-out 3}
+@keyframes flash{50%{box-shadow:0 0 0 6px rgba(238,209,7,.45)}}
+.ring h2{margin:0 0 4px;font-family:var(--num);font-weight:400;font-size:26px;letter-spacing:1px;display:flex;gap:8px;align-items:center}
+.ring h2 .n{font-family:var(--body);font-size:13px;background:var(--accent);color:#262727;border-radius:999px;padding:1px 8px;font-weight:700}
+.ri{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;flex-direction:column;gap:5px;border-left:5px solid var(--accent)}
+.ri .t{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.ri .t b{font-size:16px}
+.ri a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:15px}
+.ri .acts .btn{padding:8px 11px}
+.who{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.4px;padding:2px 8px;border-radius:999px;background:var(--blue);color:#262727;margin-right:4px}
+.who.me{background:var(--accent)}
+.who.none{background:transparent;border:1px dashed var(--line);color:var(--muted)}
+.rang{color:var(--good);font-weight:600}
+.filters .lab{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:6px}
 </style>
 </head>
 <body>
@@ -124,7 +143,7 @@ const store = {
 let token = store.get('tsd_me_token');
 let tab = store.get('tsd_purch_tab') || 'today';
 let loc = store.get('tsd_purch_loc') || 'Bromham';
-let boFilter = 'due', boSearch = '', openBo = null;
+let boFilter = 'due', boSearch = '', openBo = null, boWho = store.get('tsd_bo_who') || 'all', lastNew = null;
 let M = null, S = {}, H = {}, me = null, C = null, claimShowDone = false;
 const openSup = new Set();
 const edits = {};   // supplier_id -> {pid: qty or null(excluded)}
@@ -193,7 +212,7 @@ async function refresh(full){
 function start(){
   document.getElementById('login').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  refresh(); clearInterval(timer); timer = setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input,textarea,select')) refresh(); }, 120000);
+  refresh(); clearInterval(timer); timer = setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input,textarea,select')) refresh(); }, 60000);
 }
 async function setTab(t){
   tab = t; store.set('tsd_purch_tab', t);
@@ -214,7 +233,7 @@ function render(){
   const tabs = [
     ['today','Today', null],
     ['cantfind',"Can't Find", s.cant_find, s.cant_find > 0],
-    ['backorders','Backorders', s.bo_due, s.bo_in_stock > 0 || s.bo_no_po > 0],
+    ['backorders','Backorders', s.bo_due, s.bo_new > 0 || s.bo_in_stock > 0 || s.bo_no_po > 0],
     ['suppliers','Supplier Orders', null],
     ['health','Stock Health', null],
     ['pos','Open POs', s.po_open, s.po_overdue > 0],
@@ -231,6 +250,9 @@ function render(){
   else if (tab === 'health') body = renderHealth();
   else if (tab === 'claims') body = renderClaims();
   else body = renderPos();
+  const newCount = newBos().length;
+  document.title = (newCount ? `(${newCount}) ` : '') + (SVC() ? 'Backorders' : 'Purchasing') + ' · TSD';
+  const flash = lastNew !== null && newCount > lastNew; lastNew = newCount;
   const keepScroll = window.scrollY;
   document.getElementById('app').innerHTML = `
     <header><div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">${SVC() ? 'Backorders' : 'Purchasing'}</div>
@@ -240,6 +262,7 @@ function render(){
     ${body}
     <footer>${M.summary.lines_pending > 200 ? `<b class="warn">Cin7 order history is still loading (${M.summary.lines_pending} orders to go), so sales rates, cover and dead stock will firm up once that finishes.</b><br>` : ''}Backorders come from Cin7 orders marked Backordered. Stock is per site and refreshes every 15 minutes, POs every 10. Suggested orders use the last 8 weeks of Cin7 sales blended with the same months last year from Sage, aiming for ${S[loc]?.cover_weeks ?? 4} weeks' cover plus ${S[loc]?.lead_weeks ?? 1} week lead time.</footer>`;
   window.scrollTo(0, keepScroll);
+  if (flash) { const r = document.querySelector('.ring'); if (r) r.classList.add('flash'); toast('New backorder: ring the customer'); }
 }
 
 function tile(k, v, h, cls, go){ return `<div class="tile ${cls||''}" onclick="${go}"><div class="k">${k}</div><div class="v">${v}</div><div class="h">${h}</div></div>`; }
@@ -249,6 +272,7 @@ function renderToday(){
   const noPo = M.backorders.filter(b => b.no_po && !b.snoozed);
   const overduePos = M.pos.filter(p => p.expected && p.expected < M.today);
   return `<div class="tiles">
+    ${tile('New backorders to ring', s.bo_new || 0, 'customer not told yet', s.bo_new ? 'hot' : '', "setTab('backorders')")}
     ${tile("Can't find stock", s.cant_find, s.cant_find ? 'oldest ' + ago(s.cant_find_oldest) : 'nothing flagged', s.cant_find ? 'hot' : '', "setTab('cantfind')")}
     ${tile('Backorder stock is in', s.bo_in_stock, 'orders we could send now', s.bo_in_stock ? 'green hot' : '', "boFilter='in';setTab('backorders')")}
     ${tile('Backorders, no PO', s.bo_no_po, 'nothing on order to cover them', s.bo_no_po ? 'red' : '', "boFilter='nopo';setTab('backorders')")}
@@ -331,11 +355,11 @@ function svcToday(){
   const ring = bo.filter(b => b.in_stock && !b.snoozed);
   const quiet = bo.filter(b => !b.snoozed && !due.includes(b) && !ring.includes(b) && b.age >= 7
     && (!b.customer_updated || (new Date(M.today) - new Date(b.customer_updated)) / 864e5 >= 7));
-  return {due, ring, quiet, count: due.length + ring.length};
+  return {due, ring, quiet, count: due.length + ring.length + newBos().length};
 }
 function renderTodaySvc(){
   const t = svcToday();
-  return `<div class="tiles">
+  return `${ringBox(true)}<div class="tiles">
     ${tile('Reminders due', t.due.length, 'you asked to be reminded about these', t.due.length ? 'hot' : '', "")}
     ${tile("Stock's in", t.ring.length, 'ring the customer: it can go out', t.ring.length ? 'green hot' : '', "")}
     ${tile('Not heard from us', t.quiet.length, 'waiting 7+ days, no update in a week', t.quiet.length ? 'red' : '', "")}
@@ -374,6 +398,9 @@ function closeIssue(id, no){
 // ---------- backorders ----------
 const FLAG = {in_stock:['t-in','Stock in'], no_po:['t-nopo','No PO'], overdue:['t-over','PO overdue'], on_po:['t-po','On order']};
 function boMatches(b){
+  if (boWho === 'mine' && b.owner !== me?.name) return false;
+  if (boWho === 'nobody' && b.owner) return false;
+  if (boWho.startsWith('p:') && b.owner !== boWho.slice(2)) return false;
   if (boSearch) { const q = boSearch.toLowerCase(); if (!(b.no||'').toLowerCase().includes(q) && !(b.customer||'').toLowerCase().includes(q) && !b.lines.some(l => (l.sku||'').toLowerCase().includes(q) || (l.name||'').toLowerCase().includes(q) || (l.supplier||'').toLowerCase().includes(q))) return false; }
   switch (boFilter) {
     case 'due': return !b.snoozed;
@@ -382,22 +409,62 @@ function boMatches(b){
     case 'over': return b.overdue;
     case 'noupdate': return b.age >= 7 && (!b.customer_updated || daysTo(b.customer_updated) < -7);
     case 'snoozed': return b.snoozed;
+    case 'notrung': return !b.contacted_at;
+    case 'rung': return !!b.contacted_at;
     default: return true;
   }
 }
 function renderBackorders(){
   const list = M.backorders.filter(boMatches);
   const f = (id, label) => `<button class="btn ${boFilter===id?'on':''}" onclick="boFilter='${id}';render()">${label}</button>`;
-  return `<div class="filters">${f('due','Needs a look')}${f('in','Stock in')}${f('nopo','No PO')}${f('over','PO overdue')}${f('noupdate','Customer not updated 7d+')}${f('snoozed','Snoozed')}${f('all','All')}
+  const owners = [...new Set(M.backorders.map(b => b.owner).filter(o => o && o !== me?.name))].sort();
+  const w = (id, label) => { const n = M.backorders.filter(b => id === 'all' ? true : id === 'mine' ? b.owner === me?.name : id === 'nobody' ? !b.owner : b.owner === id.slice(2)).length;
+    return `<button class="btn ${boWho===id?'on':''}" onclick="boWho='${esc(id)}';store.set('tsd_bo_who',boWho);render()">${label} <span class="muted">${n}</span></button>`; };
+  return `<div class="bolay"><div>
+    <div class="filters"><span class="lab">Who's on it</span>${w('all','Everyone')}${w('mine','Mine')}${owners.map(o => w('p:' + o, esc(o) + "'s")).join('')}${w('nobody','Nobody yet')}</div>
+    <div class="filters"><span class="lab">Show</span>${f('due','Needs a look')}${f('notrung','Not rung yet')}${f('rung','Rung')}${f('in','Stock in')}${f('nopo','No PO')}${f('over','PO overdue')}${f('noupdate','Customer not updated 7d+')}${f('snoozed','Snoozed')}${f('all','All')}
     <input class="txt" placeholder="Search order, customer, SKU, supplier" value="${esc(boSearch)}" oninput="boSearch=this.value;clearTimeout(window._bs);window._bs=setTimeout(()=>{render();const i=document.querySelector('.filters input');i.focus();i.setSelectionRange(i.value.length,i.value.length)},250)" style="min-width:280px">
     <span class="muted">${list.length} order${list.length===1?'':'s'}</span></div>
-    <div class="sec">${list.length ? boTable(list, false) : '<div class="empty">Nothing here.</div>'}</div>`;
+    <div class="sec">${list.length ? boTable(list, false) : '<div class="empty">Nothing here.</div>'}</div></div>
+    ${ringBox(false)}</div>`;
+}
+
+// ---------- new backorders: ring the customer ----------
+// Orders that turned Backordered since this went live (27 Oct) and nobody's rung yet. Tick them off and they move to "Rung".
+function newBos(){ return (M?.backorders || []).filter(b => b.is_new).sort((a, b) => String(b.seen_at).localeCompare(String(a.seen_at))); }
+function ringBox(wide){
+  const list = newBos();
+  const item = b => {
+    const lines = b.lines.map(l => `${n1(l.bo)}× ${esc(l.sku)}`).join(', ');
+    const tags = [b.all_in_stock ? '<span class="tag t-in">Stock in</span>' : '', b.no_po ? '<span class="tag t-nopo">No PO</span>' : '', !b.no_po && !b.all_in_stock && b.expected ? `<span class="tag t-po">Due ${dmy(b.expected)}</span>` : ''].join('');
+    return `<div class="ri">
+      <div class="t"><b>${esc(b.no)}</b><span class="muted">${ago(b.seen_at)}</span></div>
+      <div><b>${esc(b.customer)}</b>${b.contact && b.contact !== b.customer ? ` <span class="muted">· ${esc(b.contact)}</span>` : ''}</div>
+      ${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}">📞 ${esc(b.phone)}</a>` : '<span class="muted">No phone on the order</span>'}
+      <div class="muted" style="font-size:13px">${lines} ${tags}</div>
+      ${b.owner ? `<div>${whoTag(b.owner)}${b.attempts ? `<span class="muted">${b.attempts} no answer${b.attempts > 1 ? 's' : ''}, last ${hm(b.last_attempt_at)} ${esc(b.last_attempt_by || '')}</span>` : ''}</div>` : ''}
+      <div class="acts"><button class="btn go" onclick="boContact('${b.id}','contacted','${esc(b.no)}')">✓ Rang them</button>
+        <button class="btn" onclick="boContact('${b.id}','no_answer','${esc(b.no)}')">No answer</button>
+        <button class="btn sm" onclick="addNote('${b.id}','${esc(b.no)}')">Note</button></div>
+    </div>`;
+  };
+  return `<div class="ring ${list.length ? 'hot' : ''}" ${wide ? 'style="position:static;max-height:none;margin-bottom:16px"' : ''}>
+    <h2>🔔 New backorders${list.length ? `<span class="n">${list.length}</span>` : ''}</h2>
+    <div class="muted" style="font-size:13px">Ring the customer as soon as one lands here, then tick it off. It moves to <b>Rung</b> with your name on it.</div>
+    ${list.length ? `<div ${wide ? 'class="cards" style="margin-top:4px"' : ''}>${list.map(item).join('')}</div>` : '<div class="empty" style="margin-top:8px">All caught up. New backorders appear here within a minute or two of being authorised in Cin7.</div>'}
+  </div>`;
+}
+const whoTag = o => o ? `<span class="who ${o === me?.name ? 'me' : ''}">${o === me?.name ? 'Mine' : esc(o) + "'s"}</span>` : '<span class="who none">Nobody yet</span>';
+async function boContact(id, what, no){
+  const msg = {contacted: `${no}: marked as rung`, no_answer: `${no}: no answer logged. It stays on the list`, claim: `${no} is yours`, unclaim: `${no}: let go`, uncontacted: `${no}: back to not rung`}[what];
+  try { const j = await api('', {action:'bo_contact', ref:id, what}); if (j.ok === false) throw new Error(j.error); toast(msg); await refresh(); }
+  catch(x){ toast(x.message); }
 }
 function boTable(list, compact){
   return `<table><thead><tr><th>Order</th><th>Customer</th><th class="r">Age</th><th>Backordered lines</th>${compact ? '' : '<th>Follow-up</th><th></th>'}</tr></thead><tbody>
   ${list.map(b => {
     const lines = b.lines.map(l => { const [c,t] = FLAG[l.flag] || ['t-po','']; return `<div class="ln"><b>${n1(l.bo)}×</b><span class="s">${esc(l.sku)}</span><span class="tag ${c}">${t}</span>${l.flag==='on_po'||l.flag==='overdue' ? `<span class="muted">${(l.pos||[]).map(p => esc(p.po) + (p.expected ? ' due ' + dmy(p.expected) : '')).join(', ') || 'on order ' + n1(l.on_order)}</span>` : ''}</div>`; }).join('');
-    const fu = `${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
+    const fu = `<div style="margin-bottom:3px">${whoTag(b.owner)}${b.contacted_at ? `<span class="rang">✓ Rung ${dmy(b.contacted_at)} ${hm(b.contacted_at)}${b.contacted_by ? ' · ' + esc(b.contacted_by) : ''}</span>` : `<span class="bad">Not rung yet</span>${b.attempts ? ` <span class="muted">(${b.attempts} no answer)</span>` : ''}`}</div>${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
     const open = openBo === b.id;
     return `<tr class="click" onclick="openBo = openBo === '${b.id}' ? null : '${b.id}'; ${compact ? "boFilter='all';boSearch='" + esc(b.no) + "';setTab('backorders')" : 'render()'}">
       <td><b>${esc(b.no)}</b><div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div></td>
@@ -405,7 +472,8 @@ function boTable(list, compact){
       ${compact ? '' : `<td class="fu">${fu}</td><td onclick="event.stopPropagation()"><div class="acts">
         <select onchange="if(this.value){snooze('${b.id}', +this.value);this.value=''}"><option value="">Remind me in…</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option><option value="14">14 days</option></select>
         ${b.snoozed ? `<button class="btn sm" onclick="snooze('${b.id}', null)">Un-snooze</button>` : ''}
-        <button class="btn sm" onclick="custUpdated('${b.id}')">Customer updated</button>
+        ${b.owner === me?.name ? `<button class="btn sm" onclick="boContact('${b.id}','unclaim','${esc(b.no)}')">Let go</button>` : `<button class="btn sm" onclick="boContact('${b.id}','claim','${esc(b.no)}')">${b.owner ? 'Take over' : 'Mine'}</button>`}
+        ${b.contacted_at ? `<button class="btn sm" onclick="custUpdated('${b.id}')">Customer updated</button>` : `<button class="btn sm go" onclick="boContact('${b.id}','contacted','${esc(b.no)}')">✓ Rang them</button>`}
         <button class="btn sm" onclick="addNote('${b.id}','${esc(b.no)}')">Note</button></div></td>`}</tr>
       ${open && !compact ? `<tr class="detail"><td colspan="6">${boDetail(b)}</td></tr>` : ''}`;
   }).join('')}</tbody></table>`;
@@ -532,7 +600,7 @@ if (token) start(); else showLogin();
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261026225305';
+  const BUILD = '20261027145945';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
