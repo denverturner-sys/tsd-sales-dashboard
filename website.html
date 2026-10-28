@@ -166,8 +166,9 @@ function render(){
   if (!D) return;
   const bumps = D.todo.filter(t => t.bump).length, p = D.payments;
   const tabs = [['overview','Overview'], ['todo','Products to add', D.todo.length, bumps > 0 && J.me.can_rank], ['payments','Payments & orders', p.lost_30d, p.lost_30d > 0],
-    ['products','Products'], ['ads','Google Ads'], ['speed','Speed & uptime']];
-  const body = {overview: renderOverview, todo: renderTodo, payments: renderPayments, products: renderProducts, ads: renderAds, speed: renderSpeed}[tab]();
+    ['products','Products'], ['ads','Google Ads'], ...(A && A.cleanup ? [['cleanup','Ads clean-up', cleanupJobs().filter(j => j.n).length, true]] : []), ['speed','Speed & uptime']];
+  if (tab === 'cleanup' && !(A && A.cleanup)) tab = 'ads';
+  const body = {overview: renderOverview, todo: renderTodo, payments: renderPayments, products: renderProducts, ads: renderAds, cleanup: renderCleanup, speed: renderSpeed}[tab]();
   const y = window.scrollY;
   const s = D.synced;
   const warn = [];
@@ -382,6 +383,67 @@ function renderAds(){
   </div>`;
 }
 
+// ---------- ads clean-up ----------
+// Built from the nightly Google Ads script. Avante left the account cluttered; each job below lists exactly what to change.
+// Nothing is changed in Google Ads from here: Martin makes the changes, and fixed items drop off after the next nightly run.
+function cleanupJobs(){
+  const c = A.cleanup, t = c.totals, sum = (a, k) => a.reduce((x, r) => x + (+r[k] || 0), 0);
+  const both = c.duplicates.filter(d => d.enabled > 1).length;
+  return [
+    {id:'products', n: c.products.length, prio:'High', title:'Products eating budget without selling',
+      save: c.products_total, why:`${gbp(c.products_total)} in the last 30 days went on Shopping products that got clicks but no sales. That's ${Math.round(c.products_total / t.cost30 * 100)}% of all ad spend.`,
+      how:'In Google Ads, open the Shopping / Performance Max listing groups and exclude these products. If one should sell, check its price and photos on the website first, since it\'s getting clicks and losing the sale.',
+      cols:['Product','Clicks','Spent 30d'], rows: c.products.map(r => [esc(r.title || r.item), n0(r.clicks), `<span class="bad">${gbp(r.cost, 2)}</span>`])},
+    {id:'idle', n: c.enabled_idle.length, prio:'Medium', title:'Switched on but doing nothing',
+      why:`${c.enabled_idle.length} campaigns are live but haven't spent a penny in 30 days. They clutter the account and hide the campaigns that matter.`,
+      how:'Campaigns → filter Status: Enabled → tick these → Edit → Pause (or Remove if you\'re sure).',
+      cols:['Campaign','Type','Last spent'], rows: c.enabled_idle.map(r => [esc(r.campaign), esc((r.channel || '').toLowerCase()), r.last_spend ? dmy(r.last_spend) : '<span class="muted">not in the last year</span>'])},
+    {id:'dupes', n: c.duplicates.length, prio: both ? 'High' : 'Medium', title:'Duplicate campaigns',
+      why:`${c.duplicates.length} sets of campaigns have the same name apart from a comma or space${both ? `, and in ${both} of them both copies are switched on, so they bid against each other for the same products` : ''}.`,
+      how:'Keep the one that\'s spending and selling, remove the other.',
+      cols:['Copies','Live','Spent 30d'], rows: c.duplicates.map(d => [d.names.map(esc).join('<br>'), d.enabled > 1 ? `<span class="tag t-bad">${d.enabled} on</span>` : d.enabled, gbp(d.cost, 2)])},
+    {id:'paused', n: t.paused > 50 ? 1 : 0, prio:'Low', title:`${n0(t.paused)} old paused campaigns`,
+      why:`The account has ${n0(t.campaigns)} campaigns. Only ${t.spending} spent anything this month. The rest is history from past setups, which makes the account hard to read.`,
+      how:'Campaigns → filter Status: Paused → select all → Edit → Remove. Their past figures stay in Google Ads reports, they just stop cluttering the list.',
+      cols:[], rows:[]},
+    {id:'leads', n: c.lead_campaigns.length, prio:'High', title:'Check what a "lead" is worth',
+      why: c.lead_campaigns.map(l => `"${esc(l.campaign)}" claims ${gbp(l.value)} of sales from ${n1(l.conv)} conversions on ${gbp(l.cost)} spend. That's ${gbp(l.conv ? l.value / l.conv : 0)} per lead.`).join(' ') + ' Lead campaigns usually count calls and form fills at a made-up value, not real orders, which flatters the return figure.',
+      how:'Goals → Conversions: check which actions count for this campaign and what value each one has. If it\'s a guessed value, set it to something realistic or 0, so the return figures are honest.',
+      cols:['Campaign','Spent 30d','Leads','Claimed value'], rows: c.lead_campaigns.map(l => [esc(l.campaign), gbp(l.cost), n1(l.conv), gbp(l.value)])},
+    {id:'weak', n: c.poor_return.length + c.spend_no_sales.length, prio:'Medium', title:'Weak campaigns',
+      why:'Spending £5+ with no sales, or £20+ returning less than 3x what they cost.',
+      how:'Tighten the targeting or keywords, lower the budget, or pause them and let the money go to what works.',
+      cols:['Campaign','Spent 30d','Sales','Return'], rows: [...c.spend_no_sales.map(r => [esc(r.campaign), gbp(r.cost, 2), '£0', '<span class="bad">0x</span>']), ...c.poor_return.map(r => [esc(r.campaign), gbp(r.cost, 2), gbp(r.value), `<span class="bad">${r.roas}x</span>`])]},
+    {id:'neg', n: c.negatives.length, prio:'Low', title:'Search terms to block',
+      save: c.negatives_total, why:`Searches that cost money and never sold. ${gbp(c.negatives_total)} in 30 days across search campaigns (Performance Max doesn't show its search terms).`,
+      how:'Add the irrelevant ones as negative keywords (Keywords → Negative keywords). Leave brand-type searches like "tiling supplies" if you want to stay visible.',
+      cols:['Search term','Campaign','Clicks','Spent'], rows: c.negatives.map(r => [esc(r.term), `<span class="muted">${esc(r.campaigns)}</span>`, n0(r.clicks), gbp(r.cost, 2)])},
+    {id:'tiny', n: c.tiny.length > 20 ? 1 : 0, prio:'Low', title:`Budget spread over ${c.tiny.length} tiny campaigns`,
+      why:`${c.tiny.length} Shopping campaigns each spent under £15 this month (${gbp(sum(c.tiny,'cost'))} between them, claiming ${gbp(sum(c.tiny,'value'))} of sales). They're not losing money, but one campaign per brand and category is far more to manage than the budget needs, and none of them gets enough data to learn from.`,
+      how:'Longer term: fold these into Performance Max or one Shopping campaign split by product group. Not urgent: do the jobs above first.',
+      cols:['Campaign','Spent 30d','Sales'], rows: c.tiny.map(r => [esc(r.campaign), gbp(r.cost, 2), gbp(r.value)])},
+  ];
+}
+let openJob = null;
+function renderCleanup(){
+  const c = A.cleanup, t = c.totals, jobs = cleanupJobs(), live = jobs.filter(j => j.n);
+  const P = {High:'t-bad', Medium:'t-warn', Low:'t-blue'};
+  return `<div class="sec" style="border-left:6px solid var(--accent)">
+      <h2>Google Ads clean-up <span class="h">what the account was left like, and what to fix</span></h2>
+      <div style="font-size:15px;line-height:1.55">The account has <b>${n0(t.campaigns)} campaigns</b>: ${n0(t.enabled)} switched on, ${n0(t.paused)} paused, and only <b>${t.spending}</b> spent anything in the last 30 days (${gbp(t.cost30)}).
+      This list is built from Google Ads every night at 5am. Fix something in Google Ads and it drops off here the next morning, so the list should shrink to nothing.
+      Nothing here changes Google Ads itself: the changes are made in Google Ads.</div></div>
+    <div class="tiles">${tile('Jobs left', live.length, 'of ' + jobs.length, live.length ? 'hot' : 'green')}${tile('Products not selling', gbp(c.products_total), 'spent in 30 days, no sales', c.products_total > 100 ? 'red' : '')}${tile('Dead campaigns', c.enabled_idle.length, 'switched on, £0 spent', c.enabled_idle.length ? 'red' : '')}${tile('Duplicates', c.duplicates.length, 'sets of near-identical campaigns', '')}</div>
+    ${jobs.map((j, i) => `<div class="sec" style="${j.n ? '' : 'opacity:.55'}">
+      <h2 style="cursor:pointer" onclick="openJob = openJob === '${j.id}' ? null : '${j.id}'; render()">${j.n ? `${i + 1}.` : '✓'} ${j.title} ${j.n ? `<span class="tag ${P[j.prio]}">${j.prio}</span>` : '<span class="tag t-blue">Done</span>'}
+        ${j.rows.length ? `<span class="h">${j.rows.length} item${j.rows.length === 1 ? '' : 's'} · ${openJob === j.id ? 'hide' : 'show'} list</span>` : ''}</h2>
+      <div style="font-size:14px;line-height:1.55"><b>Why:</b> ${j.why}</div>
+      <div style="font-size:14px;line-height:1.55;margin-top:4px"><b>What to do:</b> ${esc(j.how)}</div>
+      ${openJob === j.id && j.rows.length ? `<table style="margin-top:10px"><thead><tr>${j.cols.map((h, k) => `<th class="${k ? 'r' : ''}">${h}</th>`).join('')}</tr></thead><tbody>
+        ${j.rows.map(r => `<tr>${r.map((v, k) => `<td class="${k ? 'r' : ''}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>` : ''}
+    </div>`).join('')}`;
+}
+
 // ---------- speed ----------
 const pageName = u => ({'/':'Homepage','/shop':'Shop page','/cart':'Basket','/checkout':'Checkout'}[u] || (u.startsWith('/product') ? 'Product page' : u));
 function renderSpeed(){
@@ -413,7 +475,7 @@ if (token) start(); else showLogin();
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261026225305';
+  const BUILD = '20261028101212';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
