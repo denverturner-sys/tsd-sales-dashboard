@@ -85,6 +85,7 @@ footer{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.6}
   <footer id="foot"></footer>
 </div>
 <div id="toast"></div>
+<script src="auth.js?v=20261028104446"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tracking';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -262,11 +263,13 @@ qEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(()
 document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== qEl) { e.preventDefault(); qEl.focus(); qEl.select(); } if (e.key === 'Escape') { qEl.value = ''; search(''); } });
 if (params.get('q')) qEl.value = params.get('q');
 if (key || token) showApp(); else showLogin();
+// name + PIN login (auth.js)
+TSDAuth.mount(t => { token = t; showApp(); });
 </script>
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (waits while someone has a search in).
 (function(){
-  const BUILD = '20261027090036';
+  const BUILD = '20261028104446';
   let newer = false;
   async function check(){
     try {

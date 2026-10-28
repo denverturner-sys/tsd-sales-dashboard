@@ -214,7 +214,7 @@ setTimeout(() => location.reload(), 6*60*60*1000); // pick up page updates a few
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it.
 (function(){
-  const BUILD = '20261026225305';
+  const BUILD = '20261028104446';
   setInterval(async () => { try { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 120000);
 })();
 </script>
