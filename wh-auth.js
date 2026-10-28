@@ -50,7 +50,7 @@
   const origFetch = window.fetch.bind(window);
   window.fetch = async (input, init) => {
     const url = typeof input === 'string' ? input : input.url;
-    if (!/supabase\.co\/functions\/v1\/(warehouse|goods-in|stock)/.test(url)) return origFetch(input, init);
+    if (!/supabase\.co\/functions\/v1\/(warehouse|goods-in|stock|note)/.test(url)) return origFetch(input, init);
     const t = token();
     if (!t) { gate(); return new Response(JSON.stringify({ error: 'not logged in' }), { status: 401, headers: { 'Content-Type': 'application/json' } }); }
     init = Object.assign({}, init || {});
