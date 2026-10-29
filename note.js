@@ -63,6 +63,76 @@
     </body></html>`;
   }
 
+  // ---- address labels (29 Oct, Toby): 4x6in, for the FedEx label printer. Name, address, contact, order number, parcel x of y ----
+  function addrLines(o) {
+    // postcode is printed big on its own, so leave it out of the address lines
+    const pc = String(o.postcode || '').trim().toUpperCase();
+    const strip = x => pc ? x.replace(new RegExp('\\s*' + pc.replace(/\s+/g, '\\s*') + '\\s*$', 'i'), '').trim() : x;
+    const out = String(o.address || '').split(/\n|,\s*(?=[A-Za-z0-9])/).map(x => strip(x.trim())).filter(Boolean);
+    if (o.town && !out.some(x => x.toLowerCase() === String(o.town).trim().toLowerCase())) out.push(String(o.town).trim());
+    return out.filter((x, i, a) => a.findIndex(y => y.toLowerCase() === x.toLowerCase()) === i);
+  }
+  function labelHtml(o, n) {
+    const lines = addrLines(o), pc = String(o.postcode || '').toUpperCase();
+    const name = o.ship_name || o.customer || '';
+    const one = i => `<div class="lab">
+        <div class="hd"><span>DELIVER TO</span><span>${esc(o.carrier || '')}</span></div>
+        <div class="nm">${esc(name)}</div>
+        ${o.ship_name && o.customer && o.ship_name !== o.customer ? `<div class="co">${esc(o.customer)}</div>` : ''}
+        <div class="ad">${lines.map(x => `<div>${esc(x)}</div>`).join('')}</div>
+        ${pc ? `<div class="pc">${esc(pc)}</div>` : ''}
+        <div class="ct">${o.contact ? `Contact: <b>${esc(o.contact)}</b><br>` : ''}${o.phone ? `Tel: <b>${esc(o.phone)}</b>` : ''}</div>
+        ${o.notes ? `<div class="nt">${esc(String(o.notes).slice(0, 160))}</div>` : ''}
+        <div class="ft"><div><div class="k">Order</div><div class="no">${esc(o.no)}</div></div><div class="pr"><div class="k">Parcel</div><div class="no">${i} of ${n}</div></div></div>
+        <div class="fr">From: Tiling Supplies Direct, ${esc(BRANCH[o.location] || BRANCH.Bromham)} · 01249 464000</div>
+      </div>`;
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Label ${esc(o.no)}</title><style>
+      @page{size:4in 6in;margin:0}
+      *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;color:#000}
+      .lab{width:4in;height:6in;padding:0.18in 0.2in;display:flex;flex-direction:column;gap:6px;page-break-after:always;overflow:hidden}
+      .lab:last-child{page-break-after:auto}
+      .hd{display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:1px;border-bottom:2px solid #000;padding-bottom:4px}
+      .nm{font-size:22px;font-weight:700;line-height:1.15;margin-top:4px} .co{font-size:15px;font-weight:700}
+      .ad{font-size:17px;line-height:1.3} .pc{font-size:34px;font-weight:700;letter-spacing:1px;margin-top:2px}
+      .ct{font-size:14px;line-height:1.4;margin-top:4px} .nt{font-size:12px;border:1px dashed #000;padding:4px 6px;border-radius:4px}
+      .ft{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;border-top:2px solid #000;padding-top:6px}
+      .ft .k{font-size:10px;font-weight:700;letter-spacing:1px} .ft .no{font-size:26px;font-weight:700} .ft .pr{text-align:right}
+      .fr{font-size:9.5px;line-height:1.3}
+    </style></head><body>${Array.from({ length: n }, (_, i) => one(i + 1)).join('')}</body></html>`;
+  }
+  function printDoc(doc) {
+    const f = document.createElement('iframe');
+    f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+    document.body.appendChild(f);
+    const d = f.contentWindow.document;
+    d.open(); d.write(doc); d.close();
+    setTimeout(() => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) {} setTimeout(() => f.remove(), 60000); }, 150);
+  }
+  async function label(id) {
+    let o;
+    try {
+      const r = await fetch(API + '?id=' + encodeURIComponent(id), { cache: 'no-store' });
+      o = await r.json();
+      if (!r.ok || o.error) throw new Error(o.error || 'Error ' + r.status);
+    } catch (e) { alert("Couldn't get the order for the label: " + e.message); return; }
+    // ask how many parcels (one label each)
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:Barlow,Arial,sans-serif';
+    ov.innerHTML = `<div style="background:#323333;color:#fff;border-radius:14px;padding:20px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:22px;font-weight:700">🏷 Address label · ${esc(o.no)}</div>
+      <div style="color:#B9BCBC;font-size:14px">${esc(o.ship_name || o.customer || '')}${o.postcode ? ' · ' + esc(o.postcode) : ''}<br>4×6 label. In the print box, pick the <b style="color:#fff">FedEx label printer</b> (the browser remembers it next time).</div>
+      <label style="display:flex;align-items:center;gap:10px;font-size:16px">Labels (one per parcel)
+        <input id="tsdlbn" type="number" min="1" max="50" value="${o.boxes || 1}" inputmode="numeric" style="width:70px;text-align:center;font-size:18px;padding:6px;border-radius:8px;border:1px solid #474949;background:#262727;color:#fff"></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end"><button id="tsdlbc" style="background:transparent;color:#fff;border:1px solid #474949;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer">Cancel</button>
+        <button id="tsdlbp" style="background:#EED107;color:#262727;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer">Print</button></div></div>`;
+    document.body.appendChild(ov);
+    const close = () => ov.remove();
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    ov.querySelector('#tsdlbc').onclick = close;
+    ov.querySelector('#tsdlbp').onclick = () => { const n = Math.max(1, Math.min(50, Math.round(+ov.querySelector('#tsdlbn').value || 1))); close(); printDoc(labelHtml(o, n)); };
+    ov.querySelector('#tsdlbn').focus();
+  }
+
   async function print(id, kind) {
     let o;
     try {
@@ -80,12 +150,19 @@
     if (img && !img.complete) { img.onload = go; img.onerror = go; } else setTimeout(go, 150);
   }
 
+  // any button with class "lblbtn" and data-id prints address labels for that order
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.lblbtn');
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    label(b.dataset.id);
+  }, true);
   // any button with class "notebtn" and data-id prints that order's note
   document.addEventListener('click', e => {
     const b = e.target.closest && e.target.closest('.notebtn');
-    if (!b) return;
+    if (!b || b.classList.contains('lblbtn')) return;
     e.preventDefault(); e.stopPropagation();
     print(b.dataset.id, b.dataset.kind || 'delivery');
   }, true);
-  window.TSDNote = { print };
+  window.TSDNote = { print, label };
 })();
