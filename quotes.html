@@ -113,6 +113,7 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chips .btn.sel{background:var(--accent);color:#262727;border-color:var(--accent)}
 details.sec>summary{list-style:none;cursor:pointer}
+.credit{font-size:13px;font-weight:600;background:rgba(255,122,107,.16);border:1px solid var(--bad);color:var(--ink);border-radius:6px;padding:6px 8px;margin:6px 0;line-height:1.35}
 </style>
 </head>
 <body>
@@ -130,7 +131,7 @@ details.sec>summary{list-style:none;cursor:pointer}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading quotes…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261028104446"></script>
+<script src="auth.js?v=20261029101927"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/quotes';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -190,6 +191,14 @@ function matches(q){
   const hay = [q.no, q.customer, q.contact, q.phone, q.email, ...(q.lines || []).flatMap(l => [l.sku, l.name])].join('|').toLowerCase();
   return query.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
 }
+// account warnings from Xero balances (29 Oct). Flags only: the office decides.
+function creditBanner(cust){
+  const f = ((D && D.credit) || {})[cust]; if (!f) return '';
+  const lim = f.limit > 0 ? ` (owes ${gbp(f.net)} against a ${gbp(f.limit)} limit)` : '';
+  const t = { hold: 'Account ON HOLD in Cin7', stop: 'Office has flagged this account to stop', over: 'Over credit limit' + lim,
+    late: `Has invoices ${f.oldest} days late (${gbp(f.overdue)} overdue)`, near: 'Close to credit limit' + lim }[f.flag];
+  return t ? `<div class="credit">⚠ ${t}. Talk to the office before it goes ahead on account.</div>` : '';
+}
 function card(q){
   const cls = q.bucket === 'due' && q.cold ? 'cold' : q.bucket;
   const lf = q.last_fu;
@@ -200,6 +209,7 @@ function card(q){
   return `<div class="qcard ${cls}">
     <div class="qtop"><span class="no">${esc(q.no)}</span><span class="qamt">${gbp(q.amount)}</span></div>
     <div class="qcust">${esc(q.customer)}${q.contact && q.contact !== q.customer ? ` <span class="qmeta">· ${esc(q.contact)}</span>` : ''}</div>
+    ${creditBanner(q.customer)}
     <div class="qmeta">${q.phone ? `<a href="tel:${esc(q.phone.replace(/\s/g,''))}" style="color:var(--ink)">${esc(q.phone)}</a> · ` : ''}quoted ${dmy(q.date)} (${q.age} working day${q.age === 1 ? '' : 's'})${!view || view === me?.rep ? '' : ' · ' + esc(q.rep)}</div>
     <div><span class="tag ${q.bucket === 'later' ? 't-po' : q.bucket === 'won' ? 't-in' : q.bucket === 'lost' ? 't-nopo' : 't-d'}">${STAGE[q.stage] || (q.deal_id ? '' : 'Not in HubSpot yet')}</span>
       ${q.cold && live ? '<span class="tag t-over">Gone cold: 45+ days quiet</span>' : ''} ${q.close_date && q.bucket === 'later' ? `<span class="qmeta">expected ${dmy(q.close_date)}</span>` : ''} <span class="qmeta">${due}</span></div>
@@ -284,7 +294,7 @@ TSDAuth.mount(t => { token = t; start(); });
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (waits while a pop-up is open or someone is typing).
 (function(){
-  const BUILD = '20261028104446';
+  const BUILD = '20261029101927';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;

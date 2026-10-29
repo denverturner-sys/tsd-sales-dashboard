@@ -71,7 +71,8 @@ table.inv td.r{text-align:right;font-variant-numeric:tabular-nums}
 .row:last-child{border-bottom:0}
 .row .no{font-family:var(--num);font-size:22px;letter-spacing:.5px}
 .row .r{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
-@media (max-width:760px){.row{grid-template-columns:90px minmax(0,1fr) 90px}.row .hide-s{display:none}}
+.row.lim{grid-template-columns:minmax(0,1fr) 120px 120px 130px 150px}
+@media (max-width:760px){.row{grid-template-columns:90px minmax(0,1fr) 90px}.row .hide-s{display:none}.row.lim{grid-template-columns:minmax(0,1fr) 100px 110px}}
 h2{font-family:var(--num);font-weight:400;font-size:26px;letter-spacing:1px;margin:18px 0 4px}
 h2 .n{font-family:var(--body);font-size:14px;color:var(--muted);letter-spacing:0;margin-left:8px}
 .explain{font-size:14px;color:var(--muted);margin:0 0 10px;line-height:1.5;max-width:1000px}
@@ -100,7 +101,7 @@ footer{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6}
 </div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261029092315"></script>
+<script src="auth.js?v=20261029101927"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/accounts';
 const mem = {};
@@ -152,7 +153,10 @@ function tiles(){
     <div class="tile"><div class="k">Unused credit</div><div class="v">${k(s.credits)}</div><div class="s">credit notes &amp; overpayments not matched</div></div>
     <div class="tile good"><div class="k">Paid this week</div><div class="v">${k(D.accounts.collected_week)}</div><div class="s">invoices marked paid in Xero</div></div>`;
   const nd = (D.accounts.debtors || []).filter(d => d.bucket === 'due').length;
-  const T = [['invoice', 'To invoice', ready.length], ['credit', 'Credit control', nd], ['recon', 'Clean-up', nrec]];
+  const X = D.extra || {}, L = X.ledger || {};
+  const nlim = (X.credit || []).filter(c => ['hold','stop','over','late'].includes(c.flag)).length;
+  const T = [['invoice', 'To invoice', ready.length], ['credit', 'Credit control', nd], ['limits', 'Credit limits', nlim], ['cash', 'Cash forecast', '8 wks'],
+    ['ledger', 'Cin7 ↔ Xero', (L.customers || []).length + (L.missing || []).length], ['recon', 'Clean-up', nrec], ['trend', 'Trends', (X.trend || []).length + ' days']];
   document.getElementById('tabs').innerHTML = T.map(([id, n, c]) => `<button class="${tab === id ? 'on' : ''}" data-tab="${id}">${n}<span class="n">${c}</span></button>`).join('');
   document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; store.set('acc_tab', tab); render(); });
 }
@@ -160,7 +164,8 @@ function render(){
   if (!D) return;
   tiles();
   const out = document.getElementById('out');
-  out.innerHTML = tab === 'credit' ? creditHtml() : tab === 'recon' ? reconHtml() : invoiceHtml();
+  const V = {credit: creditHtml, recon: reconHtml, limits: limitsHtml, cash: cashHtml, ledger: ledgerHtml, trend: trendHtml}[tab] || invoiceHtml;
+  out.innerHTML = (tab !== 'invoice' && tab !== 'credit' && tab !== 'recon' && !D.extra) ? `<div class="empty">Couldn't load this part: ${esc(D.extra_error || 'no data')}</div>` : V();
   wire();
   document.getElementById('foot').innerHTML = `Xero last synced ${ago(D.accounts.synced_at)} · Cin7 orders checked just now · logged in as ${esc(D.me)}`;
 }
@@ -216,6 +221,7 @@ function creditHtml(){
     const inv = d.invoices || [];
     return `<div class="card ${col}">
       <div class="top"><div class="name">${esc(d.name)}</div><div class="amt" style="color:var(--bad)">${gbp(d.overdue)}</div></div>
+      ${flagTag(d.name)}
       <div class="meta">${d.n_overdue} overdue invoice${d.n_overdue === 1 ? '' : 's'} · oldest <b class="${d.oldest_days > 60 ? 'late' : ''}">${d.oldest_days} days</b> late · total owed ${gbp(d.owed)}</div>
       <div class="meta">${d.contact ? esc(d.contact) + ' · ' : ''}${d.phone ? `<a href="tel:${esc(d.phone.replace(/\s/g,''))}">📞 ${esc(d.phone)}</a>` : ''}${d.mobile && d.mobile !== d.phone ? ` · <a href="tel:${esc(d.mobile.replace(/\s/g,''))}">📱 ${esc(d.mobile)}</a>` : ''}${d.email ? ` · <a href="mailto:${esc(d.email)}">${esc(d.email)}</a>` : ''}${!d.phone && !d.mobile && !d.email ? '<span class="late">No phone or email in Xero</span>' : ''}</div>
       ${+d.credit > 0 ? `<div class="warn">💡 They've got <b>${gbp(d.credit)}</b> of unused credit. Allocate it in Xero first, it may clear some of this.</div>` : ''}
@@ -318,6 +324,100 @@ async function done(key, name){
   toast(`${name} ticked off`, async () => { await api('POST', {action:'undone', key}); if (removed) rc[gid].push(removed); render(); });
 }
 
+
+// ---------- credit limits (29 Oct) ----------
+// Limits and on-hold come from Cin7; what they owe comes from Xero (Cin7's own balance is wrong while payments don't sync back).
+const FLAG = {hold: ['red', 'On hold in Cin7'], stop: ['red', 'Flagged to stop'], over: ['red', 'Over limit'], late: ['red', '60+ days late'], near: ['amber', 'Near limit'], false_over: ['green', 'Only over in Cin7']};
+const normName = n => String(n || '').toLowerCase().replace(/\b(ltd|limited|plc|llp|the|t\/a|co|uk)\b/g, '').replace(/[^a-z0-9]/g, '');
+function flagTag(name){
+  const c = ((D.extra || {}).credit || []).find(x => normName(x.name) === normName(name));
+  if (!c || !FLAG[c.flag] || c.flag === 'false_over') return '';
+  return `<div><span class="tag ${FLAG[c.flag][0]}">${FLAG[c.flag][1]}</span>${c.limit > 0 ? `<span class="meta">limit ${gbp0(c.limit)} · ${c.pct}% used</span>` : ''}</div>`;
+}
+let limF = 'act';
+function limitsHtml(){
+  const all = D.extra.credit || [];
+  const act = all.filter(c => ['hold','stop','over','late'].includes(c.flag));
+  const F = [['act', 'Needs a decision', act.length], ['near', 'Near limit', all.filter(c => c.flag === 'near').length], ['false_over', 'Only over in Cin7', all.filter(c => c.flag === 'false_over').length]];
+  const list = limF === 'act' ? act : all.filter(c => c.flag === limF);
+  let h = `<p class="explain">Account customers to look at before more goes out on credit. <b>Credit limit and on-hold come from Cin7; what they owe comes from Xero</b>, because Cin7's own balance is wrong while payments aren't syncing back (see Cin7 ↔ Xero). "Owes" is after their unused credit. Bob only flags: putting an account on stop is your and Rose's call, done in Cin7. The same warning shows on Pick &amp; Dispatch, the van list, Collections and Quotes.</p>
+    <div class="bar">${F.map(([id, n, c]) => `<button class="chip ${limF === id ? 'on' : ''}" data-lf="${id}">${n} ${c}</button>`).join('')}</div>`;
+  if (!list.length) return h + '<div class="empty">Nobody here. ✓</div>';
+  return h + '<div class="rows">' + list.map(c => `<div class="row lim">
+      <div><div class="name" style="font-size:15px">${esc(c.name)}</div><div class="meta">${esc(c.terms || '')}${c.rep ? ' · ' + esc(c.rep) : ''}${c.oldest ? ` · oldest overdue <b class="${c.oldest > 60 ? 'late' : ''}">${c.oldest} days</b>` : ''}</div></div>
+      <div class="r"><div class="meta">Owes (Xero)</div>${gbp0(c.net)}</div>
+      <div class="r hide-s"><div class="meta">Overdue</div><span class="${+c.overdue > 0 ? 'late' : ''}">${gbp0(c.overdue)}</span></div>
+      <div class="r hide-s"><div class="meta">Limit</div>${c.limit > 0 ? gbp0(c.limit) + ` <span class="meta">${c.pct}%</span>` : '<span class="meta">none set</span>'}</div>
+      <div style="text-align:right"><span class="tag ${FLAG[c.flag][0]}">${FLAG[c.flag][1]}</span>${c.flag === 'false_over' ? `<div class="meta">Cin7 thinks ${gbp0(c.cin7_owed)}</div>` : ''}</div></div>`).join('') + '</div>';
+}
+
+// ---------- cash forecast ----------
+function cashHtml(){
+  const f = D.extra.forecast || {}, W = f.weeks || [];
+  let run = 0;
+  const rows = W.map((w, i) => { const inn = (+w.in || 0) + (+w.promised || 0), out = +w.out || 0; run += inn - out;
+    return `<tr><td>${i === 0 ? 'This week' : 'w/c ' + dshort(w.wk)}</td><td class="r">${gbp0(w.in)}</td><td class="r">${+w.promised ? gbp0(w.promised) : ''}</td><td class="r">${gbp0(out)}</td><td class="r" style="font-weight:700;color:${inn - out < 0 ? 'var(--bad)' : 'var(--good)'}">${inn - out < 0 ? '−' : '+'}${gbp0(Math.abs(inn - out))}</td><td class="r" style="color:${run < 0 ? 'var(--bad)' : 'var(--ink)'}">${run < 0 ? '−' : ''}${gbp0(Math.abs(run))}</td></tr>`; }).join('');
+  let h = `<p class="explain">Old bills still showing as overdue from months ago have probably been paid but not matched in Xero. What should come in from customers against supplier bills going out, by week, from Xero. Money in uses each invoice's due date; if a customer promised a date in Credit control, their overdue invoices move to that week. Overdue money in isn't counted in the weeks (it's shown on its own) because nobody knows when it'll land. Doesn't include wages, VAT, card/website takings or bills not yet entered in Xero, so it's a guide, not a bank balance.</p>
+    <div class="tiles"><div class="tile bad"><div class="k">Overdue from customers</div><div class="v">${k(f.overdue_in)}</div><div class="s">not in the weeks below</div></div>
+    <div class="tile"><div class="k">Overdue to suppliers</div><div class="v">${k(f.overdue_out)}</div><div class="s">bills past their due date</div></div>
+    <div class="tile"><div class="k">After 8 weeks</div><div class="v">${k(f.later_in)}</div><div class="s">in · out ${k(f.later_out)}</div></div></div>
+    <div class="rows" style="padding:6px 14px"><table class="inv" style="font-size:15px"><tr class="meta"><td>Week</td><td class="r">Due in</td><td class="r">Promised</td><td class="r">Bills due</td><td class="r">Net</td><td class="r">Running</td></tr>${rows}</table></div>`;
+  const tb = f.top_bills || [];
+  if (tb.length) h += `<h2>Biggest bills overdue or due in the next 3 weeks<span class="n">${tb.length}</span></h2><div class="rows" style="padding:6px 14px"><table class="inv">${tb.map(b => `<tr><td>${esc(b.name)}</td><td>${esc(b.number || b.ref || '')}</td><td class="${b.due < new Date().toISOString().slice(0,10) ? 'late' : ''}">due ${dmy(b.due)}</td><td class="r">${gbp(b.amount)}</td></tr>`).join('')}</table></div>`;
+  return h;
+}
+
+// ---------- Cin7 <-> Xero ----------
+function ledgerHtml(){
+  const L = D.extra.ledger || {}, U = L.unsynced || {}, W = U.weeks || [];
+  const recent = W.slice(-6);
+  let h = `<p class="explain">Checks that Cin7 and Xero agree, for invoices since Cin7 went live (7 July). The big one: <b>payments recorded in Xero aren't getting back to Cin7</b>, so Cin7 thinks customers owe more than they do and can block them for being over their limit when they aren't. Bob reads balances from Xero so its own warnings are right, but Cin7's aren't until the sync is fixed.</p>
+    <div class="tiles"><div class="tile bad"><div class="k">Paid in Xero, unpaid in Cin7</div><div class="v">${(+U.count || 0).toLocaleString('en-GB')}</div><div class="s">invoices · ${k(U.value)}</div></div>
+    <div class="tile"><div class="k">Wrongly over limit in Cin7</div><div class="v">${L.false_over || 0}</div><div class="s">over in Cin7, under in Xero</div></div>
+    <div class="tile"><div class="k">Missing from Xero</div><div class="v">${(L.missing || []).length}</div><div class="s">invoiced in Cin7 2+ days ago</div></div>
+    <div class="tile"><div class="k">Amounts differ</div><div class="v">${(L.amount_diff || []).length}</div><div class="s">${(L.voided_xero || []).length} voided in Xero only</div></div></div>`;
+  if (recent.length) h += `<h2>Is the payment sync working?</h2><p class="explain">Of the invoices raised each week and paid in Xero, how many show as paid in Cin7 too. If the sync is healthy these match.</p>
+    <div class="rows" style="padding:6px 14px"><table class="inv" style="font-size:14px"><tr class="meta"><td>Week</td><td class="r">Invoices</td><td class="r">Paid in Xero</td><td class="r">Also paid in Cin7</td></tr>${W.map(w => `<tr><td>w/c ${dshort(w.wk)}</td><td class="r">${w.n}</td><td class="r">${w.paid_xero}</td><td class="r ${w.paid_xero && w.paid_both / w.paid_xero < .8 ? 'late' : ''}">${w.paid_both} (${w.paid_xero ? Math.round(100 * w.paid_both / w.paid_xero) : 0}%)</td></tr>`).join('')}</table></div>`;
+  if (+L.pending_detail) h += `<p class="explain">Still reading ${L.pending_detail} multi-invoice orders from Cin7 (a few every 10 minutes so the warehouse screens aren't slowed down). Numbers will grow a little until that's done.</p>`;
+  const C = L.customers || [];
+  h += `<h2>Account customers Cin7 overstates<span class="n">${C.length}</span></h2><p class="explain">What Cin7 thinks they owe against what Xero says. The gap is payments that never made it back.</p>`;
+  h += C.length ? `<div class="rows" style="padding:6px 14px"><table class="inv">${'<tr class="meta"><td>Customer</td><td class="r">Cin7 thinks</td><td class="r">Xero says</td><td class="r">Gap</td><td class="r">Limit</td><td></td></tr>' + C.map(c => `<tr><td>${esc(c.name)}</td><td class="r">${gbp0(c.cin7_owed)}</td><td class="r">${gbp0(c.xero_net)}</td><td class="r late">${gbp0(c.gap)}</td><td class="r">${c.limit > 0 ? gbp0(c.limit) : ''}</td><td>${c.false_over ? '<span class="tag green">Only over in Cin7</span>' : ''}</td></tr>`).join('')}</table></div>` : '<div class="empty">None. ✓</div>';
+  const tbl = (title, explain, list, cols) => list.length ? `<h2>${title}<span class="n">${list.length}</span></h2><p class="explain">${explain}</p><details><summary>Show them</summary><table class="inv">${list.map(cols).join('')}</table></details>` : '';
+  h += tbl('Invoiced in Cin7, not in Xero', "Cin7 says these were invoiced but Xero hasn't got them. Usually a failed sync: re-send from Cin7, or check they weren't voided.", L.missing || [], i => `<tr><td>${esc(i.invoice)}</td><td>${esc(i.order)}</td><td>${esc(i.customer)}</td><td>${dmy(i.date)}</td><td class="r">${gbp(i.amount)}</td></tr>`);
+  h += tbl('Amount differs', 'Same invoice number, different total in Cin7 and Xero. Usually an invoice edited on one side only.', L.amount_diff || [], i => `<tr><td>${esc(i.invoice)}</td><td>${esc(i.order)}</td><td>${esc(i.customer)}</td><td class="r">Cin7 ${gbp(i.cin7)}</td><td class="r">Xero ${gbp(i.xero)}</td></tr>`);
+  h += tbl('Voided in Xero, live in Cin7', 'Void or credit these in Cin7 too so stock and sales reports stay right.', L.voided_xero || [], i => `<tr><td>${esc(i.invoice)}</td><td>${esc(i.order)}</td><td>${esc(i.customer)}</td><td>${dmy(i.date)}</td><td class="r">${gbp(i.amount)}</td></tr>`);
+  return h;
+}
+
+// ---------- trends ----------
+function spark(pts, fmt, lowGood){
+  const W = 520, H = 120, P = 8;
+  const v = pts.map(p => p.v).filter(x => x != null);
+  if (v.length < 2) return `<div class="empty" style="padding:8px 0">${v.length ? 'Today: <b>' + fmt(v[0]) + '</b>. ' : ''}The line starts once there are two days of history (one is saved each night).</div>`;
+  const mn = Math.min(...v), mx = Math.max(...v), sp = mx - mn || 1;
+  const xy = pts.map((p, i) => p.v == null ? null : [P + i * (W - 2 * P) / (pts.length - 1), H - P - (p.v - mn) / sp * (H - 2 * P)]);
+  const d = xy.filter(Boolean).map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
+  const last = v.at(-1), first = v[0], up = last > first;
+  const good = lowGood ? !up : up;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block"><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+    ${xy.map((q, i) => q ? `<circle cx="${q[0]}" cy="${q[1]}" r="10" fill="transparent"><title>${dmy(pts[i].d)}: ${fmt(pts[i].v)}</title></circle>` : '').join('')}
+    <circle cx="${xy.filter(Boolean).at(-1)[0]}" cy="${xy.filter(Boolean).at(-1)[1]}" r="4" fill="var(--accent)" stroke="var(--panel)" stroke-width="2"/></svg>
+    <div class="meta">Now <b style="color:var(--ink)">${fmt(last)}</b> · ${up ? '▲' : last < first ? '▼' : '='} ${fmt(Math.abs(last - first))} since ${dmy(pts[0].d)} <span style="color:${last === first ? 'var(--muted)' : good ? 'var(--good)' : 'var(--bad)'}">${last === first ? '' : good ? '(better)' : '(worse)'}</span></div>`;
+}
+function trendHtml(){
+  const T = D.extra.trend || [];
+  const n = x => (+x || 0).toLocaleString('en-GB');
+  const M = [['Owed to us', 'outstanding', k, true], ['Overdue', 'overdue', k, true], ['Over 60 days late', r => (+r.b3 || 0) + (+r.b4 || 0), k, true],
+    ['Debtor days', 'debtor_days', x => Math.round(x) + ' days', true], ['Unused credit', 'credits', k, true], ['Clean-up items', 'recon_items', n, true],
+    ['Paid in Xero, not in Cin7', 'unsynced_payments', n, true], ['Waiting to be invoiced', 'uninvoiced', n, true]];
+  let h = `<p class="explain">One point a night, so you can see whether the chasing and clean-up is working. Debtor days = what's owed ÷ the last 90 days' sales × 90 (roughly how long customers take to pay). Hover a point for the day's figure.</p><div class="grid">`;
+  for (const [title, key, fmt, lowGood] of M) {
+    const pts = T.map(r => ({d: r.day, v: typeof key === 'function' ? key(r) : (r[key] == null ? null : +r[key])}));
+    h += `<div class="card"><div class="name">${title}</div>${spark(pts, fmt, lowGood)}</div>`;
+  }
+  return h + '</div>';
+}
+
 function wire(){
   document.querySelectorAll('[data-inv]').forEach(b => b.onclick = async () => {
     b.disabled = true; b.textContent = 'Invoicing…'; busy = true;
@@ -348,6 +448,7 @@ function wire(){
   document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { ccFilter = b.dataset.f; ccQ = ''; render(); });
   const q = document.getElementById('ccq');
   if (q) q.oninput = () => { clearTimeout(timer); timer = setTimeout(() => { ccQ = q.value.trim(); const pos = q.selectionStart; render(); const n = document.getElementById('ccq'); n.focus(); n.setSelectionRange(pos, pos); }, 250); };
+  document.querySelectorAll('[data-lf]').forEach(b => b.onclick = () => { limF = b.dataset.lf; render(); });
   document.querySelectorAll('[data-done]').forEach(b => b.onclick = () => done(b.dataset.done, b.dataset.name));
 }
 
@@ -361,7 +462,7 @@ window.addEventListener('message', e => { if (e.data && e.data.tsd === 'refresh'
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (not while a pop-up is open).
 (function(){
-  const BUILD = '20261029092315';
+  const BUILD = '20261029101927';
   let newer = false;
   async function check(){
     try {
