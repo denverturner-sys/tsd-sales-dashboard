@@ -101,7 +101,7 @@ footer{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6}
 </div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261029135359"></script>
+<script src="auth.js?v=20261029144228"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/accounts';
 const mem = {};
@@ -398,8 +398,8 @@ function payfixHtml(){
   const list = (P.ready || []).filter(r => payAll || r.account);
   let h = `<h2>Copy payments into Cin7<span class="n">trial</span></h2>`;
   if (stripe) h += `<div class="warn" style="margin-bottom:10px">🔎 <b>Likely cause of the sync problem:</b> since 18 July, card payments land in a Xero bank account called <b>"Stripe GBP"</b>, which has <b>no account code</b>. Cin7 matches payments by account code, so it can't bring these back. That's <b>${stripe.n.toLocaleString('en-GB')} invoices (${gbp0(stripe.value)})</b>, ${stripe.account_n} of them account customers. Fix: in Xero, Accounting → Chart of accounts → Stripe GBP → give it a code (e.g. 1255), then in Cin7 refresh the accounts on the Xero integration. Talk to your accountant first if you're unsure.</div>`;
-  h += `<p class="explain">Invoices that are <b>paid and reconciled to the bank in Xero</b>, still unpaid in Cin7, where the amounts match exactly and the payment is at least 3 days old. <b>Add to Cin7</b> records the same payment (date, amount, bank account) in Cin7. Bob checks Cin7 live first and never adds the same Xero payment twice. Trial: do one, then check the invoice in Cin7 <b>and in Xero</b> (Cin7 may try to send it back to Xero; Xero should refuse because the invoice is already paid).</p>
-    <div class="bar"><button class="chip ${!payAll ? 'on' : ''}" data-pa="0">Account customers ${(P.ready || []).filter(r => r.account).length}</button><button class="chip ${payAll ? 'on' : ''}" data-pa="1">Everyone ${(P.ready || []).length}</button></div>`;
+  h += `<p class="explain">Invoices that are <b>paid and reconciled to the bank in Xero</b>, still unpaid in Cin7, where the amounts match exactly and the payment is at least 3 days old. <b>Add to Cin7</b> records the same payment (date, amount, bank account) in Cin7. Before each one, Bob <b>asks Xero live</b> that the invoice is paid with nothing due and the payment is still there and reconciled, then re-reads Cin7, and never adds the same Xero payment twice. Small rounding differences (up to 5p) go in at Cin7's figure. Trial: do one, then check the invoice in Cin7 <b>and in Xero</b> (Cin7 may try to send it back to Xero; Xero should refuse because the invoice is already paid).</p>
+    <div class="bar"><button class="chip ${!payAll ? 'on' : ''}" data-pa="0">Account customers ${(P.ready || []).filter(r => r.account).length}</button><button class="chip ${payAll ? 'on' : ''}" data-pa="1">Everyone ${(P.ready || []).length}</button>${list.length > 1 ? `<button class="btn go" id="payall">Add all ${list.length} to Cin7</button>` : ''}</div>`;
   h += list.length ? `<div class="rows" style="padding:6px 14px"><table class="inv"><tr class="meta"><td>Invoice</td><td>Order</td><td>Customer</td><td>Paid in Xero</td><td class="r">Amount</td><td></td></tr>${list.map(r => `<tr>
       <td>${esc(r.invoice)}</td><td>${esc(r.order)}</td><td>${esc(r.customer)}${r.limit > 0 ? ` <span class="meta">limit ${gbp0(r.limit)}</span>` : ''}</td>
       <td>${(r.pays || []).map(p => `${dmy(p.date)}${p.batch ? ' (batch)' : ''}`).join(', ')}</td><td class="r">${gbp(r.due)}</td>
@@ -424,6 +424,31 @@ async function addPay(no){
     D.extra.payfix.ready = D.extra.payfix.ready.filter(x => x.invoice !== no);
     D.extra.payfix.done = [{invoice: no, customer: r.customer, amount: j.amount ?? r.due, status: 'done', by: D.me, at: new Date().toISOString()}, ...(D.extra.payfix.done || [])];
     closeModal(); render(); toast(j.already ? `${no} was already paid in Cin7` : `${no}: ${gbp(j.amount)} added to Cin7. Check it in Xero too.`);
+  };
+}
+
+function addPayAll(){
+  const list = ((D.extra.payfix || {}).ready || []).filter(r => payAll || r.account);
+  const total = list.reduce((a, r) => a + (+r.due || 0), 0);
+  document.getElementById('mbox').innerHTML = `<h3>Add ${list.length} payments to Cin7?</h3><div class="sub" style="color:var(--ink);font-size:15px">${gbp(total)} across ${new Set(list.map(r => r.customer)).size} customers. Bob checks each one with Xero first and skips anything that isn't definitely paid. Takes a couple of seconds each, so leave this open.</div>
+    <div class="err" id="me"></div><div class="row2"><button class="btn" id="mc">Cancel</button><button class="btn go" id="mg">Add them all</button></div>`;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mg').onclick = async () => {
+    const g = document.getElementById('mg'), c = document.getElementById('mc'); g.disabled = true; busy = true;
+    let stop = false; c.textContent = 'Stop'; c.onclick = () => { stop = true; c.disabled = true; c.textContent = 'Stopping…'; };
+    let n = 0, sum = 0; const bad = [];
+    for (const r of list) {
+      if (stop) break;
+      g.textContent = `Checking & adding ${n + bad.length + 1} of ${list.length}…`;
+      const j = await api('POST', {action:'add_payment', invoice: r.invoice}).catch(e => ({ok:false, error:e.message}));
+      if (j.ok) { n++; sum += +(j.amount ?? r.due) || 0; D.extra.payfix.ready = D.extra.payfix.ready.filter(x => x.invoice !== r.invoice);
+        D.extra.payfix.done = [{invoice: r.invoice, customer: r.customer, amount: j.amount ?? r.due, status: 'done', by: D.me, at: new Date().toISOString()}, ...(D.extra.payfix.done || [])]; }
+      else bad.push(`${r.invoice} (${r.customer}): ${j.error}`);
+    }
+    busy = false; closeModal(); render();
+    if (bad.length) alertBox(`${n} added (${gbp(sum)}), ${bad.length} skipped`, bad.map(esc).join('<br>'));
+    else toast(`${n} payments added to Cin7 (${gbp(sum)}).`);
   };
 }
 
@@ -487,6 +512,7 @@ function wire(){
   const q = document.getElementById('ccq');
   if (q) q.oninput = () => { clearTimeout(timer); timer = setTimeout(() => { ccQ = q.value.trim(); const pos = q.selectionStart; render(); const n = document.getElementById('ccq'); n.focus(); n.setSelectionRange(pos, pos); }, 250); };
   document.querySelectorAll('[data-pay]').forEach(b => b.onclick = () => addPay(b.dataset.pay));
+  const pa = document.getElementById('payall'); if (pa) pa.onclick = addPayAll;
   document.querySelectorAll('[data-pa]').forEach(b => b.onclick = () => { payAll = b.dataset.pa === '1'; render(); });
   document.querySelectorAll('[data-lf]').forEach(b => b.onclick = () => { limF = b.dataset.lf; render(); });
   document.querySelectorAll('[data-done]').forEach(b => b.onclick = () => done(b.dataset.done, b.dataset.name));
@@ -502,7 +528,7 @@ window.addEventListener('message', e => { if (e.data && e.data.tsd === 'refresh'
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (not while a pop-up is open).
 (function(){
-  const BUILD = '20261029135359';
+  const BUILD = '20261029144228';
   let newer = false;
   async function check(){
     try {
