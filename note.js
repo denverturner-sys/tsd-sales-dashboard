@@ -11,7 +11,9 @@
 
   function html(o, kind) {
     const logo = (document.querySelector('header img') || document.querySelector('img') || {}).src || '';
-    const anyBo = o.lines.some(l => l.bo > 0);
+    // 29 Oct: lines carry go (in this delivery), prev (sent in an earlier delivery) and follow (still to come), from Cin7's fulfilments
+    o.lines.forEach(l => { if (l.go == null) { l.go = Math.max(0, l.qty - l.bo); l.follow = l.bo; l.prev = 0; } });
+    const anyBo = o.lines.some(l => l.follow > 0), anyPrev = o.lines.some(l => l.prev > 0);
     const collect = kind === 'collection';
     const addr = [o.address, [o.town, o.postcode].filter(Boolean).join(' ')].filter(Boolean)
       .join('\n').split(/\n|,\s*(?=[A-Z0-9])/).map(x => x.trim()).filter((x, i, a) => x && a.indexOf(x) === i);
@@ -45,13 +47,14 @@
           ${o.contact ? `<div>Contact: ${esc(o.contact)}</div>` : ''}${o.phone ? `<div>Tel: ${esc(o.phone)}</div>` : ''}</div>
         <div class="box"><div class="k">Order</div>
           <div>Order date: <b>${dmy(o.order_date)}</b></div>
-          <div>${collect ? 'Collected' : 'Despatched'}: <b>${dmy(o.fulfilled_at || new Date().toISOString())}</b></div>
+          <div>${o.fulfilled_at ? (collect ? 'Collected' : 'Despatched') : 'Date'}: <b>${dmy(o.fulfilled_at || new Date().toISOString())}</b></div>
+          ${anyPrev ? `<div><b>Part ${collect ? 'collection' : 'delivery'}</b>: some of this order went earlier</div>` : ''}
           ${o.carrier ? `<div>${collect ? 'Collection' : 'Delivery'}: <b>${esc(o.carrier)}</b></div>` : ''}
           ${o.boxes ? `<div>Boxes / parcels: <b>${o.boxes}</b></div>` : ''}
           ${o.rep && o.rep !== 'WooCommerce' ? `<div>Account manager: ${esc(o.rep)}</div>` : o.rep === 'WooCommerce' ? '<div>Website order</div>' : ''}</div>
       </div>
-      <table><thead><tr><th style="width:18%">Code</th><th>Description</th><th class="r" style="width:10%">Ordered</th><th class="r" style="width:10%">${collect ? 'Collected' : 'Sent'}</th>${anyBo ? '<th class="r" style="width:12%">To follow</th>' : ''}<th class="c" style="width:7%">✓</th></tr></thead><tbody>
-        ${o.lines.map(l => `<tr><td>${esc(l.sku)}</td><td>${esc(l.name)}</td><td class="r">${num(l.qty)}</td><td class="r"><b>${num(Math.max(0, l.qty - l.bo))}</b></td>${anyBo ? `<td class="r ${l.bo > 0 ? 'bo' : ''}">${l.bo > 0 ? num(l.bo) : ''}</td>` : ''}<td class="c">☐</td></tr>`).join('')}
+      <table><thead><tr><th style="width:18%">Code</th><th>Description</th><th class="r" style="width:10%">Ordered</th><th class="r" style="width:11%">${collect ? 'Collecting now' : 'In this delivery'}</th>${anyPrev ? `<th class="r" style="width:10%">${collect ? 'Collected before' : 'Sent before'}</th>` : ''}${anyBo ? '<th class="r" style="width:10%">To follow</th>' : ''}<th class="c" style="width:7%">✓</th></tr></thead><tbody>
+        ${o.lines.map(l => `<tr><td>${esc(l.sku)}</td><td>${esc(l.name)}</td><td class="r">${num(l.qty)}</td><td class="r"><b>${num(l.go)}</b></td>${anyPrev ? `<td class="r">${l.prev > 0 ? num(l.prev) : ''}</td>` : ''}${anyBo ? `<td class="r ${l.follow > 0 ? 'bo' : ''}">${l.follow > 0 ? num(l.follow) : ''}</td>` : ''}<td class="c">☐</td></tr>`).join('')}
       </tbody></table>
       ${anyBo ? `<div class="foot bo">Items marked "to follow" are on order and will ${collect ? 'be ready to collect' : 'be sent'} as soon as they arrive.</div>` : ''}
       ${o.notes ? `<div class="notes"><b>Notes:</b> ${esc(o.notes)}</div>` : ''}
