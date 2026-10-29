@@ -101,7 +101,7 @@ footer{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6}
 </div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261029101927"></script>
+<script src="auth.js?v=20261029135359"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/accounts';
 const mem = {};
@@ -376,6 +376,7 @@ function ledgerHtml(){
     <div class="tile"><div class="k">Wrongly over limit in Cin7</div><div class="v">${L.false_over || 0}</div><div class="s">over in Cin7, under in Xero</div></div>
     <div class="tile"><div class="k">Missing from Xero</div><div class="v">${(L.missing || []).length}</div><div class="s">invoiced in Cin7 2+ days ago</div></div>
     <div class="tile"><div class="k">Amounts differ</div><div class="v">${(L.amount_diff || []).length}</div><div class="s">${(L.voided_xero || []).length} voided in Xero only</div></div></div>`;
+  h += payfixHtml();
   if (recent.length) h += `<h2>Is the payment sync working?</h2><p class="explain">Of the invoices raised each week and paid in Xero, how many show as paid in Cin7 too. If the sync is healthy these match.</p>
     <div class="rows" style="padding:6px 14px"><table class="inv" style="font-size:14px"><tr class="meta"><td>Week</td><td class="r">Invoices</td><td class="r">Paid in Xero</td><td class="r">Also paid in Cin7</td></tr>${W.map(w => `<tr><td>w/c ${dshort(w.wk)}</td><td class="r">${w.n}</td><td class="r">${w.paid_xero}</td><td class="r ${w.paid_xero && w.paid_both / w.paid_xero < .8 ? 'late' : ''}">${w.paid_both} (${w.paid_xero ? Math.round(100 * w.paid_both / w.paid_xero) : 0}%)</td></tr>`).join('')}</table></div>`;
   if (+L.pending_detail) h += `<p class="explain">Still reading ${L.pending_detail} multi-invoice orders from Cin7 (a few every 10 minutes so the warehouse screens aren't slowed down). Numbers will grow a little until that's done.</p>`;
@@ -387,6 +388,43 @@ function ledgerHtml(){
   h += tbl('Amount differs', 'Same invoice number, different total in Cin7 and Xero. Usually an invoice edited on one side only.', L.amount_diff || [], i => `<tr><td>${esc(i.invoice)}</td><td>${esc(i.order)}</td><td>${esc(i.customer)}</td><td class="r">Cin7 ${gbp(i.cin7)}</td><td class="r">Xero ${gbp(i.xero)}</td></tr>`);
   h += tbl('Voided in Xero, live in Cin7', 'Void or credit these in Cin7 too so stock and sales reports stay right.', L.voided_xero || [], i => `<tr><td>${esc(i.invoice)}</td><td>${esc(i.order)}</td><td>${esc(i.customer)}</td><td>${dmy(i.date)}</td><td class="r">${gbp(i.amount)}</td></tr>`);
   return h;
+}
+
+// ---------- copy Xero payments into Cin7 (29 Oct, trial) ----------
+let payAll = false;
+function payfixHtml(){
+  const P = (D.extra || {}).payfix; if (!P) return '';
+  const stripe = (P.blocked || []).find(b => /Stripe GBP/.test(b.reason));
+  const list = (P.ready || []).filter(r => payAll || r.account);
+  let h = `<h2>Copy payments into Cin7<span class="n">trial</span></h2>`;
+  if (stripe) h += `<div class="warn" style="margin-bottom:10px">🔎 <b>Likely cause of the sync problem:</b> since 18 July, card payments land in a Xero bank account called <b>"Stripe GBP"</b>, which has <b>no account code</b>. Cin7 matches payments by account code, so it can't bring these back. That's <b>${stripe.n.toLocaleString('en-GB')} invoices (${gbp0(stripe.value)})</b>, ${stripe.account_n} of them account customers. Fix: in Xero, Accounting → Chart of accounts → Stripe GBP → give it a code (e.g. 1255), then in Cin7 refresh the accounts on the Xero integration. Talk to your accountant first if you're unsure.</div>`;
+  h += `<p class="explain">Invoices that are <b>paid and reconciled to the bank in Xero</b>, still unpaid in Cin7, where the amounts match exactly and the payment is at least 3 days old. <b>Add to Cin7</b> records the same payment (date, amount, bank account) in Cin7. Bob checks Cin7 live first and never adds the same Xero payment twice. Trial: do one, then check the invoice in Cin7 <b>and in Xero</b> (Cin7 may try to send it back to Xero; Xero should refuse because the invoice is already paid).</p>
+    <div class="bar"><button class="chip ${!payAll ? 'on' : ''}" data-pa="0">Account customers ${(P.ready || []).filter(r => r.account).length}</button><button class="chip ${payAll ? 'on' : ''}" data-pa="1">Everyone ${(P.ready || []).length}</button></div>`;
+  h += list.length ? `<div class="rows" style="padding:6px 14px"><table class="inv"><tr class="meta"><td>Invoice</td><td>Order</td><td>Customer</td><td>Paid in Xero</td><td class="r">Amount</td><td></td></tr>${list.map(r => `<tr>
+      <td>${esc(r.invoice)}</td><td>${esc(r.order)}</td><td>${esc(r.customer)}${r.limit > 0 ? ` <span class="meta">limit ${gbp0(r.limit)}</span>` : ''}</td>
+      <td>${(r.pays || []).map(p => `${dmy(p.date)}${p.batch ? ' (batch)' : ''}`).join(', ')}</td><td class="r">${gbp(r.due)}</td>
+      <td class="r"><button class="btn go" data-pay="${esc(r.invoice)}">Add to Cin7</button></td></tr>`).join('')}</table></div>` : '<div class="empty">Nothing ready to copy right now.</div>';
+  const B = (P.blocked || []).filter(b => !/Stripe GBP/.test(b.reason));
+  if (B.length) h += `<details style="margin-top:8px"><summary>Not copied, and why (${B.reduce((a, b) => a + b.n, 0)})</summary><table class="inv">${B.map(b => `<tr><td>${esc(b.reason)}</td><td class="r">${b.n}</td><td class="r">${gbp0(b.value)}</td></tr>`).join('')}</table></details>`;
+  const done = P.done || [];
+  if (done.length) h += `<details style="margin-top:6px"><summary>Payments Bob has added (${done.length})</summary><table class="inv">${done.map(d => `<tr><td>${esc(d.invoice)}</td><td>${esc(d.customer)}</td><td class="r">${gbp(d.amount)}</td><td class="${d.status === 'failed' ? 'late' : ''}">${esc(d.status === 'done' ? 'Added ✓' : d.message || d.status)}</td><td>${esc(d.by || '')} ${ago(d.at)}</td></tr>`).join('')}</table></details>`;
+  return h;
+}
+async function addPay(no){
+  const r = ((D.extra.payfix || {}).ready || []).find(x => x.invoice === no); if (!r) return;
+  document.getElementById('mbox').innerHTML = `<h3>Add payment to Cin7?</h3><div class="sub" style="color:var(--ink);font-size:15px">${esc(r.invoice)} · ${esc(r.order)} · ${esc(r.customer)}<br>
+    ${(r.pays || []).map(p => `<b>${gbp(p.amount)}</b> paid ${dmy(p.date)} into account ${esc(p.account)}${p.ref ? ' · ref “' + esc(p.ref) + '”' : ''}`).join('<br>')}<br><br>This records the payment on the invoice in Cin7. Afterwards, check the invoice in Xero hasn't picked up a second payment.</div>
+    <div class="err" id="me"></div><div class="row2"><button class="btn" id="mc">Cancel</button><button class="btn go" id="mg">Add to Cin7</button></div>`;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mg').onclick = async () => {
+    const g = document.getElementById('mg'); g.disabled = true; g.textContent = 'Adding in Cin7…';
+    const j = await api('POST', {action:'add_payment', invoice: no}).catch(e => ({ok:false, error:e.message}));
+    if (!j.ok) { document.getElementById('me').textContent = j.error || "Couldn't add it"; g.disabled = false; g.textContent = 'Try again'; return; }
+    D.extra.payfix.ready = D.extra.payfix.ready.filter(x => x.invoice !== no);
+    D.extra.payfix.done = [{invoice: no, customer: r.customer, amount: j.amount ?? r.due, status: 'done', by: D.me, at: new Date().toISOString()}, ...(D.extra.payfix.done || [])];
+    closeModal(); render(); toast(j.already ? `${no} was already paid in Cin7` : `${no}: ${gbp(j.amount)} added to Cin7. Check it in Xero too.`);
+  };
 }
 
 // ---------- trends ----------
@@ -448,6 +486,8 @@ function wire(){
   document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { ccFilter = b.dataset.f; ccQ = ''; render(); });
   const q = document.getElementById('ccq');
   if (q) q.oninput = () => { clearTimeout(timer); timer = setTimeout(() => { ccQ = q.value.trim(); const pos = q.selectionStart; render(); const n = document.getElementById('ccq'); n.focus(); n.setSelectionRange(pos, pos); }, 250); };
+  document.querySelectorAll('[data-pay]').forEach(b => b.onclick = () => addPay(b.dataset.pay));
+  document.querySelectorAll('[data-pa]').forEach(b => b.onclick = () => { payAll = b.dataset.pa === '1'; render(); });
   document.querySelectorAll('[data-lf]').forEach(b => b.onclick = () => { limF = b.dataset.lf; render(); });
   document.querySelectorAll('[data-done]').forEach(b => b.onclick = () => done(b.dataset.done, b.dataset.name));
 }
@@ -462,7 +502,7 @@ window.addEventListener('message', e => { if (e.data && e.data.tsd === 'refresh'
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (not while a pop-up is open).
 (function(){
-  const BUILD = '20261029101927';
+  const BUILD = '20261029135359';
   let newer = false;
   async function check(){
     try {
