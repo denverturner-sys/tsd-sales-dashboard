@@ -73,9 +73,21 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family
 @media (max-width: 900px){ #tv{display:none} #phone{display:flex} }
 
 #msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:22px;color:var(--muted)}
+
+/* Target-hit celebration */
+#party{position:fixed;inset:0;z-index:50;pointer-events:none;display:none}
+#party canvas{position:absolute;inset:0;width:100%;height:100%}
+#party .banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;text-align:center;
+  background:rgba(20,20,20,.88);border:4px solid var(--accent);border-radius:28px;padding:4vh 6vw;transition:transform .6s cubic-bezier(.2,1.6,.4,1),opacity .6s}
+#party.on .banner{transform:translate(-50%,-50%) scale(1);opacity:1}
+#party .banner .big{font-family:var(--display,inherit);font-weight:800;font-size:min(12vw,150px);line-height:1;color:var(--accent);letter-spacing:.02em;animation:tsdpulse 1.2s ease-in-out infinite}
+#party .banner .sub{font-size:min(4vw,40px);margin-top:2vh;color:var(--ink)}
+@keyframes tsdpulse{50%{transform:scale(1.06)}}
+.bar .fill.hit{background:var(--good)}
 </style>
 </head>
 <body>
+<div id="party"><canvas></canvas><div class="banner"><div class="big">TARGET HIT!</div><div class="sub"></div></div></div>
 <div id="tv" aria-live="polite"></div>
 <div id="phone"></div>
 <div id="msg"></div>
@@ -120,7 +132,7 @@ function view(d){
              : `Updated ${d.last_synced ? time(d.last_synced) : '–'} · refreshes every 2 min`;
   if (loading) status += `<br><span class="warn">Still loading history: ${d.backfill_remaining} orders to go</span>`;
   const q = d.quotes || {count:0,value:0,stale:0};
-  return {month, todayLong, target, mtd, pace, ahead, pctDone, pctLabel, pacePos, lw, td, lwPct, lwText, status, q};
+  return {month, todayLong, target, mtd, pace, ahead, pctDone, pctLabel, raw, pacePos, lw, td, lwPct, lwText, status, q};
 }
 
 function lwLine(v, cls){
@@ -154,7 +166,7 @@ function renderTV(d, v){
     <div class="card span2">
       <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="label">Month to date</span><span class="line muted">Target <strong style="color:var(--ink)">${gbp(v.target)}</strong></span></div>
       <div style="display:flex;align-items:baseline;gap:26px"><span class="num big">${gbp(v.mtd)}</span><span class="num mid muted">${v.pctLabel}</span></div>
-      <div class="bar"><div class="fill" style="width:${v.pctDone}%"></div><div class="pace" style="left:calc(${v.pacePos}% - 2px)"></div></div>
+      <div class="bar"><div class="fill${v.raw>=100?' hit':''}" style="width:${v.pctDone}%"></div><div class="pace" style="left:calc(${v.pacePos}% - 2px)"></div></div>
       <div style="display:flex;justify-content:space-between" class="line">
         ${v.ahead==null?'<span></span>':`<span class="${v.ahead>=0?'good':'bad'}" style="font-weight:600">${v.ahead>=0?'▲':'▼'} ${gbp(Math.abs(v.ahead))} ${v.ahead>=0?'ahead of':'behind'} pace</span>`}
         <span class="muted">White line = where we should be today · ${gbp(Math.max(0,(v.target||0)-v.mtd))} to go</span>
@@ -180,7 +192,7 @@ function renderPhone(d, v){
   <div class="p-head"><img src="${LOGO}" alt="Tiling Supplies Direct"><div style="text-align:right"><div class="num" style="font-size:30px">Sales · ${v.month}</div><div class="muted" style="font-size:13px">${v.status}</div></div></div>
   <div class="card"><span class="label">Month to date</span>
     <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="num" style="font-size:52px">${gbp(v.mtd)}</span><span class="muted" style="font-size:14px">of ${gbp(v.target)}</span></div>
-    <div class="bar"><div class="fill" style="width:${v.pctDone}%"></div><div class="pace" style="left:calc(${v.pacePos}% - 1px)"></div></div>
+    <div class="bar"><div class="fill${v.raw>=100?' hit':''}" style="width:${v.pctDone}%"></div><div class="pace" style="left:calc(${v.pacePos}% - 1px)"></div></div>
     ${v.ahead==null?'':`<span class="${v.ahead>=0?'good':'bad'}" style="font-size:15px;font-weight:600">${v.ahead>=0?'▲':'▼'} ${gbp(Math.abs(v.ahead))} ${v.ahead>=0?'ahead of':'behind'} pace</span>`}
   </div>
   <div class="grid2">
@@ -204,11 +216,48 @@ async function load(){
     document.getElementById('tv').innerHTML = renderTV(d, v);
     document.getElementById('phone').innerHTML = renderPhone(d, v);
     fit();
+    maybeParty(d, v);
   }catch(e){
     const st = document.querySelector('.status');
     if (st) st.innerHTML = '<span class="bad">Connection lost – retrying</span>';
     else { msg.style.display='flex'; msg.textContent='Could not reach the dashboard – retrying…'; }
   }
+}
+
+// Target hit: confetti and a banner for 90 seconds, once per screen per month. Add &celebrate=1 to the link to preview it.
+function maybeParty(d, v){
+  const force = new URLSearchParams(location.search).get('celebrate') === '1';
+  if (!force && !(v.target && v.mtd >= v.target)) return;
+  const flag = 'tsd-target-hit-' + d.month;
+  if (!force){
+    if (window.__partied) return;
+    try { if (localStorage.getItem(flag)) return; localStorage.setItem(flag, '1'); } catch(e){}
+  }
+  if (window.__partyOn) return;
+  window.__partied = window.__partyOn = true;
+  const box = document.getElementById('party'), cv = box.querySelector('canvas'), cx = cv.getContext('2d');
+  const over = (v.mtd || 0) - (v.target || 0);
+  box.querySelector('.sub').innerHTML = `${v.month}: ${gbp(v.mtd)} against ${gbp(v.target)}` + (over > 0 ? ` · ${gbp(over)} over` : '') + `<br>Nice work, everyone.`;
+  box.style.display = 'block'; requestAnimationFrame(() => box.classList.add('on'));
+  const cols = ['#EED107', '#FFFFFF', '#7DDB98', '#FFB347', '#F5E66B'];
+  let W, H, bits = [];
+  const size = () => { W = cv.width = innerWidth * devicePixelRatio; H = cv.height = innerHeight * devicePixelRatio; };
+  size(); addEventListener('resize', size);
+  const burst = (n, x) => { for (let i = 0; i < n; i++) bits.push({ x: x ?? Math.random() * W, y: -20 - Math.random() * H * .3,
+    vx: (Math.random() - .5) * 6 * devicePixelRatio, vy: (2 + Math.random() * 4) * devicePixelRatio, r: Math.random() * 6.28, vr: (Math.random() - .5) * .3,
+    w: (6 + Math.random() * 8) * devicePixelRatio, h: (10 + Math.random() * 12) * devicePixelRatio, c: cols[i % cols.length] }); };
+  const end = Date.now() + 90000;
+  burst(260);
+  const timer = setInterval(() => burst(90), 2500);
+  (function tick(){
+    cx.clearRect(0, 0, W, H);
+    for (const b of bits){ b.x += b.vx; b.y += b.vy; b.vy += .04 * devicePixelRatio; b.vx *= .995; b.r += b.vr;
+      cx.save(); cx.translate(b.x, b.y); cx.rotate(b.r); cx.fillStyle = b.c; cx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h * Math.cos(b.r * 2)); cx.restore(); }
+    bits = bits.filter(b => b.y < H + 40);
+    if (Date.now() < end || bits.length) { if (Date.now() >= end) clearInterval(timer); requestAnimationFrame(tick); }
+    else { box.classList.remove('on'); setTimeout(() => { box.style.display = 'none'; window.__partyOn = false; }, 700); }
+  })();
+  setTimeout(() => { clearInterval(timer); box.classList.remove('on'); }, 90000);
 }
 fit(); load();
 setInterval(load, 60*1000);
@@ -217,7 +266,7 @@ setTimeout(() => location.reload(), 6*60*60*1000); // pick up page updates a few
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it.
 (function(){
-  const BUILD = '20261030150119';
+  const BUILD = '20261030150607';
   setInterval(async () => { try { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 120000);
 })();
 </script>
