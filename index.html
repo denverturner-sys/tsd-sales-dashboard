@@ -108,6 +108,9 @@ function view(d){
   const ahead = (pace != null) ? mtd - pace : null;
   const pctDone = target ? Math.min(100, mtd/target*100) : 0;
   const pacePos = target ? Math.min(100, pace/target*100) : 0;
+  // Never round up to 100% before the target is actually hit (99.6% used to show as 100%); past it, show the real figure.
+  const raw = target ? mtd/target*100 : 0;
+  const pctLabel = !target ? '–' : raw >= 100 ? Math.floor(raw) + '%' : raw >= 99 ? (Math.floor(raw*10)/10).toFixed(1) + '%' : Math.floor(raw) + '%';
   const lw = d.lastweek_sales, td = d.today_sales;
   const lwPct = lw > 0 ? (td/lw - 1) : null;
   const lwText = d.lastweek_basis === 'same_time' ? `same time last ${wd(d.today)}` : `last ${wd(d.today)} (whole day)`;
@@ -117,7 +120,7 @@ function view(d){
              : `Updated ${d.last_synced ? time(d.last_synced) : '–'} · refreshes every 2 min`;
   if (loading) status += `<br><span class="warn">Still loading history: ${d.backfill_remaining} orders to go</span>`;
   const q = d.quotes || {count:0,value:0,stale:0};
-  return {month, todayLong, target, mtd, pace, ahead, pctDone, pacePos, lw, td, lwPct, lwText, status, q};
+  return {month, todayLong, target, mtd, pace, ahead, pctDone, pctLabel, pacePos, lw, td, lwPct, lwText, status, q};
 }
 
 function lwLine(v, cls){
@@ -150,7 +153,7 @@ function renderTV(d, v){
     <div class="card"><span class="label">Today so far</span><span class="num big">${gbp(v.td)}</span>${lwLine(v,'line')}<span class="line muted">Daily target ${gbp(d.daily_target)} · ${d.today_orders} orders</span></div>
     <div class="card span2">
       <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="label">Month to date</span><span class="line muted">Target <strong style="color:var(--ink)">${gbp(v.target)}</strong></span></div>
-      <div style="display:flex;align-items:baseline;gap:26px"><span class="num big">${gbp(v.mtd)}</span><span class="num mid muted">${v.pctDone.toFixed(0)}%</span></div>
+      <div style="display:flex;align-items:baseline;gap:26px"><span class="num big">${gbp(v.mtd)}</span><span class="num mid muted">${v.pctLabel}</span></div>
       <div class="bar"><div class="fill" style="width:${v.pctDone}%"></div><div class="pace" style="left:calc(${v.pacePos}% - 2px)"></div></div>
       <div style="display:flex;justify-content:space-between" class="line">
         ${v.ahead==null?'<span></span>':`<span class="${v.ahead>=0?'good':'bad'}" style="font-weight:600">${v.ahead>=0?'▲':'▼'} ${gbp(Math.abs(v.ahead))} ${v.ahead>=0?'ahead of':'behind'} pace</span>`}
@@ -214,7 +217,7 @@ setTimeout(() => location.reload(), 6*60*60*1000); // pick up page updates a few
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it.
 (function(){
-  const BUILD = '20261029101927';
+  const BUILD = '20261030150119';
   setInterval(async () => { try { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 120000);
 })();
 </script>
