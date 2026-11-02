@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Management (2 Nov): Denver, Etienne, Rosena. ?tab=users -> who can see what; ?tab=tasks -> everyone's tasks. */
+/* Management (2 Nov): Denver, Etienne, Rosena. ?tab=users -> who can see what; ?tab=tasks -> everyone's tasks; ?tab=activity -> who did what. */
 :root{
   --bg:#262727; --panel:#323333; --panel2:#3B3C3C; --line:#474949; --ink:#FFFFFF; --muted:#B9BCBC;
   --accent:#EED107; --good:#7DDB98; --bad:#FF7A6B; --blue:#8EC5FF;
@@ -70,6 +70,22 @@ textarea{width:100%;min-height:60px;resize:vertical}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:10px;display:none;z-index:60}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #msg{padding:40px;text-align:center;color:var(--muted)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filters input[type=search]{min-width:220px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-weight:700;font-size:13px;cursor:pointer}
+.chip.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+tr.pick{cursor:pointer} tr.pick:hover td{background:var(--panel2)} tr.sel td{background:rgba(238,209,7,.12)}
+td.n{font-family:var(--num);font-size:20px;letter-spacing:.5px}
+td.z{color:#6b6e6e}
+.feed td{white-space:normal;vertical-align:top;text-align:left}
+.feed td.t{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums}
+.kind{display:inline-block;font-size:10px;font-weight:800;border-radius:4px;padding:1px 6px;letter-spacing:.5px}
+.kind.change{background:var(--accent);color:#262727} .kind.click{border:1px solid var(--line);color:var(--muted)}
+.kind.view{border:1px solid var(--blue);color:var(--blue)} .kind.login{background:var(--blue);color:#262727}
+.res.ok{color:var(--good);font-weight:700} .res.bad{color:var(--bad);font-weight:700}
+.dt{font-size:12px;color:var(--muted);margin-top:2px}
+.ref{font-weight:700;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -77,10 +93,12 @@ textarea{width:100%;min-height:60px;resize:vertical}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261102215643"></script>
+<script src="auth.js?v=20261102221533"></script>
+<script src="activity.js?v=20261102221533"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
-const TAB = new URLSearchParams(location.search).get('tab') === 'tasks' ? 'tasks' : 'users';
+const TAB = ({ tasks: 'tasks', activity: 'activity' })[new URLSearchParams(location.search).get('tab')] || 'users';
+const ACT_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/activity';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), D = null, timer, who = store.get('tsd_tt_who') || '';
@@ -96,7 +114,7 @@ document.getElementById('modal').addEventListener('click', e => { if (e.target.i
 
 function showLogin(msg){ clearInterval(timer); document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
 function start(){ document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block'; refresh(); clearInterval(timer);
-  timer = setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input,textarea,select')) refresh(); }, 120000); }
+  timer = setInterval(() => { if (TAB === 'activity' && AF.day !== londonToday()) return; if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input,textarea,select')) refresh(); }, TAB === 'activity' ? 60000 : 120000); }
 async function api(body){
   const r = await fetch(API + (body ? '' : '?view=' + TAB), body ? {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
   if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
@@ -105,7 +123,7 @@ async function api(body){
   if (j.error) throw new Error(j.error);
   return j;
 }
-async function refresh(){ try { D = await api(); TAB === 'tasks' ? renderTasks() : renderUsers(); } catch(x){ if (x.message !== 'login') document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; } }
+async function refresh(){ if (TAB === 'activity') return loadActivity(); try { D = await api(); TAB === 'tasks' ? renderTasks() : renderUsers(); } catch(x){ if (x.message !== 'login') document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; } }
 const poke = () => { try { window.top.postMessage({ tsd: 'tasks' }, location.origin); } catch(e){} };
 
 // ---------------- Users & access ----------------
@@ -200,12 +218,114 @@ function edit(t){
     try { await api({ action: 'task_delete', id: t.id }); closeModal(); poke(); refresh(); } catch(x){ toast(x.message); }
   };
 }
+// ---------------- Activity log ----------------
+// Who opened what, clicked what, and every change sent to Bob (with whether it worked). Logins are recorded by the server.
+const londonToday = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+const AF = { day: londonToday(), who: store.get('tsd_al_who') || '', kind: store.get('tsd_al_kind') || '', q: '' };
+let A = null, shown = 300, qTimer;
+const KINDS = [['', 'Everything'], ['change', 'Changes'], ['failed', 'Failed'], ['click', 'Clicks'], ['view', 'Screens opened'], ['login', 'Logins']];
+const ON = d => d.on === true || d.on === 'true';
+const WHAT = {
+  'warehouse:fulfil': d => d.van ? 'Fulfilled order (van)' : (d.part === true || d.part === 'true') ? 'Sent part of an order' : 'Fulfilled order' + (d.label ? ' and booked a label' : ''),
+  'warehouse:stock': () => "Reported can't find stock", 'warehouse:stock_found': () => 'Found the missing stock',
+  'warehouse:priority': d => ON(d) ? 'Flagged as priority' : 'Took off priority', 'warehouse:van_add': () => 'Added an order to the van',
+  'warehouse:tp_push': () => 'Sent to Track-POD',
+  'goods-in:receive': () => 'Booked in a PO', 'goods-in:no_po': () => 'Booked in goods with no PO',
+  'purchasing:bo_contact': () => 'Logged contact with a backorder customer', 'purchasing:claim_update': () => 'Updated a supplier claim',
+  'purchasing:draft_po': () => 'Drafted a PO', 'purchasing:follow_up': () => 'Logged a supplier follow-up',
+  'purchasing:issue_close': () => "Closed a can't-find issue", 'purchasing:po_expected': () => 'Set a PO expected date',
+  'quotes:follow': () => 'Logged a quote follow-up',
+  'accounts:add_payment': () => 'Added a payment', 'accounts:chase': () => 'Logged a credit-control chase', 'accounts:done': () => 'Marked done',
+  'accounts:undone': () => 'Marked not done', 'accounts:invoice': () => 'Invoiced an order',
+  'web:suggest_dismiss': () => 'Dismissed a product suggestion', 'web:todo_add': () => 'Added a website to-do', 'web:todo_status': () => 'Changed a website to-do',
+  'web:todo_move': () => 'Moved a website to-do', 'web:todo_remove': () => 'Removed a website to-do', 'web:todo_bump': () => 'Bumped a website to-do', 'web:todo_unbump': () => 'Un-bumped a website to-do',
+  'tasks:add': () => 'Added a task', 'tasks:edit': () => 'Edited a task', 'tasks:done': d => ON(d) ? 'Ticked off a task' : 'Reopened a task', 'tasks:delete': () => 'Deleted a task',
+  'manage:access': d => `${ON(d) ? 'Gave' : 'Took'} ${d.person || d.email || 'someone'} ${ON(d) ? 'access to' : 'off'} ${SCREEN_NAMES[d.screen] || d.screen || 'a screen'}`,
+  'manage:task_add': d => `Gave ${d.person || d.email || 'someone'} a task`, 'manage:task_edit': () => "Edited someone's task",
+  'manage:task_done': d => ON(d) ? "Ticked off someone's task" : "Reopened someone's task", 'manage:task_delete': () => "Deleted someone's task",
+  'me:logout': () => 'Logged out', 'me:set_pin': () => 'Changed their PIN', 'me:add': () => 'Added a task',
+  'me:admin_pin': d => `${d.what === 'reset' ? 'Reset' : 'Unlocked'} ${d.name || 'someone'}'s PIN`,
+};
+const SCREEN_NAMES = { wbsales: 'WB Sales', backorders: 'Backorders', tracking: 'Tracking', collections: 'Collections', wbcoll: 'WB Collections', pick: 'Pick & Dispatch',
+  van: 'Van Team', goodsin: 'Goods In', stock: 'Stock', purchasing: 'Purchasing', website: 'Website', accounts: 'Accounts' };
+const HIDE = new Set(['id', 'sale_id', 'po_id', 'email', 'on', 'person', 'loc', 'by', 'v', 'pick', 'fulfil', 'van', 'part', 'what', 'name', 'screen']);
+function what(r){
+  const d = r.detail || {};
+  if (r.kind === 'click') return `Clicked <b>${esc(r.action)}</b>`;
+  if (r.kind !== 'change') return esc(r.action);
+  const f = WHAT[r.fn + ':' + r.action] || (r.fn === 'note' ? () => 'Added a note' : null);
+  return f ? esc(f(d)) : `${esc(r.fn)}: ${esc(r.action)}`;
+}
+function extra(r){
+  const d = r.detail || {};
+  if (r.kind !== 'change') return '';
+  const bits = [d.customer, d.supplier].filter(Boolean).map(esc);
+  for (const [k, v] of Object.entries(d)) if (!HIDE.has(k) && k !== 'customer' && k !== 'supplier' && v !== true && v !== false) bits.push(`${esc(k.replace(/_/g, ' '))}: ${esc(v)}`);
+  return bits.length ? `<div class="dt">${bits.slice(0, 5).join(' · ')}</div>` : '';
+}
+async function loadActivity(){
+  const u = new URLSearchParams({ day: AF.day }); if (AF.who) u.set('who', AF.who); if (AF.kind) u.set('kind', AF.kind); if (AF.q) u.set('q', AF.q);
+  try {
+    const r = await fetch(ACT_API + '?' + u, { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+    if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); return; }
+    const j = await r.json().catch(() => ({}));
+    if (j.error) throw new Error(j.error);
+    A = j; renderActivity();
+  } catch(x){ document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; }
+}
+function shiftDay(n){ const d = new Date(AF.day + 'T12:00:00'); d.setDate(d.getDate() + n); AF.day = d.toISOString().slice(0, 10); shown = 300; loadActivity(); }
+function renderActivity(){
+  const hasFocus = document.activeElement && document.activeElement.id === 'aq';
+  const isToday = AF.day === A.today;
+  const people = [...new Set([...(A.people || []), ...A.summary.map(s => s.who)])].sort();
+  const num = v => `<td class="n ${v ? '' : 'z'}">${v || 0}</td>`;
+  const span = s => { const t = x => new Date(x).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); return `${t(s.first)}–${t(s.last)}`; };
+  const rows = A.rows.slice(0, shown);
+  document.getElementById('app').innerHTML = `
+  <header><div><div class="title">Activity log</div>
+    <div class="sub">Who logged in, which screens they opened, what they clicked, and every change they made in Bob, with whether it worked. The shared warehouse password login can't say which person it is, so it shows as "Shared warehouse login" with a tag for each PC. Kept for 6 months.</div></div>
+    <div class="filters"><button class="btn sm" id="dprev" title="Day before">‹</button><input type="date" id="aday" value="${esc(AF.day)}" max="${esc(A.today)}"><button class="btn sm" id="dnext" ${isToday ? 'disabled' : ''} title="Day after">›</button>
+      ${isToday ? '' : '<button class="btn sm" id="dtoday">Today</button>'}</div></header>
+  <div class="card scroll"><div class="k" style="margin-bottom:6px">${isToday ? 'Today' : esc(dmy(AF.day))} by person <span style="text-transform:none;letter-spacing:0;font-weight:400">· tap a row to see just them</span></div>
+    ${A.summary.length ? `<table><tr><th class="l">Person</th><th class="l">Active</th><th>Logins</th><th>Changes made</th><th>Failed</th><th>Orders fulfilled</th><th>POs booked in</th><th>Clicks</th><th>Screens opened</th></tr>
+      ${A.summary.map(s => `<tr class="pick ${s.who === AF.who ? 'sel' : ''}" data-who="${esc(s.who)}"><td class="l name">${esc(s.who)}${s.devices > 1 ? ` <span class="seen">${s.devices} PCs</span>` : ''}</td><td class="l seen">${span(s)}</td>
+        ${num(s.logins)}${num(s.changes)}<td class="n ${s.failed ? '' : 'z'}" style="${s.failed ? 'color:var(--bad)' : ''}">${s.failed || 0}</td>${num(s.fulfilled)}${num(s.booked_in)}${num(s.clicks)}${num(s.views)}</tr>`).join('')}</table>`
+      : `<div class="empty">Nothing recorded ${isToday ? 'yet today' : 'that day'}.</div>`}</div>
+  <div class="card">
+    <div class="filters" style="justify-content:space-between;margin-bottom:10px">
+      <div class="chips">${KINDS.map(([k, n]) => `<button class="chip ${AF.kind === k ? 'on' : ''}" data-k="${k}">${n}</button>`).join('')}</div>
+      <div class="filters"><select id="awho"><option value="">Everyone</option>${people.map(p => `<option ${p === AF.who ? 'selected' : ''}>${esc(p)}</option>`).join('')}</select>
+        <input type="search" id="aq" placeholder="Search: order no., customer, button…" value="${esc(AF.q)}"></div></div>
+    ${rows.length ? `<div class="scroll"><table class="feed"><tr><th class="l">Time</th><th class="l">Who</th><th class="l">Screen</th><th class="l">What</th><th class="l">Order / PO</th><th class="l">Result</th></tr>
+      ${rows.map(r => `<tr><td class="t">${new Date(r.at).toLocaleTimeString('en-GB')}</td>
+        <td><b>${esc(r.who)}</b>${r.device ? `<div class="dt">${esc(r.device)}</div>` : ''}</td>
+        <td>${esc(r.screen || '')}</td>
+        <td><span class="kind ${r.kind}">${({ change: 'CHANGE', click: 'CLICK', view: 'SCREEN', login: 'LOGIN' })[r.kind]}</span> ${what(r)}${extra(r)}</td>
+        <td class="ref">${esc(r.ref || '')}</td>
+        <td>${r.kind === 'change' ? (r.ok ? '<span class="res ok">✓ worked</span>' : `<span class="res bad">✗ failed</span><div class="dt">${esc(r.err || '')}</div>`) : ''}</td></tr>`).join('')}</table></div>
+      ${A.rows.length > shown ? `<button class="btn" id="amore" style="margin-top:10px">Show more (${A.rows.length - shown} more)</button>` : ''}
+      ${A.total > A.rows.length ? `<div class="sub" style="margin-top:8px">Showing the latest ${A.rows.length} of ${A.total}. Pick a person or a type to narrow it down.</div>` : ''}`
+      : '<div class="empty">Nothing matches.</div>'}</div>`;
+  document.getElementById('aday').onchange = e => { if (e.target.value) { AF.day = e.target.value; shown = 300; loadActivity(); } };
+  document.getElementById('dprev').onclick = () => shiftDay(-1);
+  document.getElementById('dnext').onclick = () => shiftDay(1);
+  const dt = document.getElementById('dtoday'); if (dt) dt.onclick = () => { AF.day = londonToday(); shown = 300; loadActivity(); };
+  document.querySelectorAll('tr.pick').forEach(tr => tr.onclick = () => { AF.who = AF.who === tr.dataset.who ? '' : tr.dataset.who; store.set('tsd_al_who', AF.who); shown = 300; loadActivity(); });
+  document.querySelectorAll('.chip').forEach(b => b.onclick = () => { AF.kind = b.dataset.k; store.set('tsd_al_kind', AF.kind); shown = 300; loadActivity(); });
+  document.getElementById('awho').onchange = e => { AF.who = e.target.value; store.set('tsd_al_who', AF.who); shown = 300; loadActivity(); };
+  const q = document.getElementById('aq');
+  q.oninput = () => { clearTimeout(qTimer); qTimer = setTimeout(() => { AF.q = q.value.trim(); shown = 300; loadActivity(); }, 400); };
+  if (hasFocus) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+  const more = document.getElementById('amore'); if (more) more.onclick = () => { shown += 300; renderActivity(); };
+}
+if (TAB === 'activity') window.TSD_SCREEN = 'Activity log';
+
 if (token) start(); else showLogin();
 TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261102215643';
+  const BUILD = '20261102221533';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
