@@ -66,6 +66,11 @@
     return r;
   };
   if (!token()) gate();
+  // 2 Nov: inside the main dashboard, logging in at the top only writes localStorage here - it doesn't otherwise
+  // tell this screen about it, so it could sit on the gate forever even though the person is now logged in.
+  // The browser fires a 'storage' event in every OTHER tab/frame sharing this login when it changes, so listen
+  // for that and reload straight away rather than waiting for the next button press or refresh.
+  if (inFrame) window.addEventListener('storage', e => { if (e.key === 'tsd_me_token' && e.newValue) location.reload(); });
   // a small "Lock" button on shared warehouse PCs, so the screen can be logged out (e.g. if a PC moves or someone leaves)
   if (!inFrame && get('tsd_wh_token')) {
     const addBtn = () => { const b = document.createElement('button'); b.textContent = '🔒 Log out';
