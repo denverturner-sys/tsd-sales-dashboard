@@ -131,7 +131,7 @@ details.sec>summary{list-style:none;cursor:pointer}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading quotes…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261029101927"></script>
+<script src="auth.js?v=20261102155644"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/quotes';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -294,7 +294,7 @@ TSDAuth.mount(t => { token = t; start(); });
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (waits while a pop-up is open or someone is typing).
 (function(){
-  const BUILD = '20261029101927';
+  const BUILD = '20261102155644';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
