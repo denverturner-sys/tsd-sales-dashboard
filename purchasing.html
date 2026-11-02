@@ -130,7 +130,7 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261102155644"></script>
+<script src="auth.js?v=20261102215643"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -142,7 +142,8 @@ const store = {
   del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
 };
 let token = store.get('tsd_me_token');
-let tab = store.get('tsd_purch_tab') || 'today';
+// ?open=backorders (2 Nov): the Backorders screen under Customer Service opens straight on that tab
+let tab = new URLSearchParams(location.search).get('open') || store.get('tsd_purch_tab') || 'today';
 let loc = store.get('tsd_purch_loc') || 'Bromham';
 let boFilter = 'due', boSearch = '', openBo = null, boWho = store.get('tsd_bo_who') || 'all', lastNew = null;
 let M = null, S = {}, H = {}, me = null, C = null, claimShowDone = false;
@@ -603,7 +604,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261102155644';
+  const BUILD = '20261102215643';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
