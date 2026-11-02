@@ -14,6 +14,10 @@
   const token = () => (inFrame ? get('tsd_me_token') : null) || get('tsd_wh_token') || get('tsd_me_token');
 
   let shown = false;
+  function ungate() {
+    if (!shown) return; shown = false;
+    const d = document.getElementById('wh-gate'); if (d) d.remove();
+  }
   function gate(msg) {
     if (shown) return; shown = true;
     if (inFrame) { try { window.top.postMessage({ tsd: 'login' }, '*'); } catch (e) {} }
@@ -57,6 +61,8 @@
     init.headers = Object.assign({}, init.headers || {}, { Authorization: 'Bearer ' + t });
     const r = await origFetch(input, init);
     if (r.status === 401) { if (get('tsd_wh_token') === t) del('tsd_wh_token'); gate('Logged out. Enter the password again.'); }
+    // a later call that succeeds (e.g. after logging in again at the top, or the server coming back) clears a stuck overlay
+    else if (r.ok) ungate();
     return r;
   };
   if (!token()) gate();
