@@ -103,8 +103,8 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading website dashboard…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261102221533"></script>
-<script src="activity.js?v=20261102221533"></script>
+<script src="auth.js?v=20261103102112"></script>
+<script src="activity.js?v=20261103102112"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/web';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -220,7 +220,7 @@ function renderTodo(){
       ${t.note ? `<div class="muted" style="font-size:13px">${esc(t.note)}</div>` : ''}
       ${t.bump ? `<div class="bumpnote">↑ ${esc(t.bump_by)} asked to move this up${t.bump_note ? ': ' + esc(t.bump_note) : ''}</div>` : ''}</td>
     <td>${esc(t.reason || '')}</td>
-    <td>${esc(t.added_by || '')}<div class="muted">${dmy(t.added_at)}</div></td>
+    <td>${rank ? esc(t.added_by || '') : ''}<div class="muted">${dmy(t.added_at)}</div></td>
     <td class="r ${t.days > 30 ? 'bad' : t.days > 14 ? 'warn' : ''}"><b>${t.days}</b> days</td>
     <td><select onchange="act({action:'todo_status', id:${t.id}, status:this.value}, 'Updated')">
       ${[['todo','To do'],['waiting','Waiting on info/images'],['in_progress','In progress'],['live','Live (done)']].map(([v,l]) => `<option value="${v}" ${t.status===v?'selected':''}>${l}</option>`).join('')}</select></td>
@@ -231,7 +231,7 @@ function renderTodo(){
       <input class="pos" type="number" min="1" max="${n}" value="${i+1}" title="Type a position" onchange="moveTo(${t.id}, +this.value)">
       ${t.bump ? `<button class="btn sm" onclick="act({action:'todo_unbump', id:${t.id}}, 'Request cleared')">Leave where it is</button>` : ''}`
       : (t.bump ? '<span class="muted">Asked</span>' : `<button class="btn sm" onclick="askBump(${t.id}, '${esc(t.name).replace(/'/g,'&#39;')}')">Ask to move up</button>`)}
-      ${(rank || t.added_by === J.me.name) ? `<button class="btn sm" onclick="removeItem(${t.id}, '${esc(t.name).replace(/'/g,'&#39;')}')">Remove</button>` : ''}</div></td></tr>`).join('');
+      ${(rank || t.mine) ? `<button class="btn sm" onclick="removeItem(${t.id}, '${esc(t.name).replace(/'/g,'&#39;')}')">Remove</button>` : ''}</div></td></tr>`).join('');
   return `<div class="sec"><h2>Add a product <span class="h">${rank ? 'goes to the bottom; move it wherever you want' : 'goes to the bottom of the list; use "Ask to move up" if it matters'}</span></h2>
     <div class="addform">
       <input class="txt" id="a_sku" placeholder="Cin7 SKU (optional)">
@@ -244,8 +244,8 @@ function renderTodo(){
     ${n ? `<table><thead><tr><th>#</th><th>Product</th><th>Why</th><th>Added</th><th class="r">On list</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">Nothing on the list.</div>'}</div>
   <div class="sec"><h2>Recently added to the site <button class="btn sm" onclick="showDone=!showDone;render()">${showDone ? 'Hide' : 'Show'} (${D.done.length})</button>
     <span class="h">average ${D.done.length ? Math.round(D.done.reduce((a,x) => a + x.days, 0) / D.done.length) : '–'} days from list to live</span></h2>
-    ${showDone ? (D.done.length ? `<table><thead><tr><th>Product</th><th>Added by</th><th class="r">Added</th><th class="r">Live</th><th class="r">Took</th></tr></thead><tbody>
-      ${D.done.map(d => `<tr><td>${esc(d.name)} <span class="muted">${esc(d.sku || '')}</span></td><td>${esc(d.added_by || '')}</td><td class="r">${dmy(d.added_at)}</td><td class="r">${dmy(d.done_at)}</td><td class="r">${d.days} days</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nothing done in the last 60 days yet.</div>') : ''}</div>
+    ${showDone ? (D.done.length ? `<table><thead><tr><th>Product</th>${J.me.can_rank ? '<th>Added by</th>' : ''}<th class="r">Added</th><th class="r">Live</th><th class="r">Took</th></tr></thead><tbody>
+      ${D.done.map(d => `<tr><td>${esc(d.name)} <span class="muted">${esc(d.sku || '')}</span></td>${J.me.can_rank ? `<td>${esc(d.added_by || '')}</td>` : ''}<td class="r">${dmy(d.added_at)}</td><td class="r">${dmy(d.done_at)}</td><td class="r">${d.days} days</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nothing done in the last 60 days yet.</div>') : ''}</div>
   <div class="sec"><h2>Selling in Cin7 but not on the website <span class="h">${D.suggestions_total} products · sold to 2+ orders by phone/counter in the last 12 weeks, or £500+ in Sage last year</span></h2>
     ${D.synced.variations_pending > 0 ? `<div class="wait">Still reading every product variation from the website (${D.synced.variations_pending} products to go, about ${Math.ceil(D.synced.variations_pending / 40) * 2} minutes). This list appears once that's done; until then it would wrongly show products that are on the site as variations.</div>`
     : D.suggestions.length ? `<table><thead><tr><th>SKU</th><th>Product</th><th>Supplier</th><th class="r">Orders (12 wks)</th><th class="r">Sales (12 wks)</th><th class="r">Sage last year</th><th class="r">In stock</th><th></th></tr></thead><tbody>
@@ -479,7 +479,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261102221533';
+  const BUILD = '20261103102112';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
