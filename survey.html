@@ -51,17 +51,16 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
-<script src="auth.js?v=20261103083302"></script>
-<script src="activity.js?v=20261103083302"></script>
+<script src="auth.js?v=20261103084125"></script>
+<script src="activity.js?v=20261103084125"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/survey';
 window.TSD_SCREEN = 'Bob feedback';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
-let token = store.get('tsd_me_token'), ME = null, DONE = false, VIEW = 'form', R = null;
+let token = store.get('tsd_me_token'), ME = null, MYSCREENS = [], DONE = false, VIEW = 'form', R = null;
 const A = { ease:null, speed:null, screens:new Set(), best:'', annoy:'', missing:'', other:'', anon:false };
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const SCREENS = ['My Sales','My Tasks','Company','Quotes','WB Sales','Backorders','Tracking','Collections','WB Collections','Pick & Dispatch','Van Team','Goods In','Stock','Purchasing','Website','Accounts'];
 
 function showLogin(msg){ document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
 async function start(){
@@ -70,7 +69,7 @@ async function start(){
     const r = await fetch(API, { headers:{ Authorization:'Bearer ' + token }, cache:'no-store' });
     if (r.status === 401) { token = null; store.del('tsd_me_token'); return showLogin('Please log in again.'); }
     const j = await r.json(); if (j.error) throw new Error(j.error);
-    ME = j.me; DONE = j.done; render();
+    ME = j.me; DONE = j.done; MYSCREENS = j.screens || []; render();
   } catch(x){ document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; }
 }
 async function loadResults(){
@@ -94,29 +93,27 @@ function scale(key, lo, hi){
   return `<div class="scale" data-k="${key}">${[1,2,3,4,5].map(n => `<button data-n="${n}" class="${A[key] === n ? 'on' : ''}">${n}</button>`).join('')}</div><div class="ends"><span>${lo}</span><span>${hi}</span></div>`;
 }
 function form(me){
-  return `<div class="sub" style="margin-top:8px">Hi ${esc(me.name)}. You've had a week with Bob, so tell us what's working and what isn't. It takes about three minutes, and the honest answer is the useful one. Skip anything you don't have an opinion on.</div>
+  return `<div class="sub" style="margin-top:8px">Hi ${esc(me.name)}. You've had a week with Bob, so tell us what's working and what isn't. It takes about three minutes, and the honest answer is the useful one. Your answers come to Denver with your name on, so he can come back to you if he needs to ask what you meant. Skip anything you don't have an opinion on.</div>
   <div class="card"><div class="q">How easy is Bob to use day to day?</div>${scale('ease', '1 · Painful', '5 · Easy')}</div>
   <div class="card"><div class="q">How fast does it feel?</div>${scale('speed', '1 · Slow', '5 · Quick')}</div>
-  <div class="card"><div class="q">Which screens do you actually use?</div><div class="hint">Tap all that apply.</div><div class="chips" id="chips">${SCREENS.map(s => `<button data-s="${esc(s)}" class="${A.screens.has(s) ? 'on' : ''}">${esc(s)}</button>`).join('')}</div></div>
+  <div class="card"><div class="q">Which screens do you actually use?</div><div class="hint">These are the ones you can open. Tap all that apply.</div><div class="chips" id="chips">${MYSCREENS.map(s => `<button data-s="${esc(s)}" class="${A.screens.has(s) ? 'on' : ''}">${esc(s)}</button>`).join('')}</div></div>
   <div class="card"><div class="q">What's the best thing about it?</div><textarea id="best" placeholder="Something it does better than the old way">${esc(A.best)}</textarea></div>
   <div class="card"><div class="q">What annoys you, or doesn't work?</div><div class="hint">Bugs, slow bits, confusing bits. Say which screen if you can.</div><textarea id="annoy">${esc(A.annoy)}</textarea></div>
   <div class="card"><div class="q">What's missing? What would save you time?</div><textarea id="missing">${esc(A.missing)}</textarea></div>
   <div class="card"><div class="q">Anything else?</div><textarea id="other">${esc(A.other)}</textarea></div>
-  <div class="card"><label class="anon"><input type="checkbox" id="anon" ${A.anon ? 'checked' : ''}><span><b>Send it anonymously</b><br><span class="sub">Your answers are saved without your name, and only the day, not the time. We'll still know you've replied, so nobody chases you, but not what you said.</span></span></label></div>
   <button class="btn" id="send">Send</button><div class="sub" id="err" style="color:var(--bad);margin-top:8px"></div>`;
 }
 function wire(){
   document.querySelectorAll('.scale').forEach(el => el.onclick = e => { const b = e.target.closest('button'); if (!b) return; A[el.dataset.k] = +b.dataset.n; el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); });
   document.getElementById('chips').onclick = e => { const b = e.target.closest('button'); if (!b) return; const s = b.dataset.s; A.screens.has(s) ? A.screens.delete(s) : A.screens.add(s); b.classList.toggle('on'); };
   ['best','annoy','missing','other'].forEach(k => document.getElementById(k).oninput = e => A[k] = e.target.value);
-  document.getElementById('anon').onchange = e => A.anon = e.target.checked;
   document.getElementById('send').onclick = send;
 }
 async function send(){
   const b = document.getElementById('send'), err = document.getElementById('err'); b.disabled = true; err.textContent = '';
   try {
     const r = await fetch(API, { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
-      body: JSON.stringify({ anonymous: A.anon, answers: { ease:A.ease, speed:A.speed, screens:[...A.screens], best:A.best, annoy:A.annoy, missing:A.missing, other:A.other } }) });
+      body: JSON.stringify({ answers: { ease:A.ease, speed:A.speed, screens:[...A.screens], best:A.best, annoy:A.annoy, missing:A.missing, other:A.other } }) });
     const j = await r.json();
     if (r.status === 401) { token = null; store.del('tsd_me_token'); return showLogin('Please log in again.'); }
     if (!j.ok) throw new Error(j.error || 'Something went wrong');
