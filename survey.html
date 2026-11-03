@@ -51,8 +51,8 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
-<script src="auth.js?v=20261103084710"></script>
-<script src="activity.js?v=20261103084710"></script>
+<script src="auth.js?v=20261103084819"></script>
+<script src="activity.js?v=20261103084819"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/survey';
 window.TSD_SCREEN = 'Bob feedback';
@@ -100,7 +100,7 @@ function form(me){
   <div class="card"><div class="q">What's the best thing about it?</div><textarea id="best" placeholder="Something it does better than the old way">${esc(A.best)}</textarea></div>
   <div class="card"><div class="q">What annoys you, or doesn't work?</div><div class="hint">Bugs, slow bits, confusing bits. Say which screen if you can.</div><textarea id="annoy">${esc(A.annoy)}</textarea></div>
   <div class="card"><div class="q">What's missing? What would save you time?</div><textarea id="missing">${esc(A.missing)}</textarea></div>
-  <div class="card"><div class="q">What should we call it?</div><div class="hint">"Bob" stuck, but it's not the most professional name for a system. Any ideas?</div><textarea id="rename" style="min-height:56px" placeholder="One name or a few">${esc(A.rename)}</textarea></div>
+  <div class="card"><div class="q">What name should we give this new system?</div><textarea id="rename" style="min-height:56px" placeholder="Your suggestion">${esc(A.rename)}</textarea></div>
   <div class="card"><div class="q">Anything else?</div><textarea id="other">${esc(A.other)}</textarea></div>
   <button class="btn" id="send">Send</button><div class="sub" id="err" style="color:var(--bad);margin-top:8px"></div>`;
 }
