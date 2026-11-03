@@ -78,13 +78,14 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261103110045"></script>
-<script src="activity.js?v=20261103110045"></script>
+<script src="auth.js?v=20261103110622"></script>
+<script src="activity.js?v=20261103110622"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/support';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), D = null, timer, view = null, filt = 'open';
+const MASTER = new URLSearchParams(location.search).get('all') === '1';   // Management > Requests: everyone's, for admins
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dmy = s => s ? new Date(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
 const KIND = { problem: "Something's wrong", change: 'Change request', idea: 'Idea' };
@@ -102,7 +103,7 @@ async function api(body){
   if (j.error) throw new Error(j.error);
   return j;
 }
-async function refresh(){ try { D = await api(); if (!view) view = D.me.is_admin ? 'all' : 'mine'; render(); } catch(x){ if (x.message !== 'login' && !D) document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; } }
+async function refresh(){ try { D = await api(); view = MASTER && D.me.is_admin ? 'all' : 'mine'; render(); } catch(x){ if (x.message !== 'login' && !D) document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; } }
 
 function mineRow(r){
   return `<div class="req"><div class="rt"><span class="st ${r.status}">${STAT[r.status]}</span>${esc(r.title)}</div>
@@ -126,20 +127,20 @@ function render(){
     .sort((a, b) => (b.priority ?? -1) - (a.priority ?? -1) || b.urgency - a.urgency || new Date(a.created_at) - new Date(b.created_at));
   const nNew = adm ? D.all.filter(r => r.status === 'new').length : 0;
   document.getElementById('app').innerHTML = `
-  <header><div><div class="title">Help & requests</div><div class="sub">Something not working, or want something changed? Tell us here and you'll see what happens to it.</div></div></header>
-  <div class="card"><div class="k" style="margin-bottom:8px">New request</div>
+  <header><div><div class="title">${MASTER ? 'All requests' : 'Help & requests'}</div><div class="sub">${MASTER ? 'Everyone\'s requests. Set a status and priority, and reply so they can see what happened.' : "Something not working, or want something changed? Tell us here and you'll see what happens to it."}</div></div></header>
+  ${MASTER ? '' : `<div class="card"><div class="k" style="margin-bottom:8px">New request</div>
     <form id="rf"><div class="f"><select id="rk"><option value="problem">Something's wrong</option><option value="change">Change request</option><option value="idea">Idea</option></select>
       <select id="ru"><option value="0">Whenever</option><option value="1" selected>Normal</option><option value="2">Urgent</option></select>
       <input id="rt" placeholder="In a few words…" maxlength="200" required></div>
       <textarea id="rd" placeholder="Details: which screen, which order number, what you expected (optional)" maxlength="3000"></textarea>
-      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn y" type="submit">Send</button></div></form></div>
-  ${adm ? `<div class="seg"><button data-v="all" class="${view === 'all' ? 'on' : ''}">Everyone's${nNew ? ` (${nNew} new)` : ''}</button><button data-v="mine" class="${view === 'mine' ? 'on' : ''}">Mine</button></div>` : ''}
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn y" type="submit">Send</button></div></form></div>`}
+  ${MASTER && nNew ? `<div class="sub" style="margin-bottom:8px"><b style="color:var(--accent)">${nNew} new</b></div>` : ''}
   ${view === 'all' ? `<div class="seg">${[['open','Open'],['done',"Done / won't do"],['every','All']].map(([v, l]) => `<button data-fl="${v}" class="${filt === v ? 'on' : ''}">${l}</button>`).join('')}</div>` : ''}
   <div class="card"><div class="k">${view === 'all' ? 'Requests' : 'Your requests'}</div>
     ${list.length ? list.map(view === 'all' ? allRow : mineRow).join('') : '<div class="empty">Nothing here.</div>'}</div>`;
-  document.getElementById('rf').onsubmit = async e => {
+  if (document.getElementById('rf')) document.getElementById('rf').onsubmit = async e => {
     e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
-    try { await api({ action: 'add', kind: rk.value, urgency: +ru.value, title: rt.value, detail: rd.value, screen: 'Help & requests' }); toast('Sent. Thanks'); view = adm ? view : 'mine'; refresh(); }
+    try { await api({ action: 'add', kind: rk.value, urgency: +ru.value, title: rt.value, detail: rd.value, screen: 'Help & requests' }); toast('Sent. Thanks'); refresh(); }
     catch(x){ toast(x.message); b.disabled = false; }
   };
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { view = b.dataset.v; render(); });
@@ -156,7 +157,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261103110045';
+  const BUILD = '20261103110622';
   const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
