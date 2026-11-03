@@ -141,6 +141,25 @@ function lwLine(v, cls){
   return `<span class="${cls} ${up?'good':'bad'}">${up?'▲':'▼'} ${Math.abs(v.lwPct*100).toFixed(0)}% vs ${v.lwText}</span>`;
 }
 
+// Month on month (3 Nov): this month's finished working days vs the same number of working days last month.
+function cmp(d){
+  const c = d.compare; if (!c || !c.last_reliable) return null;
+  const mon = m => day(m).toLocaleDateString('en-GB',{month:'long'});
+  const lm = mon(c.last_month), have = c.wd_done > 0 && c.last_done > 0;
+  const chg = have ? c.this_done / c.last_done - 1 : null;
+  return {c, lm, have, chg, up: chg != null && chg >= 0,
+    line: have ? `${chg>=0?'▲':'▼'} ${Math.abs(chg*100).toFixed(0)}% vs ${lm} at this point (${gbp(c.this_done)} v ${gbp(c.last_done)}, ${c.wd_done} working day${c.wd_done===1?'':'s'}) · ${lm} finished on ${gbp(c.last_total)}`
+                : `${lm} finished on ${gbp(c.last_total)} · the comparison starts once a full working day is in`};
+}
+function monthRows(c){
+  const max = Math.max(...c.months.map(m => Math.max(m.total || 0, m.target || 0)), 1);
+  return c.months.map(m => { const nm = day(m.m).toLocaleDateString('en-GB',{month:'short'});
+    const hit = m.target && !m.partial && m.total >= m.target;
+    return `<div style="display:flex;align-items:center;gap:8px;font-size:14px;margin-top:6px"><span style="width:34px">${nm}</span>
+      <div style="flex:1;background:#3B3C3C;border-radius:4px;height:14px;position:relative"><div style="width:${Math.max(0,m.total)/max*100}%;height:100%;border-radius:4px;background:${m.partial?'#8a7d05':hit?'#7DDB98':'#EED107'}"></div>${m.target?`<div style="position:absolute;top:-2px;bottom:-2px;left:${m.target/max*100}%;width:2px;background:#fff"></div>`:''}</div>
+      <strong style="width:62px;text-align:right">${gbpk(m.total)}${m.partial?'*':''}</strong></div>`; }).join('');
+}
+
 function renderTV(d, v){
   const days = d.days || [];
   const maxV = Math.max(d.daily_target*1.35 || 1, ...days.map(x => x.sales || 0));
@@ -171,6 +190,7 @@ function renderTV(d, v){
         ${v.ahead==null?'<span></span>':`<span class="${v.ahead>=0?'good':'bad'}" style="font-weight:600">${v.ahead>=0?'▲':'▼'} ${gbp(Math.abs(v.ahead))} ${v.ahead>=0?'ahead of':'behind'} pace</span>`}
         <span class="muted">White line = where we should be today · ${gbp(Math.max(0,(v.target||0)-v.mtd))} to go</span>
       </div>
+      ${(() => { const m = cmp(d); return m ? `<div class="line ${m.have ? (m.up?'good':'bad') : 'muted'}" style="margin-top:4px;font-weight:600">${m.line}</div>` : ''; })()}
     </div>
     <div class="card"><span class="label">Product margin</span><span class="num big">${pct(d.mtd_margin)}</span><span class="line">Month to date${d.margin_target?` · target ${pct(d.margin_target)}`:''}</span><span class="line muted">Today ${pct(d.today_margin)}</span></div>
   </div>
@@ -195,6 +215,9 @@ function renderPhone(d, v){
     <div class="bar"><div class="fill${v.raw>=100?' hit':''}" style="width:${v.pctDone}%"></div><div class="pace" style="left:calc(${v.pacePos}% - 1px)"></div></div>
     ${v.ahead==null?'':`<span class="${v.ahead>=0?'good':'bad'}" style="font-size:15px;font-weight:600">${v.ahead>=0?'▲':'▼'} ${gbp(Math.abs(v.ahead))} ${v.ahead>=0?'ahead of':'behind'} pace</span>`}
   </div>
+  ${(() => { const m = cmp(d); return m ? `<div class="card"><span class="label">Vs last month</span>
+    <span class="${m.have ? (m.up?'good':'bad') : 'muted'}" style="font-size:15px;font-weight:600;display:block;margin-top:4px">${m.line}</span>${monthRows(m.c)}
+    <span class="muted" style="font-size:12px;display:block;margin-top:6px">White tick = target. * = month in progress.</span></div>` : ''; })()}
   <div class="grid2">
     <div class="card"><span class="label">Today</span><span class="num" style="font-size:38px">${gbp(v.td)}</span>${lwLine(v,'')}</div>
     <div class="card"><span class="label">Margin</span><span class="num" style="font-size:38px">${pct(d.mtd_margin)}</span><span class="muted" style="font-size:13px">Today ${pct(d.today_margin)}</span></div>
@@ -266,7 +289,7 @@ setTimeout(() => location.reload(), 6*60*60*1000); // pick up page updates a few
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it.
 (function(){
-  const BUILD = '20261102221533';
+  const BUILD = '20261103081323';
   setInterval(async () => { try { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 120000);
 })();
 </script>
