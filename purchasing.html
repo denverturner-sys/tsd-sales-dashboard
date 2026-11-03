@@ -106,6 +106,7 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 .ri{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;flex-direction:column;gap:5px;border-left:5px solid var(--accent)}
 .ri .t{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
 .ri .t b{font-size:16px}
+td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;display:block;margin-top:2px}
 .ri a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:15px}
 .ri .acts .btn{padding:8px 11px}
 .who{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.4px;padding:2px 8px;border-radius:999px;background:var(--blue);color:#262727;margin-right:4px}
@@ -130,8 +131,8 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261102221533"></script>
-<script src="activity.js?v=20261102221533"></script>
+<script src="auth.js?v=20261103133009"></script>
+<script src="activity.js?v=20261103133009"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -470,7 +471,7 @@ function boTable(list, compact){
     const fu = `<div style="margin-bottom:3px">${whoTag(b.owner)}${b.contacted_at ? `<span class="rang">✓ Rung ${dmy(b.contacted_at)} ${hm(b.contacted_at)}${b.contacted_by ? ' · ' + esc(b.contacted_by) : ''}</span>` : `<span class="bad">Not rung yet</span>${b.attempts ? ` <span class="muted">(${b.attempts} no answer)</span>` : ''}`}</div>${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
     const open = openBo === b.id;
     return `<tr class="click" onclick="openBo = openBo === '${b.id}' ? null : '${b.id}'; ${compact ? "boFilter='all';boSearch='" + esc(b.no) + "';setTab('backorders')" : 'render()'}">
-      <td><b>${esc(b.no)}</b><div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div></td>
+      <td><b>${esc(b.no)}</b><div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div>${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}" onclick="event.stopPropagation()">📞 ${esc(b.phone)}</a>` : ''}</td>
       <td class="r">${b.age}d<div class="muted">${dmy(b.order_date)}</div></td><td class="lines">${lines}</td>
       ${compact ? '' : `<td class="fu">${fu}</td><td onclick="event.stopPropagation()"><div class="acts">
         <select onchange="if(this.value){snooze('${b.id}', +this.value);this.value=''}"><option value="">Remind me in…</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option><option value="14">14 days</option></select>
@@ -605,7 +606,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261102221533';
+  const BUILD = '20261103133009';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
