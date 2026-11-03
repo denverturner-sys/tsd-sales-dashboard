@@ -51,15 +51,15 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
-<script src="auth.js?v=20261103084125"></script>
-<script src="activity.js?v=20261103084125"></script>
+<script src="auth.js?v=20261103084710"></script>
+<script src="activity.js?v=20261103084710"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/survey';
 window.TSD_SCREEN = 'Bob feedback';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), ME = null, MYSCREENS = [], DONE = false, VIEW = 'form', R = null;
-const A = { ease:null, speed:null, screens:new Set(), best:'', annoy:'', missing:'', other:'', anon:false };
+const A = { ease:null, speed:null, screens:new Set(), best:'', annoy:'', missing:'', rename:'', other:'' };
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 function showLogin(msg){ document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
@@ -100,20 +100,21 @@ function form(me){
   <div class="card"><div class="q">What's the best thing about it?</div><textarea id="best" placeholder="Something it does better than the old way">${esc(A.best)}</textarea></div>
   <div class="card"><div class="q">What annoys you, or doesn't work?</div><div class="hint">Bugs, slow bits, confusing bits. Say which screen if you can.</div><textarea id="annoy">${esc(A.annoy)}</textarea></div>
   <div class="card"><div class="q">What's missing? What would save you time?</div><textarea id="missing">${esc(A.missing)}</textarea></div>
+  <div class="card"><div class="q">What should we call it?</div><div class="hint">"Bob" stuck, but it's not the most professional name for a system. Any ideas?</div><textarea id="rename" style="min-height:56px" placeholder="One name or a few">${esc(A.rename)}</textarea></div>
   <div class="card"><div class="q">Anything else?</div><textarea id="other">${esc(A.other)}</textarea></div>
   <button class="btn" id="send">Send</button><div class="sub" id="err" style="color:var(--bad);margin-top:8px"></div>`;
 }
 function wire(){
   document.querySelectorAll('.scale').forEach(el => el.onclick = e => { const b = e.target.closest('button'); if (!b) return; A[el.dataset.k] = +b.dataset.n; el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); });
   document.getElementById('chips').onclick = e => { const b = e.target.closest('button'); if (!b) return; const s = b.dataset.s; A.screens.has(s) ? A.screens.delete(s) : A.screens.add(s); b.classList.toggle('on'); };
-  ['best','annoy','missing','other'].forEach(k => document.getElementById(k).oninput = e => A[k] = e.target.value);
+  ['best','annoy','missing','rename','other'].forEach(k => document.getElementById(k).oninput = e => A[k] = e.target.value);
   document.getElementById('send').onclick = send;
 }
 async function send(){
   const b = document.getElementById('send'), err = document.getElementById('err'); b.disabled = true; err.textContent = '';
   try {
     const r = await fetch(API, { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer ' + token },
-      body: JSON.stringify({ answers: { ease:A.ease, speed:A.speed, screens:[...A.screens], best:A.best, annoy:A.annoy, missing:A.missing, other:A.other } }) });
+      body: JSON.stringify({ answers: { ease:A.ease, speed:A.speed, screens:[...A.screens], best:A.best, annoy:A.annoy, missing:A.missing, rename:A.rename, other:A.other } }) });
     const j = await r.json();
     if (r.status === 401) { token = null; store.del('tsd_me_token'); return showLogin('Please log in again.'); }
     if (!j.ok) throw new Error(j.error || 'Something went wrong');
@@ -131,7 +132,7 @@ function results(){
       <div class="sub" style="margin-top:6px"><b>Waiting on:</b> ${(R.waiting || []).map(esc).join(', ') || 'nobody, everyone has replied'}</div></div>
     <div class="card"><div class="k">Average (out of 5)</div><div class="row"><span style="width:90px">Ease of use</span><b class="big" style="font-size:32px">${avg('ease')}</b></div><div class="row"><span style="width:90px">Speed</span><b class="big" style="font-size:32px">${avg('speed')}</b></div></div>
     <div class="card"><div class="k">Screens people use</div>${sc.map(([s, c]) => `<div class="row"><span style="width:130px">${esc(s)}</span><div class="bar"><i style="width:${Math.round(c / Math.max(1, n) * 100)}%"></i></div><b>${c}</b></div>`).join('') || '<div class="sub">Nothing yet.</div>'}</div>
-    ${say('best', 'Best thing')}${say('annoy', 'Annoys / doesn\'t work')}${say('missing', 'Missing / would save time')}${say('other', 'Anything else')}`;
+    ${say('best', 'Best thing')}${say('annoy', 'Annoys / doesn\'t work')}${say('missing', 'Missing / would save time')}${say('rename', 'Name ideas')}${say('other', 'Anything else')}`;
 }
 
 if (token) start(); else showLogin();
