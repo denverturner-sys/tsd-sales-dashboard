@@ -7,12 +7,12 @@
 <link rel="manifest" href="manifest-survey.json">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Bob feedback · TSD</title>
+<title>Feedback · TSD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Staff survey about Bob (3 Nov). One answer each, with a "send anonymously" option. Admins also see the results here. */
+/* Staff survey about the new system (3 Nov). One answer each, with a "send anonymously" option. Admins also see the results here. */
 :root{--bg:#262727;--panel:#323333;--panel2:#3B3C3C;--line:#474949;--ink:#FFFFFF;--muted:#B9BCBC;--accent:#EED107;--good:#7DDB98;--bad:#FF7A6B;--blue:#8EC5FF;
   --num:'Bebas Neue','DIN Condensed','Arial Narrow',Arial,sans-serif;--body:Barlow,'Segoe UI',Arial,sans-serif}
 *{box-sizing:border-box}
@@ -51,11 +51,11 @@ textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
-<script src="auth.js?v=20261103084819"></script>
-<script src="activity.js?v=20261103084819"></script>
+<script src="auth.js?v=20261103090311"></script>
+<script src="activity.js?v=20261103090311"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/survey';
-window.TSD_SCREEN = 'Bob feedback';
+window.TSD_SCREEN = 'Feedback survey';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), ME = null, MYSCREENS = [], DONE = false, VIEW = 'form', R = null;
@@ -79,7 +79,7 @@ async function loadResults(){
 
 function render(){
   const tabs = ME.is_admin ? `<div class="tabs"><button class="${VIEW === 'form' ? 'on' : ''}" data-v="form">The survey</button><button class="${VIEW === 'res' ? 'on' : ''}" data-v="res">Results</button></div>` : '';
-  const head = `<div class="title">How is Bob working for you?</div>`;
+  const head = `<div class="title">How is the new system working for you?</div>`;
   let body;
   if (VIEW === 'res' && ME.is_admin) body = results();
   else if (DONE) body = `<div class="card"><div class="q">Thanks ${esc(ME.name)}, that's in.</div><div class="sub" style="margin-top:6px">We'll go through everything and tell you what's changing. If you think of something else, just tell Denver.</div></div>`;
@@ -93,7 +93,7 @@ function scale(key, lo, hi){
   return `<div class="scale" data-k="${key}">${[1,2,3,4,5].map(n => `<button data-n="${n}" class="${A[key] === n ? 'on' : ''}">${n}</button>`).join('')}</div><div class="ends"><span>${lo}</span><span>${hi}</span></div>`;
 }
 function form(me){
-  return `<div class="sub" style="margin-top:8px">Hi ${esc(me.name)}. You've had a week with Bob, so tell us what's working and what isn't. It takes about three minutes, and the honest answer is the useful one. Your answers come to Denver with your name on, so he can come back to you if he needs to ask what you meant. Skip anything you don't have an opinion on.</div>
+  return `<div class="sub" style="margin-top:8px">Hi ${esc(me.name)}. You've had a week with the new system, so tell us what's working and what isn't. It takes about three minutes, and the honest answer is the useful one. Your answers come to Denver with your name on, so he can come back to you if he needs to ask what you meant. Skip anything you don't have an opinion on.</div>
   <div class="card"><div class="q">How easy is Bob to use day to day?</div>${scale('ease', '1 · Painful', '5 · Easy')}</div>
   <div class="card"><div class="q">How fast does it feel?</div>${scale('speed', '1 · Slow', '5 · Quick')}</div>
   <div class="card"><div class="q">Which screens do you actually use?</div><div class="hint">These are the ones you can open. Tap all that apply.</div><div class="chips" id="chips">${MYSCREENS.map(s => `<button data-s="${esc(s)}" class="${A.screens.has(s) ? 'on' : ''}">${esc(s)}</button>`).join('')}</div></div>
