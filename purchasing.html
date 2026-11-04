@@ -131,8 +131,8 @@ td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;d
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261103133009"></script>
-<script src="activity.js?v=20261103133009"></script>
+<script src="auth.js?v=20261104121025"></script>
+<script src="activity.js?v=20261104121025"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -606,7 +606,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261103133009';
+  const BUILD = '20261104121025';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
