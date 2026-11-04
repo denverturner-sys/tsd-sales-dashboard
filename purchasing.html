@@ -441,6 +441,7 @@ function renderBackorders(){
     <div class="filters"><span class="lab">Show</span>${f('due','Needs a look')}${f('notrung','Not rung yet')}${f('rung','Rung')}${f('in','Stock in')}${f('nopo','No PO')}${f('over','PO overdue')}${f('noupdate','Customer not updated 7d+')}${f('snoozed','Snoozed')}${f('all','All')}
     <input class="txt" placeholder="Search order, customer, SKU, supplier" value="${esc(boSearch)}" oninput="boSearch=this.value;clearTimeout(window._bs);window._bs=setTimeout(()=>{render();const i=document.querySelector('.filters input');i.focus();i.setSelectionRange(i.value.length,i.value.length)},250)" style="min-width:280px">
     <span class="muted">${list.length} order${list.length===1?'':'s'}</span></div>
+    ${SVC() ? '' : `<div class="filters"><span class="lab">Force an order on</span><input class="txt" id="pinSo" placeholder="SO-06442" style="width:130px" onkeydown="if(event.key==='Enter')pinOrder()"><button class="btn go" onclick="pinOrder()">Add to list</button><span class="muted">Pulls it from Cin7 if Bob hasn't got it, whatever state it's in.</span></div>`}
     <div class="sec">${list.length ? boTable(list, false) : '<div class="empty">Nothing here.</div>'}</div></div>
     ${ringBox(false)}</div>`;
 }
@@ -471,6 +472,20 @@ function ringBox(wide){
   </div>`;
 }
 const whoTag = o => o ? `<span class="who ${o === me?.name ? 'me' : ''}">${o === me?.name ? 'Mine' : esc(o) + "'s"}</span>` : '<span class="who none">Nobody yet</span>';
+async function boPost(body){
+  const r = await fetch(API.replace('/purchasing', '/bo_pin'), {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error(j.error || 'Something went wrong'); return j;
+}
+async function pinOrder(){
+  const el = document.getElementById('pinSo'); const so = (el?.value || '').trim(); if (!so) return;
+  try { const j = await boPost({action:'pin', so}); toast(`${j.order} (${j.customer || ''}) is on the list${j.pulled ? ' · pulled from Cin7' : ''}`); boFilter='all'; boSearch=j.order; await refresh(); }
+  catch(x){ toast(x.message); }
+}
+async function unpinOrder(id, no){
+  if (!confirm(`Take ${no} off the Backorders list?`)) return;
+  try { await boPost({action:'unpin', ref:id}); toast(`${no} taken off the list`); await refresh(); } catch(x){ toast(x.message); }
+}
 async function boContact(id, what, no){
   const msg = {contacted: `${no}: marked as rung`, no_answer: `${no}: no answer logged. It stays on the list`, claim: `${no} is yours`, unclaim: `${no}: let go`, uncontacted: `${no}: back to not rung`}[what];
   try { const j = await api('', {action:'bo_contact', ref:id, what}); if (j.ok === false) throw new Error(j.error); toast(msg); await refresh(); }
@@ -483,14 +498,15 @@ function boTable(list, compact){
     const fu = `<div style="margin-bottom:3px">${whoTag(b.owner)}${b.contacted_at ? `<span class="rang">✓ Rung ${dmy(b.contacted_at)} ${hm(b.contacted_at)}${b.contacted_by ? ' · ' + esc(b.contacted_by) : ''}</span>` : `<span class="bad">Not rung yet</span>${b.attempts ? ` <span class="muted">(${b.attempts} no answer)</span>` : ''}`}</div>${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
     const open = openBo === b.id;
     return `<tr class="click" onclick="openBo = openBo === '${b.id}' ? null : '${b.id}'; ${compact ? "boFilter='all';boSearch='" + esc(b.no) + "';setTab('backorders')" : 'render()'}">
-      <td><b>${esc(b.no)}</b><div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div>${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}" onclick="event.stopPropagation()">📞 ${esc(b.phone)}</a>` : ''}</td>
+      <td><b>${esc(b.no)}</b>${b.forced || b.pinned ? `<div><span class="tag t-snz" title="${b.pinned ? 'Added by hand' : 'Cin7 no longer shows this as backordered but it is not fully shipped'}">${b.pinned ? 'Added by hand' : esc(String(b.sx_status || '').toLowerCase()) + ' · ' + esc(String(b.ship_status || '').toLowerCase())}</span></div>` : ''}<div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div>${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}" onclick="event.stopPropagation()">📞 ${esc(b.phone)}</a>` : ''}</td>
       <td class="r">${b.age}d<div class="muted">${dmy(b.order_date)}</div></td><td class="lines">${lines}</td>
       ${compact ? '' : `<td class="fu">${fu}</td><td onclick="event.stopPropagation()"><div class="acts">
         <select onchange="if(this.value){snooze('${b.id}', +this.value);this.value=''}"><option value="">Remind me in…</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option><option value="14">14 days</option></select>
         ${b.snoozed ? `<button class="btn sm" onclick="snooze('${b.id}', null)">Un-snooze</button>` : ''}
         ${b.owner === me?.name ? `<button class="btn sm" onclick="boContact('${b.id}','unclaim','${esc(b.no)}')">Let go</button>` : `<button class="btn sm" onclick="boContact('${b.id}','claim','${esc(b.no)}')">${b.owner ? 'Take over' : 'Mine'}</button>`}
         ${b.contacted_at ? `<button class="btn sm" onclick="custUpdated('${b.id}')">Customer updated</button>` : `<button class="btn sm go" onclick="boContact('${b.id}','contacted','${esc(b.no)}')">✓ Rang them</button>`}
-        <button class="btn sm" onclick="addNote('${b.id}','${esc(b.no)}')">Note</button></div></td>`}</tr>
+        <button class="btn sm" onclick="addNote('${b.id}','${esc(b.no)}')">Note</button>
+        ${SVC() || !(b.forced || b.pinned) ? '' : `<button class="btn sm" onclick="unpinOrder('${b.id}','${esc(b.no)}')">Take off list</button>`}</div></td>`}</tr>
       ${open && !compact ? `<tr class="detail"><td colspan="6">${boDetail(b)}</td></tr>` : ''}`;
   }).join('')}</tbody></table>`;
 }
