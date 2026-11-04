@@ -55,10 +55,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
-<script src="auth.js?v=20261104113922"></script>
-<script src="activity.js?v=20261104113922"></script>
+<script src="auth.js?v=20261104115233"></script>
+<script src="activity.js?v=20261104115233"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/webprod';
+const WEB_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/web';   // same data as the Products to add tab
+let W = null, showAll = false;
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), D = null, pick = null, hits = [], msg = null, busy = false, qseq = 0, timer, poll;
@@ -75,8 +77,20 @@ async function api(body, q){
   if (j.error) throw new Error(j.error);
   return j;
 }
+async function loadRec(){ try { const r = await fetch(WEB_API, {headers:{Authorization:'Bearer ' + token}, cache:'no-store'}); if (r.ok) { W = (await r.json()).data; render(); } } catch(e){} }
+async function pickSku(sku){ try { const j = await api(null, sku); const p = (j.results || []).find(x => x.sku === sku); if (!p) return alert('Not found in Cin7'); if (p.on_site || p.requested) return alert('That one is already on the website or requested'); pick = p; msg = null; render(); window.scrollTo(0,0); } catch(e){ if (e.message !== 'login') alert(e.message); } }
+function recHtml(){
+  if (!W) return '';
+  const taken = new Set((D.drafts || []).filter(d => d.status !== 'failed').map(d => d.sku));
+  const todo = (W.todo || []).filter(t => t.sku && !t.on_site && t.status !== 'live' && !taken.has(t.sku));
+  const sug = (W.suggestions || []).filter(x => !taken.has(x.sku));
+  const list = showAll ? sug : sug.slice(0, 12);
+  const row = (sku, name, extra) => `<button class="hit" onclick="pickSku('${esc(sku).replace(/'/g, '')}')"><b>${esc(sku)}</b><small>${esc(name)}</small><small>${extra}</small></button>`;
+  return (todo.length ? `<div class="card"><div class="k">On your “to add” list</div>${todo.map(t => row(t.sku, t.name, esc(t.reason || '') + (t.avail != null ? ' · ' + t.avail + ' in stock' : ''))).join('')}</div>` : '')
+    + (sug.length ? `<div class="card"><div class="k">Recommended: selling in Cin7, not on the website</div><div class="m" style="margin-bottom:4px">Ranked by sales in the last 12 weeks. Tap one to start.</div>${list.map(x => row(x.sku, x.name, `${gbp(x.rev12w)} sold · ${x.orders12w} order${x.orders12w === 1 ? '' : 's'} · ${x.avail != null ? x.avail + ' in stock' : ''}${x.supplier_name ? ' · ' + esc(x.supplier_name) : ''}`)).join('')}${sug.length > 12 ? `<button class="btn sm alt" style="margin-top:8px" onclick="showAll=!showAll;render()">${showAll ? 'Show fewer' : 'Show all ' + sug.length}</button>` : ''}</div>` : '');
+}
 async function refresh(){
-  try { D = await api(); render(); schedulePoll(); }
+  try { D = await api(); render(); schedulePoll(); if (!W) loadRec(); }
   catch(x){ if (x.message !== 'login') document.getElementById('app').innerHTML = `<div class="msg bad">${esc(x.message)}</div>`; }
 }
 function schedulePoll(){ clearTimeout(poll); if ((D.drafts || []).some(d => d.status === 'queued' || d.status === 'working')) poll = setTimeout(async () => { if (!busy) { try { D = await api(); paintList(); } catch(e){} } schedulePoll(); }, 20000); }
@@ -165,6 +179,7 @@ function render(){
     ${pick ? `<b style="font-family:var(--num);font-size:26px;letter-spacing:1px;font-weight:400">${esc(pick.sku)}</b><div>${esc(pick.name)}</div><div class="m">${esc(pick.brand || '')}${pick.supplier_name ? ' · ' + esc(pick.supplier_name) : ''}${cost() ? ' · cost ' + gbp(cost()) : ''}</div>
       <button class="btn sm alt" style="margin-top:8px" onclick="pick=null;hits=[];render()">Pick a different product</button>`
     : `<input id="q" type="search" placeholder="SKU or name" autocomplete="off" oninput="search(this.value)"><div id="hits">${hits.map(hitHtml).join('')}</div>`}</div>
+    ${pick ? '' : recHtml()}
     ${pick ? `<div class="card"><div class="k">2 · Price and shipping</div>
       <div class="row"><div><div class="m">Web price, ex VAT (£)</div><input id="f_price" type="number" step="0.01" inputmode="decimal" value="${esc(form.price)}" oninput="keep();document.getElementById('mg').textContent=marginTxt()"><div class="m" id="mg" style="margin-top:4px">${marginTxt()}</div></div>
       <div><div class="m">Weight (kg, optional)</div><input id="f_weight" type="number" step="0.01" inputmode="decimal" value="${esc(form.weight)}"></div></div>
@@ -185,7 +200,7 @@ if (token) refresh(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; refresh(); });
 </script>
 <script>
-(function(){ const BUILD = '20261104113922'; let newer = false;
+(function(){ const BUILD = '20261104115233'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !imgs.length && !sheets.length && !pick && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();
