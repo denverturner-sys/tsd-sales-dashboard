@@ -103,8 +103,8 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading website dashboard…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261103102112"></script>
-<script src="activity.js?v=20261103102112"></script>
+<script src="auth.js?v=20261104113922"></script>
+<script src="activity.js?v=20261104113922"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/web';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -240,6 +240,7 @@ function renderTodo(){
       <input class="txt" id="a_note" placeholder="Note (optional)">
       <button class="btn go" onclick="addItem()">Add to list</button>
     </div></div>
+  <div class="sec"><h2>New product builder <span class="h">pick from Cin7, add photos and datasheets, Claude writes the listing and creates a draft</span> <a class="btn go" style="text-decoration:none;display:inline-block" href="webnew.html">➕ Add a new product</a></h2></div>
   <div class="sec"><h2>To add to the website <span class="h">${n} product${n===1?'':'s'} · ${rank ? 'you set the order' : 'Etienne sets the order'} · ticks itself off when the SKU goes live on the site</span></h2>
     ${n ? `<table><thead><tr><th>#</th><th>Product</th><th>Why</th><th>Added</th><th class="r">On list</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">Nothing on the list.</div>'}</div>
   <div class="sec"><h2>Recently added to the site <button class="btn sm" onclick="showDone=!showDone;render()">${showDone ? 'Hide' : 'Show'} (${D.done.length})</button>
@@ -479,7 +480,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261103102112';
+  const BUILD = '20261104113922';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
