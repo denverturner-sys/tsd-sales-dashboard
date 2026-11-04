@@ -64,14 +64,15 @@ tr.bad td{background:rgba(255,122,107,.08)} .iss{color:var(--bad);font-size:12px
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="auth.js?v=20261104121137"></script>
-<script src="activity.js?v=20261104121137"></script>
+<script src="auth.js?v=20261104125039"></script>
+<script src="activity.js?v=20261104125039"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/cin7new';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), O = null, DEF = null, recent = [], mode = 'one', busy = false, msg = null;
 let sup = '', brand = '', cat = '', skuInfo = null, useSupSku = true;
+let docs = [], extra = '', revAcc = '';
 let rows = [];          // preview rows: {sku,name,category,brand,cost,price,supplier_code,barcode,weight,note,on,issues:[]}
 let raw = null, map = {}, rule = {kind:'markup', pct:'', round:'none'};   // bulk: parsed sheet + column mapping
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -92,6 +93,28 @@ function pickPrefix(i){ const a = skuInfo.alts[i]; skuInfo = {...skuInfo, prefix
 async function loadSku(){ skuInfo = null; seqNext = null; if (!sup) return render(); try { skuInfo = await api(null, '?suggest=' + sup); seqNext = skuInfo.next; } catch(e){} render(); }
 function nextSku(){ if (!skuInfo) return ''; const s = skuInfo.prefix + String(seqNext).padStart(skuInfo.width, '0'); seqNext++; return s; }
 
+/* ---------- documents + extra info (shared by both tabs) ---------- */
+function keepExtra(){ const e = document.getElementById('x_extra'); if (e) extra = e.value; }
+function addDocs(list){ keepExtra(); if (document.getElementById('o_name')) oneKeep(); for (const f of list) { if (f.size > 20 * 1024 * 1024) { alert(f.name + ' is over 20MB'); continue; } docs.push(f); } render(); }
+function rmDoc(i){ keepExtra(); if (document.getElementById('o_name')) oneKeep(); docs.splice(i, 1); render(); }
+function docsHtml(){ return `<div class="card"><div class="k">Datasheets, supplier info sheets, price lists or other documents (optional)</div>
+  <input type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png" onchange="addDocs(this.files)">
+  ${docs.length ? `<div style="margin-top:6px">${docs.map((f, i) => `<div class="m" style="padding:2px 0">📄 ${esc(f.name)} <a href="#" onclick="rmDoc(${i});return false" style="color:var(--bad)">remove</a></div>`).join('')}</div>` : ''}
+  <div class="k">Anything else Claude should know (optional)</div>
+  <textarea id="x_extra" rows="3" placeholder="e.g. pack sizes, what it replaces, dimensions, barcodes, anything not on the sheets" onchange="keepExtra()">${esc(extra)}</textarea>
+  <div class="m" style="margin-top:4px">Saved with the new products. Claude reads these and the notes to check weights, dimensions, barcodes and names, so nothing gets missed. The notes also go on each product's internal note in Cin7.</div></div>`; }
+async function uploadDocs(){
+  if (!docs.length) return [];
+  const s = await api({action:'sign', files: docs.map(f => ({name: f.name}))}); const out = [];
+  for (let i = 0; i < docs.length; i++) {
+    const fd = new FormData(); fd.append('cacheControl', '3600'); fd.append('', docs[i]);
+    const r = await fetch(s.files[i].signed_url, {method:'PUT', body: fd}); if (!r.ok) throw new Error('Upload failed for ' + docs[i].name);
+    out.push({name: docs[i].name, url: s.files[i].url});
+  }
+  return out;
+}
+const accOpts = (v) => (O.accounts || []).map(a => `<option value="${esc(a.code)}" ${a.code === (v || DEF.RevenueAccount) ? 'selected' : ''}>${esc(a.code)} · ${esc(a.name.replace(/^Sales\s*-\s*/, ''))}</option>`).join('');
+
 /* ---------- common ---------- */
 const supOpts = () => `<option value="">Choose supplier…</option>` + O.suppliers.map(s => `<option value="${s.id}" ${s.id === sup ? 'selected' : ''}>${esc(s.name)}</option>`).join('');
 const catOpts = (v) => `<option value="">Category…</option>` + O.categories.map(c => `<option ${c === v ? 'selected' : ''}>${esc(c)}</option>`).join('');
@@ -99,7 +122,7 @@ const brandOpts = (v) => `<option value="">No brand</option>` + O.brands.map(c =
 const supName = () => (O.suppliers.find(s => s.id === sup) || {}).name || '';
 function defaultsHtml(){ return `<div class="card"><div class="k">Every new product gets (copied from your existing products)</div><div class="def">
   <div>Type: <b>${esc(DEF.Type)}</b></div><div>Costing: <b>${esc(DEF.CostingMethod)}</b></div><div>Default site: <b>${esc(DEF.DefaultLocation)}</b></div><div>Unit: <b>${esc(DEF.UOM)}</b></div>
-  <div>Sale VAT: <b>${esc(DEF.SaleTaxRule)}</b></div><div>Purchase VAT: <b>${esc(DEF.PurchaseTaxRule)}</b></div><div>Revenue account: <b>${esc(DEF.RevenueAccount)}</b></div><div>Prices: <b>Tier 1 only</b></div></div></div>`; }
+  <div>Sale VAT: <b>${esc(DEF.SaleTaxRule)}</b></div><div>Purchase VAT: <b>${esc(DEF.PurchaseTaxRule)}</b></div><div>Revenue account: <b>choose below</b> (default ${esc(DEF.RevenueAccount)})</div><div>Prices: <b>Tier 1 only</b></div></div></div>`; }
 async function check(){ try { const j = await api({action:'check', rows: rows.map(r => ({sku:r.sku, name:r.name}))}); rows.forEach((r, i) => r.issues = j.issues[i] || []); } catch(e){} }
 function money(v){ const x = parseFloat(String(v).replace(/[£,\s]/g, '')); return isFinite(x) ? x : null; }
 function priceFrom(cost){ const c = money(cost); if (c == null || rule.kind === 'column') return null; const p = parseFloat(rule.pct); if (!(p >= 0)) return null;
@@ -113,12 +136,13 @@ function previewHtml(){
   const on = rows.filter(r => r.on);
   const bad = on.filter(r => (r.issues || []).length || !r.category || money(r.cost) == null || money(r.price) == null || !r.name.trim() || !r.sku.trim());
   return `<div class="card"><div class="k">Preview: nothing is created until you confirm</div>
-    <div class="tbl"><table><thead><tr><th></th><th>SKU</th><th>Name</th><th>Category</th><th>Brand</th><th>Supplier code</th><th>Cost</th><th>Price (tier 1, ex VAT)</th><th>Margin</th><th>Barcode</th><th>Weight kg</th></tr></thead><tbody>
+    <div class="tbl"><table><thead><tr><th></th><th>SKU</th><th>Name</th><th>Category</th><th>Brand</th><th>Revenue acct</th><th>Supplier code</th><th>Cost</th><th>Price (tier 1, ex VAT)</th><th>Margin</th><th>Barcode</th><th>Weight kg</th></tr></thead><tbody>
     ${rows.map((r, i) => `<tr class="${(r.issues || []).length ? 'bad' : ''}"><td><input type="checkbox" class="chk" ${r.on ? 'checked' : ''} onchange="rows[${i}].on=this.checked;render()"></td>
       <td><input class="w-s" value="${esc(r.sku)}" onchange="edit(${i},'sku',this.value)"></td>
       <td><input class="w-l" value="${esc(r.name)}" onchange="edit(${i},'name',this.value)">${(r.issues || []).map(x => `<div class="iss">⚠ ${esc(x)}</div>`).join('')}</td>
       <td><select onchange="edit(${i},'category',this.value)">${catOpts(r.category)}</select></td>
       <td><select onchange="edit(${i},'brand',this.value)">${brandOpts(r.brand)}</select></td>
+      <td><select onchange="edit(${i},'revenue_account',this.value)">${accOpts(r.revenue_account)}</select></td>
       <td><input class="w-s" value="${esc(r.supplier_code)}" onchange="edit(${i},'supplier_code',this.value)"></td>
       <td><input class="w-s" value="${esc(r.cost)}" onchange="edit(${i},'cost',this.value)"></td>
       <td><input class="w-s" value="${esc(r.price)}" onchange="edit(${i},'price',this.value)"></td>
@@ -136,21 +160,22 @@ async function confirmCreate(){
   busy = true; msg = null; render();
   let ok = 0, fail = [];
   try {
+    keepExtra(); const up = await uploadDocs();
     for (let s = 0; s < on.length; s += 10) {
       const chunk = on.slice(s, s + 10);
-      const j = await api({action:'create', rows: chunk.map(([r]) => ({...r, supplier_id: sup}))});
+      const j = await api({action:'create', rows: chunk.map(([r]) => ({...r, supplier_id: sup})), docs: up, notes: extra});
       j.results.forEach((res, k) => { const r = chunk[k][0]; if (res.ok) { ok++; r.done = true; r.on = false; } else { r.issues = [res.error]; fail.push(res.sku); } });
       render();
     }
   } catch(x){ if (x.message === 'login') return; msg = {ok:false, t:x.message}; }
-  rows = rows.filter(r => !r.done); busy = false;
+  rows = rows.filter(r => !r.done); busy = false; if (!rows.length) { docs = []; extra = ''; }
   msg = fail.length ? {ok:false, t:`Created ${ok}. ${fail.length} failed (still in the table with the reason): ${fail.join(', ')}`} : {ok:true, t:`Created ${ok} product${ok === 1 ? '' : 's'} in Cin7. They'll show in Bob after the next stock sync (about 15 minutes).`};
   try { const j = await api(); recent = j.recent; } catch(e){}
   render();
 }
 
 /* ---------- one product ---------- */
-let one = {name:'', sku:'', category:'', brand:'', supplier_code:'', cost:'', price:'', barcode:'', weight:''};
+let one = {name:'', sku:'', category:'', brand:'', revenue_account:'', supplier_code:'', cost:'', price:'', barcode:'', weight:''};
 function oneKeep(){ for (const k of Object.keys(one)) { const e = document.getElementById('o_' + k); if (e) one[k] = e.value; } }
 function suggestSkuOne(){ oneKeep(); if (useSupSku && one.supplier_code.trim()) one.sku = one.supplier_code.trim().toUpperCase(); else if (skuInfo) { seqNext = skuInfo.next; one.sku = nextSku(); } render(); }
 function oneHtml(){
@@ -164,10 +189,12 @@ function oneHtml(){
       <div><div class="k">Our SKU</div><div style="display:flex;gap:6px"><input id="o_sku" value="${esc(one.sku)}"><button class="btn alt sm" onclick="suggestSkuOne()">Suggest</button></div>
       <label class="m" style="display:block;margin-top:4px"><input type="checkbox" style="width:auto" ${useSupSku ? 'checked' : ''} onchange="useSupSku=this.checked"> Use the supplier's code as our SKU when there is one</label></div></div>
     <div class="row"><div><div class="k">Category</div><select id="o_category">${catOpts(one.category)}</select></div><div><div class="k">Brand</div><select id="o_brand">${brandOpts(one.brand)}</select></div></div>
+    <div class="k">Revenue account</div><select id="o_revenue_account">${accOpts(one.revenue_account)}</select>
     <div class="row"><div><div class="k">Cost (£, ex VAT)</div><input id="o_cost" type="number" step="0.01" value="${esc(one.cost)}" oninput="oneKeep();document.getElementById('o_mg').textContent=oneMg()"></div>
       <div><div class="k">Price, tier 1 (£, ex VAT)</div><input id="o_price" type="number" step="0.01" value="${esc(one.price)}" oninput="oneKeep();document.getElementById('o_mg').textContent=oneMg()"><div class="m" id="o_mg" style="margin-top:4px">${oneMg()}</div></div></div>
     <div class="row"><div><div class="k">Barcode (optional)</div><input id="o_barcode" value="${esc(one.barcode)}"></div><div><div class="k">Weight kg (optional)</div><input id="o_weight" type="number" step="0.01" value="${esc(one.weight)}"></div></div>
-    <button class="btn full" onclick="oneToPreview()">Check and preview →</button></div>`;
+    </div>${docsHtml()}
+    <button class="btn full" onclick="oneToPreview()">Check and preview →</button>`;
 }
 function oneMg(){ const c = money(one.cost), p = money(one.price); return c != null && p > 0 ? `Margin ${((p - c) / p * 100).toFixed(1)}%` : ''; }
 async function oneToPreview(){
@@ -191,14 +218,14 @@ async function loadFile(f){
 }
 function bulkKeep(){ for (const k of ['supplier_code','name','cost','retail','barcode','weight']) { const e = document.getElementById('m_' + k); if (e) map[k] = e.value === '' ? undefined : +e.value; }
   const p = document.getElementById('r_pct'); if (p) rule.pct = p.value; const kd = document.getElementById('r_kind'); if (kd) rule.kind = kd.value; const rd = document.getElementById('r_round'); if (rd) rule.round = rd.value;
-  const c = document.getElementById('b_cat'); if (c) cat = c.value; const b = document.getElementById('b_brand'); if (b) brand = b.value; }
+  const rv = document.getElementById('b_rev'); if (rv) revAcc = rv.value; const c = document.getElementById('b_cat'); if (c) cat = c.value; const b = document.getElementById('b_brand'); if (b) brand = b.value; }
 async function buildRows(){
   bulkKeep(); if (!sup) return alert('Choose the supplier'); if (map.name == null) return alert('Tell me which column is the product name'); if (map.cost == null) return alert('Tell me which column is your cost');
   if (rule.kind !== 'column' && !(parseFloat(rule.pct) >= 0)) return alert('Enter your markup or margin %'); if (rule.kind === 'column' && map.retail == null) return alert('Pick the price column');
   if (!skuInfo) { try { skuInfo = await api(null, '?suggest=' + sup); } catch(e){} } seqNext = skuInfo ? skuInfo.next : 1;
   const g = (r, k) => map[k] == null ? '' : String(r[map[k]] ?? '').trim();
   rows = raw.data.map(r => { const code = g(r, 'supplier_code'); const cost = money(g(r, 'cost'));
-    const o = {sku: useSupSku && code ? code.toUpperCase() : nextSku(), name: g(r, 'name'), category: cat, brand, supplier_code: code, cost: cost == null ? '' : cost, price: '', barcode: g(r, 'barcode'), weight: g(r, 'weight'), note:'', on: true, issues: []};
+    const o = {sku: useSupSku && code ? code.toUpperCase() : nextSku(), name: g(r, 'name'), category: cat, brand, revenue_account: revAcc || DEF.RevenueAccount, supplier_code: code, cost: cost == null ? '' : cost, price: '', barcode: g(r, 'barcode'), weight: g(r, 'weight'), note:'', on: true, issues: []};
     o.price = rule.kind === 'column' ? (money(g(r, 'retail')) ?? '') : (priceFrom(o.cost) ?? ''); o.on = !!o.name && o.cost !== ''; return o; });
   await check(); render();
 }
@@ -206,6 +233,7 @@ function bulkHtml(){
   const opt = (k) => `<select id="m_${k}" onchange="bulkKeep()"><option value="">(none)</option>${raw.head.map((h, i) => `<option value="${i}" ${map[k] === i ? 'selected' : ''}>${esc(h)}</option>`).join('')}</select>`;
   return `<div class="card"><div class="k">1 · Supplier and defaults</div><select onchange="sup=this.value;bulkKeep();loadSku()">${supOpts()}</select>
     ${skuInfo ? `<div class="m" style="margin-top:6px">${esc(supName())}: next free SKU would be <b>${esc(skuInfo.prefix + String(skuInfo.next).padStart(skuInfo.width, '0'))}</b></div>` : ''}
+    <div class="k">Revenue account for all (change per row later)</div><select id="b_rev" onchange="bulkKeep()">${accOpts(revAcc)}</select>
     <div class="row"><div><div class="k">Category for all (change per row later)</div><select id="b_cat" onchange="bulkKeep()">${catOpts(cat)}</select></div><div><div class="k">Brand for all</div><select id="b_brand" onchange="bulkKeep()">${brandOpts(brand)}</select></div></div>
     <label class="m" style="display:block;margin-top:8px"><input type="checkbox" style="width:auto" ${useSupSku ? 'checked' : ''} onchange="useSupSku=this.checked"> Use the supplier's codes as our SKUs (untick to give new SKUs in our own pattern)</label></div>
   <div class="card"><div class="k">2 · Price list: ${esc(raw.name)} (${raw.data.length} lines)</div><div class="row">
@@ -215,13 +243,15 @@ function bulkHtml(){
     <div class="k">Price tier 1 comes from</div><div class="row"><select id="r_kind" onchange="bulkKeep();render()"><option value="markup" ${rule.kind === 'markup' ? 'selected' : ''}>Cost + markup %</option><option value="margin" ${rule.kind === 'margin' ? 'selected' : ''}>Target margin %</option><option value="column" ${rule.kind === 'column' ? 'selected' : ''}>The price column</option></select>
       ${rule.kind === 'column' ? '<div></div>' : `<input id="r_pct" type="number" step="0.1" placeholder="%" value="${esc(rule.pct)}">`}</div>
     ${rule.kind === 'column' ? '' : `<div class="k">Round up to</div><select id="r_round" onchange="bulkKeep()"><option value="none">Nearest penny</option><option value=".99" ${rule.round === '.99' ? 'selected' : ''}>x.99</option><option value=".50" ${rule.round === '.50' ? 'selected' : ''}>nearest 50p</option><option value="1" ${rule.round === '1' ? 'selected' : ''}>whole pound</option></select>`}
-    <button class="btn full" onclick="buildRows()">Build preview →</button></div>`;
+    </div>${docsHtml()}
+    <button class="btn full" onclick="buildRows()">Build preview →</button>`;
 }
 
 /* ---------- page ---------- */
 function render(){
   const a = document.getElementById('app'); a.style.display = 'block';
   if (document.getElementById('o_name')) oneKeep();
+  keepExtra();
   a.innerHTML = `<a class="back" href="purchasing.html">← Purchasing</a><div class="title">New Cin7 product</div>
     <div class="sub">Add one product, or upload a supplier price list. You always get a preview table to check and confirm before anything is created.</div>
     ${msg ? `<div class="msg ${msg.ok ? 'ok' : 'bad'}">${esc(msg.t)}</div>` : ''}
@@ -236,7 +266,7 @@ if (token) boot(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; boot(); });
 </script>
 <script>
-(function(){ const BUILD = '20261104121137'; let newer = false;
+(function(){ const BUILD = '20261104125039'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !rows.length && !raw && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();
