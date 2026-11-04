@@ -131,8 +131,8 @@ td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;d
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261104121025"></script>
-<script src="activity.js?v=20261104121025"></script>
+<script src="auth.js?v=20261104123902"></script>
+<script src="activity.js?v=20261104123902"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -261,7 +261,7 @@ function render(){
   document.getElementById('app').innerHTML = `
     <header><div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">${SVC() ? 'Backorders' : 'Purchasing'}</div>
       <div class="sub">Orders synced ${hm(M.synced.sales)} · stock ${hm(M.synced.stock)} · POs ${hm(M.synced.pos)} · ${esc(me?.name || '')}</div></div></div>
-      <div class="hr">${locPick}<button class="btn" onclick="refresh(true)">Refresh</button></div></header>
+      <div class="hr">${locPick}${SVC() ? '' : '<a class="btn" style="text-decoration:none;display:inline-block" href="cin7new.html">➕ New Cin7 product</a>'}<button class="btn" onclick="refresh(true)">Refresh</button></div></header>
     <nav id="tabs">${tabs.map(([id,label,n,hot]) => `<button class="${id===tab?'on':''}" onclick="setTab('${id}')">${label}${n != null ? `<span class="n ${hot?'hot':''}">${n}</span>` : ''}</button>`).join('')}</nav>
     ${body}
     <footer>${M.summary.lines_pending > 200 ? `<b class="warn">Cin7 order history is still loading (${M.summary.lines_pending} orders to go), so sales rates, cover and dead stock will firm up once that finishes.</b><br>` : ''}Backorders come from Cin7 orders marked Backordered. Stock is per site and refreshes every 15 minutes, POs every 10. Suggested orders use the last 8 weeks of Cin7 sales blended with the same months last year from Sage, aiming for ${S[loc]?.cover_weeks ?? 4} weeks' cover plus ${S[loc]?.lead_weeks ?? 1} week lead time.</footer>`;
@@ -606,7 +606,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261104121025';
+  const BUILD = '20261104123902';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
