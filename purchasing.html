@@ -131,8 +131,8 @@ td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;d
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261104130312"></script>
-<script src="activity.js?v=20261104130312"></script>
+<script src="auth.js?v=20261104130402"></script>
+<script src="activity.js?v=20261104130402"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -148,7 +148,7 @@ let token = store.get('tsd_me_token');
 let tab = new URLSearchParams(location.search).get('open') || store.get('tsd_purch_tab') || 'today';
 let loc = store.get('tsd_purch_loc') || 'Bromham';
 let boFilter = 'due', boSearch = '', openBo = null, boWho = store.get('tsd_bo_who') || 'all', lastNew = null;
-let M = null, S = {}, H = {}, me = null, C = null, claimShowDone = false;
+let M = null, S = {}, H = {}, me = null, C = null, claimShowDone = false, OV = null, ovSite = 'all', ovSup = 'all';
 const openSup = new Set();
 const edits = {};   // supplier_id -> {pid: qty or null(excluded)}
 let timer;
@@ -200,12 +200,21 @@ async function loadMain(){ const j = await api('?view=main'); me = j.me; M = j.d
 const SVC = () => me && me.access === 'service';   // customer service: backorders + read-only can't find / open POs
 async function loadClaims(){ if (SVC()) { C = []; return; } try { const j = await api('?view=claims'); C = j.data; } catch(x){ if (x.message === 'login') throw x; } }
 async function loadSup(force){ if (!S[loc] || force) { const j = await api('?view=suppliers&loc=' + encodeURIComponent(loc)); S[loc] = j.data; } }
+const overduePos = () => (M.pos || []).filter(p => p.expected && p.expected < M.today).sort((a, b) => a.expected < b.expected ? -1 : 1);
+async function loadOv(force){
+  const ids = overduePos().map(p => p.po_id).slice(0, 80); if (!ids.length) { OV = {}; return; }
+  if (OV && !force && ids.every(i => i in OV)) return;
+  const r = await fetch(API.replace('/purchasing', '/polines') + '?ids=' + ids.join(','), {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({})); if (j.error) throw new Error(j.error); OV = j.data || {};
+}
 async function loadHealth(force){ if (!H[loc] || force) { const j = await api('?view=health&loc=' + encodeURIComponent(loc)); H[loc] = j.data; } }
 async function refresh(full){
   try {
     await Promise.all([loadMain(), loadClaims()]);
     if (tab === 'suppliers') await loadSup(full);
     if (tab === 'health') await loadHealth(full);
+    if (tab === 'overdue') await loadOv(full);
     render();
   } catch(x) {
     if (x.message === 'login') return;
@@ -221,6 +230,7 @@ function start(){
 async function setTab(t){
   tab = t; store.set('tsd_purch_tab', t);
   if (t === 'suppliers' && !S[loc]) { render(); try { await loadSup(); } catch(x){ toast(x.message); } }
+  if (t === 'overdue' && !OV) { render(); try { await loadOv(); } catch(x){ toast(x.message); } }
   if (t === 'health' && !H[loc]) { render(); try { await loadHealth(); } catch(x){ toast(x.message); } }
   render(); window.scrollTo(0,0);
 }
@@ -241,6 +251,7 @@ function render(){
     ['suppliers','Supplier Orders', null],
     ['health','Stock Health', null],
     ['pos','Open POs', s.po_open, s.po_overdue > 0],
+    ['overdue','Overdue POs', s.po_overdue, s.po_overdue > 0],
     ['claims','Supplier Claims', C ? C.filter(c => c.status === 'open' || c.status === 'chasing').length : null, C ? C.some(c => c.status === 'open') : false],
   ].filter(([id]) => !SVC() || ['today','backorders','cantfind','pos'].includes(id));
   if (SVC()) { const t = tabs.find(([id]) => id === 'today'); const n = svcToday().count; t[1] = 'My day'; t[2] = n; t[3] = n > 0; }
@@ -253,6 +264,7 @@ function render(){
   else if (tab === 'suppliers') body = renderSuppliers();
   else if (tab === 'health') body = renderHealth();
   else if (tab === 'claims') body = renderClaims();
+  else if (tab === 'overdue') body = renderOverdue();
   else body = renderPos();
   const newCount = newBos().length;
   document.title = (newCount ? `(${newCount}) ` : '') + (SVC() ? 'Backorders' : 'Purchasing') + ' · TSD';
@@ -585,6 +597,33 @@ function poTable(list){
       <td>${p.note ? esc(p.note) : ''} ${SVC() ? '' : `<button class="btn sm" onclick="poNote('${p.po_id}','${esc(p.po_number)}')">${p.note ? 'Edit' : 'Add'}</button>`}</td></tr>`; }).join('')}
   </tbody></table>`;
 }
+function renderOverdue(){
+  let list = overduePos();
+  if (!list.length) return '<div class="sec"><div class="empty">Nothing overdue. Every open PO with an expected date is still on time.</div></div>';
+  const sites = [...new Set(list.map(p => p.location).filter(Boolean))], sups = [...new Set(list.map(p => p.supplier).filter(Boolean))].sort();
+  const all = list;
+  if (ovSite !== 'all') list = list.filter(p => p.location === ovSite);
+  if (ovSup !== 'all') list = list.filter(p => p.supplier === ovSup);
+  const late = p => -daysTo(p.expected);
+  const val = list.reduce((a, p) => a + (+p.total_ex_vat || 0), 0);
+  const worst = list.reduce((m, p) => Math.max(m, late(p)), 0);
+  const noDate = (M.pos || []).filter(p => !p.expected).length;
+  return `<div class="filters"><span class="muted"><b class="bad">${list.length} overdue</b> · ${gbp(val)} ex VAT · oldest ${worst} day${worst === 1 ? '' : 's'} late · ${noDate} more open POs have no expected date yet.</span>
+    <select onchange="ovSite=this.value;render()"><option value="all">All sites</option>${sites.map(x => `<option ${x === ovSite ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>
+    <select onchange="ovSup=this.value;render()"><option value="all">All suppliers</option>${sups.map(x => `<option ${x === ovSup ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>
+  <div class="sec"><table><thead><tr><th>PO</th><th>Supplier</th><th>Site</th><th class="r">Days late</th><th>Expected</th><th>Ordered</th><th class="r">Value</th><th>Still to arrive</th><th>Note</th></tr></thead><tbody>
+  ${list.map(p => { const L = OV ? OV[p.po_id] : null; return `<tr>
+    <td><b>${esc(p.po_number)}</b><div class="muted">${esc((p.status || '').toLowerCase())}${p.receiving_status === 'PARTIALLY RECEIVED' ? ' · <span class="tag t-po">part received</span>' : ''}</div></td>
+    <td>${esc(p.supplier)}</td><td>${esc(p.location)}</td>
+    <td class="r"><span class="tag t-over">${late(p)}d late</span></td>
+    <td><input type="date" value="${p.expected || ''}" onchange="setExpected('${p.po_id}', this.value)"></td>
+    <td>${dmy(p.order_date)}<div class="muted">${daysTo(p.order_date) != null ? -daysTo(p.order_date) + 'd ago' : ''}</div></td>
+    <td class="r">${gbp(p.total_ex_vat)}</td>
+    <td style="max-width:420px">${L == null ? '<span class="muted">loading…</span>' : !L.length ? '<span class="muted">Nothing outstanding (check it in Cin7)</span>' : L.slice(0, 6).map(x => `<div><b>${esc(x.sku)}</b> ${esc(x.name || '')} <span class="muted">· ${x.outstanding} of ${x.ordered}</span>${x.bo_orders ? ` <span class="tag t-nopo">${x.bo_orders} customer${x.bo_orders === 1 ? '' : 's'} waiting</span>` : ''}</div>`).join('') + (L.length > 6 ? `<div class="muted">+ ${L.length - 6} more lines</div>` : '')}</td>
+    <td>${p.note ? esc(p.note) : ''} <button class="btn sm" onclick="poNote('${p.po_id}','${esc(p.po_number)}')">${p.note ? 'Edit' : 'Add'}</button></td></tr>`; }).join('')}
+  </tbody></table></div>
+  <div class="foot"><span class="muted">Sorted oldest first. Change the expected date once the supplier gives you a new one and it drops off this list. Add a note to record what they said.</span></div>`;
+}
 function renderPos(){
   const s = M.summary;
   return `<div class="filters"><span class="muted">${s.po_open} open · <span class="${s.po_overdue ? 'bad' : ''}">${s.po_overdue} overdue</span> · ${s.po_no_date} without an expected date. ${SVC() ? 'Expected dates come from purchasing. If one\'s missing or late, ask Rosena.' : 'Cin7\'s "Required by" is used if it\'s set; otherwise put the date the supplier gives you here. That\'s what drives the overdue alerts and, later, the supplier scorecard.'}</span></div>
@@ -607,7 +646,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261104130312';
+  const BUILD = '20261104130402';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
