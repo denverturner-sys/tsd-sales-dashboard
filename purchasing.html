@@ -131,8 +131,8 @@ td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;d
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261104123902"></script>
-<script src="activity.js?v=20261104123902"></script>
+<script src="auth.js?v=20261104130312"></script>
+<script src="activity.js?v=20261104130312"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -510,7 +510,7 @@ function renderSuppliers(){
   ${d.suppliers.map(sp => { const t = supTotals(sp), open = openSup.has(sp.supplier_id); return `<div class="sup">
     <div class="hd" onclick="toggleSup('${sp.supplier_id}')"><div><span class="nm">${esc(sp.supplier)}</span> <span class="muted">· ${t.n} line${t.n===1?'':'s'} · ${gbp(t.v)}</span>
       ${sp.bo_lines ? `<span class="tag t-nopo">${sp.bo_lines} for backorders</span>` : ''}${sp.a_lines ? `<span class="tag t-a">${sp.a_lines} A-class</span>` : ''}</div><span class="muted">${open ? '▲' : '▼'}</span></div>
-    ${open ? `<div class="bd"><table><thead><tr><th></th><th>SKU</th><th>Product</th><th>Class</th><th class="r">Available</th><th class="r">On order</th><th class="r">Backorders</th><th class="r">Per week</th><th class="r">Cover (wks)</th><th class="r">Order qty</th><th class="r">Cost</th><th class="r">Value</th></tr></thead><tbody>
+    ${open ? `<div class="bd"><div class="foot" style="justify-content:flex-start;gap:8px;padding:6px 0"><button class="btn sm" onclick="untickAll('${sp.supplier_id}')">Untick all</button><button class="btn sm" onclick="resetSup('${sp.supplier_id}')">Tick all (suggested)</button><span class="muted">then tick just the ones you want</span></div><table><thead><tr><th></th><th>SKU</th><th>Product</th><th>Class</th><th class="r">Available</th><th class="r">On order</th><th class="r">Backorders</th><th class="r">Per week</th><th class="r">Cover (wks)</th><th class="r">Order qty</th><th class="r">Cost</th><th class="r">Value</th></tr></thead><tbody>
       ${sp.items.map(it => { const q = qtyOf(sp.supplier_id, it), off = !(q > 0); return `<tr style="${off ? 'opacity:.45' : ''}">
         <td><input type="checkbox" ${off ? '' : 'checked'} onchange="setQty('${sp.supplier_id}','${it.pid}', this.checked ? ${it.qty} : 0)"></td>
         <td>${esc(it.sku)}</td><td>${esc(it.name)}</td><td><span class="tag t-${(it.abc||'d').toLowerCase()}">${esc(it.abc)}</span></td>
@@ -526,6 +526,7 @@ function renderSuppliers(){
 }
 function toggleSup(id){ openSup.has(id) ? openSup.delete(id) : openSup.add(id); render(); }
 function setQty(sid, pid, q){ (edits[sid] = edits[sid] || {})[pid] = Math.max(0, Math.round(q * 100) / 100); render(); }
+function untickAll(sid){ const sp = S[loc].suppliers.find(x => x.supplier_id === sid); if (!sp) return; edits[sid] = {}; for (const it of sp.items) edits[sid][it.pid] = 0; render(); }
 function resetSup(sid){ delete edits[sid]; render(); }
 function draftPo(sid){
   const sp = S[loc].suppliers.find(x => x.supplier_id === sid); if (!sp) return;
@@ -606,7 +607,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261104123902';
+  const BUILD = '20261104130312';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
