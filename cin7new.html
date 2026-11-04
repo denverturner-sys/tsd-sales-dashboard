@@ -64,8 +64,8 @@ tr.bad td{background:rgba(255,122,107,.08)} .iss{color:var(--bad);font-size:12px
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="auth.js?v=20261104121025"></script>
-<script src="activity.js?v=20261104121025"></script>
+<script src="auth.js?v=20261104121137"></script>
+<script src="activity.js?v=20261104121137"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/cin7new';
 const mem = {};
@@ -88,6 +88,7 @@ async function boot(){ try { const j = await api(); O = j.options; DEF = j.defau
 
 /* ---------- SKU suggestion ---------- */
 let seqNext = null;
+function pickPrefix(i){ const a = skuInfo.alts[i]; skuInfo = {...skuInfo, prefix:a.prefix, next:a.next, width:a.width, example:a.example}; seqNext = a.next; if (document.getElementById('o_name')) oneKeep(); render(); }
 async function loadSku(){ skuInfo = null; seqNext = null; if (!sup) return render(); try { skuInfo = await api(null, '?suggest=' + sup); seqNext = skuInfo.next; } catch(e){} render(); }
 function nextSku(){ if (!skuInfo) return ''; const s = skuInfo.prefix + String(seqNext).padStart(skuInfo.width, '0'); seqNext++; return s; }
 
@@ -155,7 +156,8 @@ function suggestSkuOne(){ oneKeep(); if (useSupSku && one.supplier_code.trim()) 
 function oneHtml(){
   const pr = money(one.cost); const hint = pr != null && !one.price ? '' : '';
   return `<div class="card"><div class="k">1 · Supplier</div><select id="o_sup" onchange="sup=this.value;oneKeep();loadSku()">${supOpts()}</select>
-    ${skuInfo ? `<div class="m" style="margin-top:6px">${esc(supName())}'s SKUs usually look like <b>${esc(skuInfo.example || skuInfo.prefix)}</b>. Next free: <b>${esc(skuInfo.prefix + String(skuInfo.next).padStart(skuInfo.width, '0'))}</b></div>` : ''}</div>
+    ${skuInfo ? `<div class="m" style="margin-top:6px">${esc(supName())}'s SKUs usually look like <b>${esc(skuInfo.example || skuInfo.prefix)}</b>. Next free: <b>${esc(skuInfo.prefix + String(skuInfo.next).padStart(skuInfo.width, '0'))}</b></div>` : ''}
+    ${skuInfo && skuInfo.alts && skuInfo.alts.length > 1 ? `<div class="m" style="margin-top:4px">Other prefixes this supplier uses: ${skuInfo.alts.map((a, i) => `<a href="#" onclick="pickPrefix(${i});return false" style="color:var(--accent)">${esc(a.prefix)}</a>`).join(' · ')}</div>` : ''}</div>
   <div class="card"><div class="k">2 · Product</div>
     <div class="k">Name</div><input id="o_name" value="${esc(one.name)}" placeholder="e.g. Ardex X32 Natural Stone Adhesive 20kg">
     <div class="row"><div><div class="k">Supplier's own code (optional)</div><input id="o_supplier_code" value="${esc(one.supplier_code)}" onchange="oneKeep();if(useSupSku)suggestSkuOne()"></div>
@@ -234,7 +236,7 @@ if (token) boot(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; boot(); });
 </script>
 <script>
-(function(){ const BUILD = '20261104121025'; let newer = false;
+(function(){ const BUILD = '20261104121137'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !rows.length && !raw && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();
