@@ -80,8 +80,8 @@ label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261105154936"></script>
-<script src="activity.js?v=20261105154936"></script>
+<script src="auth.js?v=20261105225712"></script>
+<script src="activity.js?v=20261105225712"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/board';
 const mem = {};
@@ -112,7 +112,7 @@ function entry(e){
   const title = e.kind === 'note' ? esc(e.detail) : `<b>${esc(e.who)}</b> · ${label.split(' (')[0].toLowerCase()}${e.start_date === e.end_date ? PART[e.part] : ''}`;
   return `<div class="ent"><div class="ic ${e.kind}">${ic}</div><div class="eb"><div class="et">${title}</div>
     ${e.kind !== 'note' && e.detail ? `<div class="ed">${esc(e.detail)}</div>` : ''}
-    <div class="em">${range} · added by ${esc(e.created_by_name)}</div></div>
+    <div class="em">${range} · added by ${esc(e.created_by_name)}${e.show_by === false ? ' (not shown in the email)' : ''}</div></div>
     ${e.mine || D.me.is_admin ? `<button class="btn sm del" data-rm="${e.id}" title="Remove">Remove</button>` : ''}</div>`;
 }
 function render(){
@@ -134,7 +134,10 @@ function render(){
         <div><label class="l">Part of day</label><select id="ap"><option value="day">All day</option><option value="am">Morning</option><option value="pm">Afternoon</option></select></div></div>
       <label class="l">${isNote ? 'Note' : 'Note for the team (optional)'}</label>
       <textarea id="ad" maxlength="600" placeholder="${isNote ? 'e.g. Customer collecting at 7am, please make sure you\'re in on time' : 'e.g. Make sure the warehouse is covered'}"></textarea>
-      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn y" type="submit">Add</button></div></form></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px">
+        <div class="em">It goes in the 6:45 email on each day it covers, so for tomorrow's email pick tomorrow's date.</div>
+        <div style="display:flex;align-items:center;gap:14px">${D.me.is_admin ? `<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="asb" style="width:18px;height:18px"> Show it's from me in the email</label>` : ''}
+        <button class="btn y" type="submit">Add</button></div></div></form></div>
   <div class="card"><div class="k">Today · ${fmt(t, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
     ${now.length ? now.map(entry).join('') : '<div class="empty">Nothing logged. Everyone in.</div>'}</div>
   <div class="card"><div class="k">Coming up</div>
@@ -145,7 +148,7 @@ function render(){
   document.getElementById('af').onsubmit = async e => {
     e.preventDefault(); const b = e.target.querySelector('button[type=submit]'); b.disabled = true;
     try {
-      await api({ action: 'add', kind, who: document.getElementById('aw')?.value || '', detail: ad.value, start_date: as.value, end_date: ae.value || as.value, part: ap.value });
+      await api({ action: 'add', kind, who: document.getElementById('aw')?.value || '', detail: ad.value, start_date: as.value, end_date: ae.value || as.value, part: ap.value, show_by: !!document.getElementById('asb')?.checked });
       toast('Added'); refresh();
     } catch(x){ toast(x.message); b.disabled = false; }
   };
@@ -160,7 +163,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105154936';
+  const BUILD = '20261105225712';
   const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
