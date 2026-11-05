@@ -80,8 +80,8 @@ label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261105132526"></script>
-<script src="activity.js?v=20261105132526"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/board';
 const mem = {};
@@ -160,7 +160,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105132526';
+  const BUILD = '20261105154936';
   const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

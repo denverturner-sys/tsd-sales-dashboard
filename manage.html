@@ -93,8 +93,8 @@ td.z{color:#6b6e6e}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261105151832"></script>
-<script src="activity.js?v=20261105151832"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
 const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[new URLSearchParams(location.search).get('tab')] || 'users';
@@ -136,7 +136,7 @@ function renderUsers(){
   const stale = s => !s || Date.now() - new Date(s).getTime() > 7 * 864e5;
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Users &amp; access</div>
-    <div class="sub">Tick what each person can see. Everyone always gets My Sales, My Tasks, Company and Quotes. Finance and Management are for admins only and can't be ticked. A change shows next time they open or refresh Bob.</div></div></header>
+    <div class="sub">Tick what each person can see. Everyone always gets My Sales, My Tasks, Company and Quotes. Finance and Management are for admins only and can't be ticked. A change shows next time they open or refresh the system.</div></div></header>
   <div class="card scroll"><table>
     <tr><th class="l" rowspan="2">Person</th><th class="l" rowspan="2">Last login</th><th class="l" rowspan="2">Last active</th>${groups.map(([g, ids]) => `<th class="grp" colspan="${ids.length}">${g}</th>`).join('')}</tr>
     <tr>${cols.map(id => `<th title="${esc(S.get(id).note || '')}">${esc(S.get(id).name)}</th>`).join('')}</tr>
@@ -155,7 +155,7 @@ function renderUsers(){
     modal(`<div class="title" style="font-size:26px">${on ? 'Give access?' : 'Remove access?'}</div>
       <div>${on ? 'Give' : 'Take'} <b>${esc(p.name)}</b> ${on ? 'access to' : 'off'} <b>${esc(s.name)}</b>?</div>
       ${s.note ? `<div class="sub">${esc(s.note)}</div>` : ''}
-      <div class="sub">They'll see the change next time they open or refresh Bob.</div>
+      <div class="sub">They'll see the change next time they open or refresh the system.</div>
       <div class="row"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn y" id="ok">Yes, ${on ? 'give access' : 'remove it'}</button></div>`);
     document.getElementById('ok').onclick = async () => {
       try { await api({ action: 'access', email: p.email, screen: s.id, on }); closeModal(); toast(`${p.name}: ${s.name} ${on ? 'on' : 'off'}`); refresh(); }
@@ -306,7 +306,7 @@ function renderActivity(){
   const rows = A.rows.slice(0, shown);
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Activity log</div>
-    <div class="sub">Who logged in, which screens they opened, what they clicked, and every change they made in Bob, with whether it worked. The shared warehouse password login can't say which person it is, so it shows as "Shared warehouse login" with a tag for each PC. Kept for 6 months.</div></div>
+    <div class="sub">Who logged in, which screens they opened, what they clicked, and every change they made in the system, with whether it worked. The shared warehouse password login can't say which person it is, so it shows as "Shared warehouse login" with a tag for each PC. Kept for 6 months.</div></div>
     <div class="filters"><button class="btn sm" id="dprev" title="Day before">‹</button><input type="date" id="aday" value="${esc(AF.day)}" max="${esc(A.today)}"><button class="btn sm" id="dnext" ${isToday ? 'disabled' : ''} title="Day after">›</button>
       ${isToday ? '' : '<button class="btn sm" id="dtoday">Today</button>'}</div></header>
   <div class="card scroll"><div class="k" style="margin-bottom:6px">${isToday ? 'Today' : esc(dmy(AF.day))} by person <span style="text-transform:none;letter-spacing:0;font-weight:400">· tap a row to see just them</span></div>
@@ -348,7 +348,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105151832';
+  const BUILD = '20261105154936';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

@@ -130,14 +130,14 @@
     if (!box) return;
     if (inFrame) {
       // inside the main dashboard: the top page owns logging in
-      box.innerHTML = `<div class="ta"><div class="ta-sub" style="font-size:16px">You've been logged out. Log back in at the top of Bob.</div><div id="lerr" class="ta-err"></div><div id="err" class="ta-err"></div></div>`;
+      box.innerHTML = `<div class="ta"><div class="ta-sub" style="font-size:16px">You've been logged out. Log back in at the top of the page.</div><div id="lerr" class="ta-err"></div><div id="err" class="ta-err"></div></div>`;
       new MutationObserver(() => { if (box.style.display && box.style.display !== 'none') try { window.top.postMessage({ tsd: 'login' }, '*'); } catch (e) {} })
         .observe(box, { attributes: true, attributeFilter: ['style'] });
       return;
     }
     const logo = logoSrc();
     let names = null;
-    const shell = inner => `<div class="ta">${logo ? `<div class="ta-top"><img src="${logo}" alt="TSD"><h1>Bob</h1></div>` : '<h1>Bob</h1>'}${inner}</div>`;
+    const shell = inner => `<div class="ta">${logo ? `<div class="ta-top"><img src="${logo}" alt="TSD"><h1>TSD Systems</h1></div>` : '<h1>TSD Systems</h1>'}${inner}</div>`;
     const showNames = msg => {
       box.innerHTML = shell(`<div class="ta-sub">Tap your name</div><div class="ta-names" data-n>${names ? '' : '<span class="ta-sub">Loading…</span>'}</div>
         <div id="lerr" class="ta-err">${esc(msg || '')}</div><div id="err" class="ta-err"></div>`);
@@ -147,13 +147,13 @@
         g.querySelectorAll('[data-name]').forEach(b => b.onclick = () => showPad(b.dataset.name)); };
       if (names) fill();
       else fetch(ME + '?names=1', { cache: 'no-store' }).then(r => r.json()).then(j => { names = j.names || []; fill(); })
-        .catch(() => { g.innerHTML = '<span class="ta-err">Can\'t reach Bob. Check the internet connection.</span>'; });
+        .catch(() => { g.innerHTML = '<span class="ta-err">Can\'t reach the system. Check the internet connection.</span>'; });
     };
     const showPad = name => {
       box.innerHTML = shell('<div data-p></div><div id="lerr" class="ta-err"></div><div id="err" class="ta-err"></div>');
       pad(box.querySelector('[data-p]'), esc(name), 'Enter your PIN', async pin => {
         let j;
-        try { j = await post({ action: 'login_name', name, pin }); } catch (e) { return "Can't reach Bob. Check the internet connection."; }
+        try { j = await post({ action: 'login_name', name, pin }); } catch (e) { return "Can't reach the system. Check the internet connection."; }
         if (!j.ok) return j.error || 'Wrong PIN';
         store.set('tsd_me_token', j.token); store.set('tsd_last_name', name);
         const go = () => { showNames(); onLogin(j.token, j); };

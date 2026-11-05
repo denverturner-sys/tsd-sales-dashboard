@@ -64,8 +64,8 @@ tr.bad td{background:rgba(255,122,107,.08)} .iss{color:var(--bad);font-size:12px
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="auth.js?v=20261104125039"></script>
-<script src="activity.js?v=20261104125039"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/cin7new';
 const mem = {};
@@ -169,7 +169,7 @@ async function confirmCreate(){
     }
   } catch(x){ if (x.message === 'login') return; msg = {ok:false, t:x.message}; }
   rows = rows.filter(r => !r.done); busy = false; if (!rows.length) { docs = []; extra = ''; }
-  msg = fail.length ? {ok:false, t:`Created ${ok}. ${fail.length} failed (still in the table with the reason): ${fail.join(', ')}`} : {ok:true, t:`Created ${ok} product${ok === 1 ? '' : 's'} in Cin7. They'll show in Bob after the next stock sync (about 15 minutes).`};
+  msg = fail.length ? {ok:false, t:`Created ${ok}. ${fail.length} failed (still in the table with the reason): ${fail.join(', ')}`} : {ok:true, t:`Created ${ok} product${ok === 1 ? '' : 's'} in Cin7. They'll show in the system after the next stock sync (about 15 minutes).`};
   try { const j = await api(); recent = j.recent; } catch(e){}
   render();
 }
@@ -266,7 +266,7 @@ if (token) boot(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; boot(); });
 </script>
 <script>
-(function(){ const BUILD = '20261104125039'; let newer = false;
+(function(){ const BUILD = '20261105154936'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !rows.length && !raw && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();

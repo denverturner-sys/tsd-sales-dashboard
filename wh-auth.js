@@ -29,7 +29,7 @@
       d.innerHTML = `<form style="background:#323333;border-radius:16px;padding:26px 22px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;color:#fff">
         ${logo ? `<img src="${logo.src}" alt="TSD" style="height:46px;align-self:flex-start">` : ''}
         <div style="font-family:'Bebas Neue','Arial Narrow',Arial,sans-serif;font-size:34px;letter-spacing:1px;line-height:1">Warehouse screens</div>
-        <div style="color:#B9BCBC;font-size:15px">${inFrame ? "You've been logged out. Log back in at the top of Bob." : 'Enter the company password. This device then stays logged in until Friday night.'}</div>
+        <div style="color:#B9BCBC;font-size:15px">${inFrame ? "You've been logged out. Log back in at the top of the page." : 'Enter the company password. This device then stays logged in until Friday night.'}</div>
         ${inFrame ? '' : `<input type="password" autocomplete="current-password" placeholder="Password" style="background:#262727;color:#fff;border:1px solid #474949;border-radius:10px;padding:14px;font-size:20px">
         <button type="submit" style="background:#EED107;color:#262727;border:0;border-radius:10px;padding:14px;font-size:18px;font-weight:700;cursor:pointer">Log in</button>`}
         <div data-e style="color:#FF7A6B;font-size:15px;min-height:20px">${msg || ''}</div></form>`;
@@ -44,7 +44,7 @@
           const j = await r.json();
           if (!j.ok) { e.textContent = j.error || 'Wrong password.'; i.select(); return; }
           set('tsd_wh_token', j.token); location.reload();
-        } catch (x) { e.textContent = "Can't reach Bob. Check the internet connection."; }
+        } catch (x) { e.textContent = "Can't reach the system. Check the internet connection."; }
       };
     };
     if (document.body) draw(); else document.addEventListener('DOMContentLoaded', draw);

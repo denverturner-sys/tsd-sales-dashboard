@@ -101,8 +101,8 @@ footer{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6}
 </div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261102221533"></script>
-<script src="activity.js?v=20261102221533"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/accounts';
 const mem = {};
@@ -185,12 +185,12 @@ function invoiceHtml(){
   h += `<div class="bar"><b>Ready to invoice</b><span class="sub">${ready.length} orders · ${gbp(ready.reduce((a, o) => a + (+o.value || 0), 0))} ex VAT</span>${ready.length > 1 ? '<button class="btn go" id="invall">Invoice all ready</button>' : ''}</div>`;
   h += ready.length ? `<div class="rows">${ready.map(o => row(o, `<button class="btn go" data-inv="${o.id}">Invoice</button>`)).join('')}</div>` : '<div class="empty">Nothing waiting. Every shipped order is invoiced. ✓</div>';
   if (part.length) {
-    h += `<h2>Part shipped / part invoiced<span class="n">${part.length}</span></h2><p class="explain">Some of the order has gone, the rest is still to come. Invoice what's been sent in Cin7 (Bob leaves these alone so nothing gets invoiced twice).</p>`;
+    h += `<h2>Part shipped / part invoiced<span class="n">${part.length}</span></h2><p class="explain">Some of the order has gone, the rest is still to come. Invoice what's been sent in Cin7 (the system leaves these alone so nothing gets invoiced twice).</p>`;
     h += `<div class="rows">${part.map(o => row(o, '<span class="sub">Invoice in Cin7</span>')).join('')}</div>`;
   }
   if (internal.length) h += `<h2>Internal orders<span class="n">${internal.length}</span></h2><p class="explain">Stock moved internally (not sold). They don't need invoicing, but they're sitting open in Cin7. Close them off in Cin7 when you get a chance.</p><div class="rows">${internal.map(o => row(o, '')).join('')}</div>`;
   const log = D.invoice_log || [];
-  if (log.length) h += `<details style="margin-top:14px"><summary>Recent invoicing from Bob (${log.length})</summary><table class="inv">${log.map(l => `<tr><td>${esc(l.order_number)}</td><td class="${l.ok ? '' : 'late'}">${esc(l.message)}</td><td>${esc(l.by_name)}</td><td class="r">${dshort(l.at)} ${new Date(l.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</table></details>`;
+  if (log.length) h += `<details style="margin-top:14px"><summary>Recent invoicing from the system (${log.length})</summary><table class="inv">${log.map(l => `<tr><td>${esc(l.order_number)}</td><td class="${l.ok ? '' : 'late'}">${esc(l.message)}</td><td>${esc(l.by_name)}</td><td class="r">${dshort(l.at)} ${new Date(l.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</table></details>`;
   return h;
 }
 async function invoiceOne(id){
@@ -261,7 +261,7 @@ function chase(id, what){
   if (what === 'reminder') {
     const r = reminderText(d);
     document.getElementById('mbox').innerHTML = `<h3>Reminder · ${esc(d.name)}</h3>
-      <div class="sub">This opens an email in Outlook${d.email ? ' to <b>' + esc(d.email) + '</b>' : ''}. Check it, then send. Bob logs it as a reminder sent.</div>
+      <div class="sub">This opens an email in Outlook${d.email ? ' to <b>' + esc(d.email) + '</b>' : ''}. Check it, then send. The system logs it as a reminder sent.</div>
       <textarea id="mt" style="min-height:240px">${esc(r.body)}</textarea>
       <div class="err" id="me"></div>
       <div class="row2"><button class="btn" id="mc">Cancel</button><button class="btn go" id="mg">Open in Outlook</button></div>`;
@@ -341,7 +341,7 @@ function limitsHtml(){
   const act = all.filter(c => ['hold','stop','over','late'].includes(c.flag));
   const F = [['act', 'Needs a decision', act.length], ['near', 'Near limit', all.filter(c => c.flag === 'near').length], ['false_over', 'Only over in Cin7', all.filter(c => c.flag === 'false_over').length]];
   const list = limF === 'act' ? act : all.filter(c => c.flag === limF);
-  let h = `<p class="explain">Account customers to look at before more goes out on credit. <b>Credit limit and on-hold come from Cin7; what they owe comes from Xero</b>, because Cin7's own balance is wrong while payments aren't syncing back (see Cin7 ↔ Xero). "Owes" is after their unused credit. Bob only flags: putting an account on stop is your and Rose's call, done in Cin7. The same warning shows on Pick &amp; Dispatch, the van list, Collections and Quotes.</p>
+  let h = `<p class="explain">Account customers to look at before more goes out on credit. <b>Credit limit and on-hold come from Cin7; what they owe comes from Xero</b>, because Cin7's own balance is wrong while payments aren't syncing back (see Cin7 ↔ Xero). "Owes" is after their unused credit. The system only flags: putting an account on stop is your and Rose's call, done in Cin7. The same warning shows on Pick &amp; Dispatch, the van list, Collections and Quotes.</p>
     <div class="bar">${F.map(([id, n, c]) => `<button class="chip ${limF === id ? 'on' : ''}" data-lf="${id}">${n} ${c}</button>`).join('')}</div>`;
   if (!list.length) return h + '<div class="empty">Nobody here. ✓</div>';
   return h + '<div class="rows">' + list.map(c => `<div class="row lim">
@@ -372,7 +372,7 @@ function cashHtml(){
 function ledgerHtml(){
   const L = D.extra.ledger || {}, U = L.unsynced || {}, W = U.weeks || [];
   const recent = W.slice(-6);
-  let h = `<p class="explain">Checks that Cin7 and Xero agree, for invoices since Cin7 went live (7 July). The big one: <b>payments recorded in Xero aren't getting back to Cin7</b>, so Cin7 thinks customers owe more than they do and can block them for being over their limit when they aren't. Bob reads balances from Xero so its own warnings are right, but Cin7's aren't until the sync is fixed.</p>
+  let h = `<p class="explain">Checks that Cin7 and Xero agree, for invoices since Cin7 went live (7 July). The big one: <b>payments recorded in Xero aren't getting back to Cin7</b>, so Cin7 thinks customers owe more than they do and can block them for being over their limit when they aren't. The system reads balances from Xero so its own warnings are right, but Cin7's aren't until the sync is fixed.</p>
     <div class="tiles"><div class="tile bad"><div class="k">Paid in Xero, unpaid in Cin7</div><div class="v">${(+U.count || 0).toLocaleString('en-GB')}</div><div class="s">invoices · ${k(U.value)}</div></div>
     <div class="tile"><div class="k">Wrongly over limit in Cin7</div><div class="v">${L.false_over || 0}</div><div class="s">over in Cin7, under in Xero</div></div>
     <div class="tile"><div class="k">Missing from Xero</div><div class="v">${(L.missing || []).length}</div><div class="s">invoiced in Cin7 2+ days ago</div></div>
@@ -399,7 +399,7 @@ function payfixHtml(){
   const list = (P.ready || []).filter(r => payAll || r.account);
   let h = `<h2>Copy payments into Cin7<span class="n">trial</span></h2>`;
   if (stripe) h += `<div class="warn" style="margin-bottom:10px">🔎 <b>Likely cause of the sync problem:</b> since 18 July, card payments land in a Xero bank account called <b>"Stripe GBP"</b>, which has <b>no account code</b>. Cin7 matches payments by account code, so it can't bring these back. That's <b>${stripe.n.toLocaleString('en-GB')} invoices (${gbp0(stripe.value)})</b>, ${stripe.account_n} of them account customers. Fix: in Xero, Accounting → Chart of accounts → Stripe GBP → give it a code (e.g. 1255), then in Cin7 refresh the accounts on the Xero integration. Talk to your accountant first if you're unsure.</div>`;
-  h += `<p class="explain">Invoices that are <b>paid and reconciled to the bank in Xero</b>, still unpaid in Cin7, where the amounts match exactly and the payment is at least 3 days old. <b>Add to Cin7</b> records the same payment (date, amount, bank account) in Cin7. Before each one, Bob <b>asks Xero live</b> that the invoice is paid with nothing due and the payment is still there and reconciled, then re-reads Cin7, and never adds the same Xero payment twice. Small rounding differences (up to 5p) go in at Cin7's figure. Trial: do one, then check the invoice in Cin7 <b>and in Xero</b> (Cin7 may try to send it back to Xero; Xero should refuse because the invoice is already paid).</p>
+  h += `<p class="explain">Invoices that are <b>paid and reconciled to the bank in Xero</b>, still unpaid in Cin7, where the amounts match exactly and the payment is at least 3 days old. <b>Add to Cin7</b> records the same payment (date, amount, bank account) in Cin7. Before each one, the system <b>asks Xero live</b> that the invoice is paid with nothing due and the payment is still there and reconciled, then re-reads Cin7, and never adds the same Xero payment twice. Small rounding differences (up to 5p) go in at Cin7's figure. Trial: do one, then check the invoice in Cin7 <b>and in Xero</b> (Cin7 may try to send it back to Xero; Xero should refuse because the invoice is already paid).</p>
     <div class="bar"><button class="chip ${!payAll ? 'on' : ''}" data-pa="0">Account customers ${(P.ready || []).filter(r => r.account).length}</button><button class="chip ${payAll ? 'on' : ''}" data-pa="1">Everyone ${(P.ready || []).length}</button>${list.length > 1 ? `<button class="btn go" id="payall">Add all ${list.length} to Cin7</button>` : ''}</div>`;
   h += list.length ? `<div class="rows" style="padding:6px 14px"><table class="inv"><tr class="meta"><td>Invoice</td><td>Order</td><td>Customer</td><td>Paid in Xero</td><td class="r">Amount</td><td></td></tr>${list.map(r => `<tr>
       <td>${esc(r.invoice)}</td><td>${esc(r.order)}</td><td>${esc(r.customer)}${r.limit > 0 ? ` <span class="meta">limit ${gbp0(r.limit)}</span>` : ''}</td>
@@ -408,7 +408,7 @@ function payfixHtml(){
   const B = (P.blocked || []).filter(b => !/Stripe GBP/.test(b.reason));
   if (B.length) h += `<details style="margin-top:8px"><summary>Not copied, and why (${B.reduce((a, b) => a + b.n, 0)})</summary><table class="inv">${B.map(b => `<tr><td>${esc(b.reason)}</td><td class="r">${b.n}</td><td class="r">${gbp0(b.value)}</td></tr>`).join('')}</table></details>`;
   const done = P.done || [];
-  if (done.length) h += `<details style="margin-top:6px"><summary>Payments Bob has added (${done.length})</summary><table class="inv">${done.map(d => `<tr><td>${esc(d.invoice)}</td><td>${esc(d.customer)}</td><td class="r">${gbp(d.amount)}</td><td class="${d.status === 'failed' ? 'late' : ''}">${esc(d.status === 'done' ? 'Added ✓' : d.message || d.status)}</td><td>${esc(d.by || '')} ${ago(d.at)}</td></tr>`).join('')}</table></details>`;
+  if (done.length) h += `<details style="margin-top:6px"><summary>Payments the system has added (${done.length})</summary><table class="inv">${done.map(d => `<tr><td>${esc(d.invoice)}</td><td>${esc(d.customer)}</td><td class="r">${gbp(d.amount)}</td><td class="${d.status === 'failed' ? 'late' : ''}">${esc(d.status === 'done' ? 'Added ✓' : d.message || d.status)}</td><td>${esc(d.by || '')} ${ago(d.at)}</td></tr>`).join('')}</table></details>`;
   return h;
 }
 async function addPay(no){
@@ -431,7 +431,7 @@ async function addPay(no){
 function addPayAll(){
   const list = ((D.extra.payfix || {}).ready || []).filter(r => payAll || r.account);
   const total = list.reduce((a, r) => a + (+r.due || 0), 0);
-  document.getElementById('mbox').innerHTML = `<h3>Add ${list.length} payments to Cin7?</h3><div class="sub" style="color:var(--ink);font-size:15px">${gbp(total)} across ${new Set(list.map(r => r.customer)).size} customers. Bob checks each one with Xero first and skips anything that isn't definitely paid. Takes a couple of seconds each, so leave this open.</div>
+  document.getElementById('mbox').innerHTML = `<h3>Add ${list.length} payments to Cin7?</h3><div class="sub" style="color:var(--ink);font-size:15px">${gbp(total)} across ${new Set(list.map(r => r.customer)).size} customers. The system checks each one with Xero first and skips anything that isn't definitely paid. Takes a couple of seconds each, so leave this open.</div>
     <div class="err" id="me"></div><div class="row2"><button class="btn" id="mc">Cancel</button><button class="btn go" id="mg">Add them all</button></div>`;
   document.getElementById('modal').style.display = 'flex';
   document.getElementById('mc').onclick = closeModal;
@@ -529,7 +529,7 @@ window.addEventListener('message', e => { if (e.data && e.data.tsd === 'refresh'
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (not while a pop-up is open).
 (function(){
-  const BUILD = '20261102221533';
+  const BUILD = '20261105154936';
   let newer = false;
   async function check(){
     try {
