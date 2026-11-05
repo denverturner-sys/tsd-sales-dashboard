@@ -93,8 +93,8 @@ td.z{color:#6b6e6e}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261105154936"></script>
-<script src="activity.js?v=20261105154936"></script>
+<script src="auth.js?v=20261105160435"></script>
+<script src="activity.js?v=20261105160435"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
 const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[new URLSearchParams(location.search).get('tab')] || 'users';
@@ -166,7 +166,8 @@ function renderUsers(){
 
 // ---------------- Emails (5 Nov) ----------------
 function renderEmails(){
-  const E = D.emails, kname = new Map(E.map(e => [e.id, e.name]));
+  const E = D.emails, kname = new Map([...E.map(e => [e.id, e.name]), ['added', 'an extra address']]);
+  const all = [...D.people, ...(D.extras || [])];
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Emails</div>
     <div class="sub">Tick who gets which email. It takes effect from the next one that goes out. Task emails (new task, due today, overdue) always go to whoever has the task and can't be turned off.${D.quote_chase_live ? '' : ' <b style="color:var(--accent)">Quote follow-ups aren\'t switched on yet: ticks are saved ready for when it is.</b>'}</div></div></header>
@@ -175,15 +176,33 @@ function renderEmails(){
     ${D.people.map(p => `<tr><td class="l name">${esc(p.name)}${p.is_admin ? ' <span class="adm">admin</span>' : ''}</td>
       ${E.map(e => e.admin && !p.is_admin ? `<td class="z" title="Admins only">–</td>`
         : `<td><input type="checkbox" data-e="${esc(p.email)}" data-k="${e.id}" ${p.on[e.id] ? 'checked' : ''} aria-label="${esc(p.name)}: ${esc(e.name)}"></td>`).join('')}</tr>`).join('')}
+    ${(D.extras || []).length ? `<tr><th class="l" colspan="${E.length + 1}" style="padding-top:16px">Other addresses (shared inboxes etc.)</th></tr>` : ''}
+    ${(D.extras || []).map(p => `<tr><td class="l name">${esc(p.name)}${p.name !== p.email ? `<div class="seen">${esc(p.email)}</div>` : ''}<button class="btn sm del" data-rm="${esc(p.email)}" style="margin-top:4px">Remove</button></td>
+      ${E.map(e => e.admin || e.personal ? `<td class="z" title="Only goes to people with a login">–</td>`
+        : `<td><input type="checkbox" data-e="${esc(p.email)}" data-k="${e.id}" ${p.on[e.id] ? 'checked' : ''} aria-label="${esc(p.name)}: ${esc(e.name)}"></td>`).join('')}</tr>`).join('')}
   </table>
+  <form id="xf" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px"><span class="k">Add another address</span>
+    <input id="xe" type="email" placeholder="e.g. sales@tilingsuppliesdirect.co.uk" required style="min-width:260px"><input id="xl" placeholder="Name (optional), e.g. Sales inbox" maxlength="60" style="min-width:200px">
+    <button class="btn y" type="submit">Add</button><span class="sub">Then tick which emails it should get.</span></form>
   <div class="sub" style="margin-top:8px">${E.map(e => `<b>${esc(e.name)}</b>: ${esc(e.note)}.`).join(' ')}</div></div>
   <div class="card"><div class="k" style="margin-bottom:6px">Recent changes</div>
-    <div class="log">${D.log.length ? D.log.map(l => `${esc(when(l.at))}: <b>${esc(l.by)}</b> turned ${l.granted ? 'on' : 'off'} <b>${esc(kname.get(l.kind) || l.kind)}</b> for <b>${esc(l.who)}</b>`).join('<br>') : 'No changes yet.'}</div></div>`;
+    <div class="log">${D.log.length ? D.log.map(l => `${esc(when(l.at))}: <b>${esc(l.by)}</b> ${l.kind === 'added' ? `${l.granted ? 'added' : 'removed'} <b>${esc(l.who)}</b>` : `turned ${l.granted ? 'on' : 'off'} <b>${esc(kname.get(l.kind) || l.kind)}</b> for <b>${esc(l.who)}</b>`}`).join('<br>') : 'No changes yet.'}</div></div>`;
   document.querySelectorAll('input[type=checkbox][data-k]').forEach(c => c.onchange = async () => {
-    const on = c.checked, p = D.people.find(x => x.email === c.dataset.e), name = kname.get(c.dataset.k);
+    const on = c.checked, p = all.find(x => x.email === c.dataset.e), name = kname.get(c.dataset.k);
     c.disabled = true;
     try { await api({ action: 'notify', email: p.email, kind: c.dataset.k, on }); p.on[c.dataset.k] = on; toast(`${p.name}: ${name} ${on ? 'on' : 'off'}`); refresh(); }
     catch(x){ c.checked = !on; toast(x.message); } finally { c.disabled = false; }
+  });
+  document.getElementById('xf').onsubmit = async ev => {
+    ev.preventDefault(); const b = ev.target.querySelector('button'); b.disabled = true;
+    try { await api({ action: 'extra_add', email: document.getElementById('xe').value, label: document.getElementById('xl').value }); toast('Added. Now tick what it should get.'); refresh(); }
+    catch(x){ toast(x.message); b.disabled = false; }
+  };
+  document.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => {
+    const p = all.find(x => x.email === b.dataset.rm);
+    modal(`<div class="title" style="font-size:26px">Remove ${esc(p.name)}?</div><div>It'll stop getting all system emails straight away.</div>
+      <div class="row"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn y" id="ok">Yes, remove it</button></div>`);
+    document.getElementById('ok').onclick = async () => { try { await api({ action: 'extra_remove', email: p.email }); closeModal(); toast('Removed'); refresh(); } catch(x){ toast(x.message); } };
   });
 }
 
@@ -348,7 +367,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105154936';
+  const BUILD = '20261105160435';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
