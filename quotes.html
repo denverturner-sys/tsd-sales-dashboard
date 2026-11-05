@@ -131,8 +131,8 @@ details.sec>summary{list-style:none;cursor:pointer}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading quotes…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261102221533"></script>
-<script src="activity.js?v=20261102221533"></script>
+<script src="auth.js?v=20261105151832"></script>
+<script src="activity.js?v=20261105151832"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/quotes';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -146,6 +146,11 @@ const store = {
 let token = store.get('tsd_me_token');
 let view = store.get('tsd_quotes_rep') || '';     // admins: '' = their own, 'all', or a rep name
 let D = null, me = null, portal = 6378402, timer, query = '';
+// 5 Nov: quotes.html?q=SO-12345 (from the follow-up emails) opens with that quote searched for. An admin looking at
+// someone else's quote is switched to "everyone" for this visit only (not remembered).
+const QP = (new URLSearchParams(location.search).get('q') || '').trim().slice(0, 40);
+let qpTried = false;
+if (QP) query = QP;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const gbp = v => v == null ? '–' : '£' + Math.round(Number(v)).toLocaleString('en-GB');
 const dmy = s => s ? new Date(String(s).slice(0,10) + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : '–';
@@ -175,7 +180,9 @@ async function api(path, body){
   return j;
 }
 async function refresh(){
-  try { const j = await api(view ? '?rep=' + encodeURIComponent(view) : ''); me = j.me; portal = j.portal || portal; D = j.data; render(); }
+  try { const j = await api(view ? '?rep=' + encodeURIComponent(view) : ''); me = j.me; portal = j.portal || portal; D = j.data;
+    if (QP && !qpTried) { qpTried = true; if (me?.is_admin && view !== 'all' && !(D.quotes || []).some(matches)) { view = 'all'; return refresh(); } }
+    render(); }
   catch(x){ if (x.message === 'login') return; if (!D) document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}<br><span class="sub">Retrying shortly.</span></div>`; }
 }
 function start(){
@@ -295,7 +302,7 @@ TSDAuth.mount(t => { token = t; start(); });
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (waits while a pop-up is open or someone is typing).
 (function(){
-  const BUILD = '20261102221533';
+  const BUILD = '20261105151832';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;

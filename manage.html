@@ -93,8 +93,8 @@ td.z{color:#6b6e6e}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261105150433"></script>
-<script src="activity.js?v=20261105150433"></script>
+<script src="auth.js?v=20261105151832"></script>
+<script src="activity.js?v=20261105151832"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
 const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[new URLSearchParams(location.search).get('tab')] || 'users';
@@ -169,7 +169,7 @@ function renderEmails(){
   const E = D.emails, kname = new Map(E.map(e => [e.id, e.name]));
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Emails</div>
-    <div class="sub">Tick who gets which email. It takes effect from the next one that goes out. Task emails (new task, due today, overdue) always go to whoever has the task and can't be turned off.${D.quote_chase_live ? '' : ' <b style="color:var(--accent)">Quotes to chase isn\'t switched on yet: ticks are saved ready for when it is.</b>'}</div></div></header>
+    <div class="sub">Tick who gets which email. It takes effect from the next one that goes out. Task emails (new task, due today, overdue) always go to whoever has the task and can't be turned off.${D.quote_chase_live ? '' : ' <b style="color:var(--accent)">Quote follow-ups aren\'t switched on yet: ticks are saved ready for when it is.</b>'}</div></div></header>
   <div class="card scroll"><table>
     <tr><th class="l">Person</th>${E.map(e => `<th title="${esc(e.note)}">${esc(e.name)}<div style="font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px">${esc(e.when)}</div></th>`).join('')}</tr>
     ${D.people.map(p => `<tr><td class="l name">${esc(p.name)}${p.is_admin ? ' <span class="adm">admin</span>' : ''}</td>
@@ -348,7 +348,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105150433';
+  const BUILD = '20261105151832';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
