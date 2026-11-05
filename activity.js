@@ -19,7 +19,7 @@
     if (page === 'warehouse' && P.get('tab') === 'collections') return (P.get('loc') === 'wb' ? 'WB ' : '') + 'Collections';
     if (page === 'manage') return { tasks: 'Team tasks', activity: 'Activity log' }[P.get('tab')] || 'Users & access';
     if (page === 'purchasing' && P.get('open') === 'backorders') return 'Backorders';
-    if (page === 'me') return 'Bob';
+    if (page === 'me') return 'Home';
     return (document.title.split(' · ')[0] || page).trim();
   }
 

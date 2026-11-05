@@ -44,8 +44,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
-<script src="auth.js?v=20261103114358"></script>
-<script src="activity.js?v=20261103114358"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/stockmove';
 const mem = {};
@@ -138,7 +138,7 @@ if (token) refresh(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; refresh(); });
 </script>
 <script>
-(function(){ const BUILD = '20261103114358'; let newer = false;
+(function(){ const BUILD = '20261105154936'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();

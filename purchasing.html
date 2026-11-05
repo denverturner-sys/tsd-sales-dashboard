@@ -131,8 +131,8 @@ td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;d
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261104130402"></script>
-<script src="activity.js?v=20261104130402"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -441,7 +441,7 @@ function renderBackorders(){
     <div class="filters"><span class="lab">Show</span>${f('due','Needs a look')}${f('notrung','Not rung yet')}${f('rung','Rung')}${f('in','Stock in')}${f('nopo','No PO')}${f('over','PO overdue')}${f('noupdate','Customer not updated 7d+')}${f('snoozed','Snoozed')}${f('all','All')}
     <input class="txt" placeholder="Search order, customer, SKU, supplier" value="${esc(boSearch)}" oninput="boSearch=this.value;clearTimeout(window._bs);window._bs=setTimeout(()=>{render();const i=document.querySelector('.filters input');i.focus();i.setSelectionRange(i.value.length,i.value.length)},250)" style="min-width:280px">
     <span class="muted">${list.length} order${list.length===1?'':'s'}</span></div>
-    ${SVC() ? '' : `<div class="filters"><span class="lab">Force an order on</span><input class="txt" id="pinSo" placeholder="SO-06442" style="width:130px" onkeydown="if(event.key==='Enter')pinOrder()"><button class="btn go" onclick="pinOrder()">Add to list</button><span class="muted">Pulls it from Cin7 if Bob hasn't got it, whatever state it's in.</span></div>`}
+    ${SVC() ? '' : `<div class="filters"><span class="lab">Force an order on</span><input class="txt" id="pinSo" placeholder="SO-06442" style="width:130px" onkeydown="if(event.key==='Enter')pinOrder()"><button class="btn go" onclick="pinOrder()">Add to list</button><span class="muted">Pulls it from Cin7 if the system hasn't got it, whatever state it's in.</span></div>`}
     <div class="sec">${list.length ? boTable(list, false) : '<div class="empty">Nothing here.</div>'}</div></div>
     ${ringBox(false)}</div>`;
 }
@@ -662,7 +662,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261104130402';
+  const BUILD = '20261105154936';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;

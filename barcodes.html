@@ -48,9 +48,9 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
-<script src="auth.js?v=20261104151558"></script>
-<script src="activity.js?v=20261104151558"></script>
-<script src="html5-qrcode.min.js?v=20261104151558"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
+<script src="html5-qrcode.min.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/barcodes';
 const mem = {};
@@ -78,7 +78,7 @@ function banner(){ return msg ? `<div class="msg ${msg.ok ? 'ok' : 'bad'}">${esc
 function recent(){ return (D.recent || []).length ? `<div class="card"><div class="k">Recently added by hand</div>${D.recent.map(r => `<div class="tr m"><b style="color:var(--ink)">${esc(r.sku)}</b> · ${esc(r.barcode)}<br>${esc(r.by_name || '')} · ${new Date(r.at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>`).join('')}</div>` : ''; }
 function homeView(){
   const s = D.stats, pc = s.products ? Math.min(100, Math.round(100 * s.barcodes / s.products)) : 0;
-  return banner() + `<div class="card"><div class="k">Barcodes saved in Bob</div><div class="big">${num(s.barcodes)} <span class="m" style="font-family:var(--body);font-size:15px">of ${num(s.products)} products</span></div>
+  return banner() + `<div class="card"><div class="k">Barcodes saved in the system</div><div class="big">${num(s.barcodes)} <span class="m" style="font-family:var(--body);font-size:15px">of ${num(s.products)} products</span></div>
     <div class="bar"><i style="width:${pc}%"></i></div><div class="m">${pc}% covered · you've added ${num(s.mine_today)} today</div></div>
     <button class="btn" onclick="startScan()">📷 Scan a barcode</button>
     <div class="card" style="margin-top:12px"><div class="k">Or type / use a handheld scanner</div>
@@ -87,7 +87,7 @@ function homeView(){
 }
 function adminCard(){
   return `<div class="card"><div class="k">Admin: load barcodes from a spreadsheet</div>
-    <div class="m" style="margin-bottom:8px">CSV with three columns: sku, barcode, source. Barcodes Bob already has are left alone.</div>
+    <div class="m" style="margin-bottom:8px">CSV with three columns: sku, barcode, source. Barcodes the system already has are left alone.</div>
     <input type="file" id="csvf" accept=".csv,text/csv"><button class="btn alt" ${busy ? 'disabled' : ''} onclick="doImport()">Load it</button></div>`;
 }
 function scanView(){
@@ -165,7 +165,7 @@ async function doImport(){
   const tot = { added: 0, already_had: 0, bad_barcode: 0, sku_not_found: 0, repeated_in_file: 0 };
   try {
     for (let i = 0; i < list.length; i += 3000) { const j = await api({action:'import', rows: list.slice(i, i + 3000)}); for (const k in tot) tot[k] += j[k] || 0; }
-    msg = {ok:true, t:`Loaded ${num(tot.added)} new barcodes. Already had ${num(tot.already_had)}; skipped ${num(tot.bad_barcode)} bad barcodes, ${num(tot.sku_not_found)} SKUs Bob doesn't know, ${num(tot.repeated_in_file)} repeats.`};
+    msg = {ok:true, t:`Loaded ${num(tot.added)} new barcodes. Already had ${num(tot.already_had)}; skipped ${num(tot.bad_barcode)} bad barcodes, ${num(tot.sku_not_found)} SKUs the system doesn't know, ${num(tot.repeated_in_file)} repeats.`};
   } catch(x){ if (x.message === 'login') return; msg = {ok:false, t:x.message}; }
   busy = false; refresh();
 }
@@ -173,7 +173,7 @@ function render(){
   const a = document.getElementById('app'); a.style.display = 'block';
   if (!D) return;
   const keepQ = document.activeElement && document.activeElement.id === 'q' ? document.getElementById('q').value : null;
-  a.innerHTML = `<div class="title">Scan barcodes</div><div class="sub">Scan a product's barcode, pick the product, and Bob remembers it. Everything is logged with your name.</div>` +
+  a.innerHTML = `<div class="title">Scan barcodes</div><div class="sub">Scan a product's barcode, pick the product, and the system remembers it. Everything is logged with your name.</div>` +
     (view === 'scan' ? scanView() : view === 'pick' ? pickView() : homeView());
   if (keepQ !== null) { const q = document.getElementById('q'); q.value = keepQ; q.focus(); }
 }
@@ -181,7 +181,7 @@ if (token) refresh(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; refresh(); });
 </script>
 <script>
-(function(){ const BUILD = '20261104151558'; let newer = false;
+(function(){ const BUILD = '20261105154936'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && view === 'home' && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();

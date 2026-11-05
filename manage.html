@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Management (2 Nov): Denver, Etienne, Rosena. ?tab=users -> who can see what; ?tab=tasks -> everyone's tasks; ?tab=activity -> who did what. */
+/* Management (2 Nov): Denver, Etienne, Rosena. ?tab=users -> who can see what; ?tab=tasks -> everyone's tasks; ?tab=activity -> who did what; ?tab=emails -> who gets which email (5 Nov). */
 :root{
   --bg:#262727; --panel:#323333; --panel2:#3B3C3C; --line:#474949; --ink:#FFFFFF; --muted:#B9BCBC;
   --accent:#EED107; --good:#7DDB98; --bad:#FF7A6B; --blue:#8EC5FF;
@@ -93,11 +93,11 @@ td.z{color:#6b6e6e}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261104152226"></script>
-<script src="activity.js?v=20261104152226"></script>
+<script src="auth.js?v=20261105154936"></script>
+<script src="activity.js?v=20261105154936"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
-const TAB = ({ tasks: 'tasks', activity: 'activity' })[new URLSearchParams(location.search).get('tab')] || 'users';
+const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[new URLSearchParams(location.search).get('tab')] || 'users';
 const ACT_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/activity';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
@@ -123,7 +123,7 @@ async function api(body){
   if (j.error) throw new Error(j.error);
   return j;
 }
-async function refresh(){ if (TAB === 'activity') return loadActivity(); try { D = await api(); TAB === 'tasks' ? renderTasks() : renderUsers(); } catch(x){ if (x.message !== 'login') document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; } }
+async function refresh(){ if (TAB === 'activity') return loadActivity(); try { D = await api(); TAB === 'tasks' ? renderTasks() : TAB === 'emails' ? renderEmails() : renderUsers(); } catch(x){ if (x.message !== 'login') document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; } }
 const poke = () => { try { window.top.postMessage({ tsd: 'tasks' }, location.origin); } catch(e){} };
 
 // ---------------- Users & access ----------------
@@ -136,7 +136,7 @@ function renderUsers(){
   const stale = s => !s || Date.now() - new Date(s).getTime() > 7 * 864e5;
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Users &amp; access</div>
-    <div class="sub">Tick what each person can see. Everyone always gets My Sales, My Tasks, Company and Quotes. Finance and Management are for admins only and can't be ticked. A change shows next time they open or refresh Bob.</div></div></header>
+    <div class="sub">Tick what each person can see. Everyone always gets My Sales, My Tasks, Company and Quotes. Finance and Management are for admins only and can't be ticked. A change shows next time they open or refresh the system.</div></div></header>
   <div class="card scroll"><table>
     <tr><th class="l" rowspan="2">Person</th><th class="l" rowspan="2">Last login</th><th class="l" rowspan="2">Last active</th>${groups.map(([g, ids]) => `<th class="grp" colspan="${ids.length}">${g}</th>`).join('')}</tr>
     <tr>${cols.map(id => `<th title="${esc(S.get(id).note || '')}">${esc(S.get(id).name)}</th>`).join('')}</tr>
@@ -155,12 +155,35 @@ function renderUsers(){
     modal(`<div class="title" style="font-size:26px">${on ? 'Give access?' : 'Remove access?'}</div>
       <div>${on ? 'Give' : 'Take'} <b>${esc(p.name)}</b> ${on ? 'access to' : 'off'} <b>${esc(s.name)}</b>?</div>
       ${s.note ? `<div class="sub">${esc(s.note)}</div>` : ''}
-      <div class="sub">They'll see the change next time they open or refresh Bob.</div>
+      <div class="sub">They'll see the change next time they open or refresh the system.</div>
       <div class="row"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn y" id="ok">Yes, ${on ? 'give access' : 'remove it'}</button></div>`);
     document.getElementById('ok').onclick = async () => {
       try { await api({ action: 'access', email: p.email, screen: s.id, on }); closeModal(); toast(`${p.name}: ${s.name} ${on ? 'on' : 'off'}`); refresh(); }
       catch(x){ toast(x.message); }
     };
+  });
+}
+
+// ---------------- Emails (5 Nov) ----------------
+function renderEmails(){
+  const E = D.emails, kname = new Map(E.map(e => [e.id, e.name]));
+  document.getElementById('app').innerHTML = `
+  <header><div><div class="title">Emails</div>
+    <div class="sub">Tick who gets which email. It takes effect from the next one that goes out. Task emails (new task, due today, overdue) always go to whoever has the task and can't be turned off.${D.quote_chase_live ? '' : ' <b style="color:var(--accent)">Quote follow-ups aren\'t switched on yet: ticks are saved ready for when it is.</b>'}</div></div></header>
+  <div class="card scroll"><table>
+    <tr><th class="l">Person</th>${E.map(e => `<th title="${esc(e.note)}">${esc(e.name)}<div style="font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px">${esc(e.when)}</div></th>`).join('')}</tr>
+    ${D.people.map(p => `<tr><td class="l name">${esc(p.name)}${p.is_admin ? ' <span class="adm">admin</span>' : ''}</td>
+      ${E.map(e => e.admin && !p.is_admin ? `<td class="z" title="Admins only">–</td>`
+        : `<td><input type="checkbox" data-e="${esc(p.email)}" data-k="${e.id}" ${p.on[e.id] ? 'checked' : ''} aria-label="${esc(p.name)}: ${esc(e.name)}"></td>`).join('')}</tr>`).join('')}
+  </table>
+  <div class="sub" style="margin-top:8px">${E.map(e => `<b>${esc(e.name)}</b>: ${esc(e.note)}.`).join(' ')}</div></div>
+  <div class="card"><div class="k" style="margin-bottom:6px">Recent changes</div>
+    <div class="log">${D.log.length ? D.log.map(l => `${esc(when(l.at))}: <b>${esc(l.by)}</b> turned ${l.granted ? 'on' : 'off'} <b>${esc(kname.get(l.kind) || l.kind)}</b> for <b>${esc(l.who)}</b>`).join('<br>') : 'No changes yet.'}</div></div>`;
+  document.querySelectorAll('input[type=checkbox][data-k]').forEach(c => c.onchange = async () => {
+    const on = c.checked, p = D.people.find(x => x.email === c.dataset.e), name = kname.get(c.dataset.k);
+    c.disabled = true;
+    try { await api({ action: 'notify', email: p.email, kind: c.dataset.k, on }); p.on[c.dataset.k] = on; toast(`${p.name}: ${name} ${on ? 'on' : 'off'}`); refresh(); }
+    catch(x){ c.checked = !on; toast(x.message); } finally { c.disabled = false; }
   });
 }
 
@@ -283,7 +306,7 @@ function renderActivity(){
   const rows = A.rows.slice(0, shown);
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Activity log</div>
-    <div class="sub">Who logged in, which screens they opened, what they clicked, and every change they made in Bob, with whether it worked. The shared warehouse password login can't say which person it is, so it shows as "Shared warehouse login" with a tag for each PC. Kept for 6 months.</div></div>
+    <div class="sub">Who logged in, which screens they opened, what they clicked, and every change they made in the system, with whether it worked. The shared warehouse password login can't say which person it is, so it shows as "Shared warehouse login" with a tag for each PC. Kept for 6 months.</div></div>
     <div class="filters"><button class="btn sm" id="dprev" title="Day before">‹</button><input type="date" id="aday" value="${esc(AF.day)}" max="${esc(A.today)}"><button class="btn sm" id="dnext" ${isToday ? 'disabled' : ''} title="Day after">›</button>
       ${isToday ? '' : '<button class="btn sm" id="dtoday">Today</button>'}</div></header>
   <div class="card scroll"><div class="k" style="margin-bottom:6px">${isToday ? 'Today' : esc(dmy(AF.day))} by person <span style="text-transform:none;letter-spacing:0;font-weight:400">· tap a row to see just them</span></div>
@@ -325,7 +348,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261104152226';
+  const BUILD = '20261105154936';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
