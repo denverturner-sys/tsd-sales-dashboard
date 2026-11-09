@@ -71,8 +71,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261109154642"></script>
-<script src="activity.js?v=20261109154642"></script>
+<script src="auth.js?v=20261109163356"></script>
+<script src="activity.js?v=20261109163356"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tasks';
 const mem = {};
@@ -176,22 +176,36 @@ async function loadMs(){
   } catch(x){ if (x.message === 'login') return; MS = { st: { configured: false }, failed: true }; }
   renderMs();
 }
+
+function msPrivacy(withConnect){
+  modal(`<div class="title" style="font-size:26px">Connect Microsoft: how it works and why it's private</div>
+    <div class="sub" style="line-height:1.5;color:var(--ink)">
+    <p style="margin:6px 0"><b>What you're allowing.</b> Read-only access to <i>your own</i> Outlook calendar and Microsoft To Do, via Microsoft's standard OAuth 2.0 sign-in. Permissions requested (delegated, i.e. as you, never as an admin): <code>Calendars.Read</code>, <code>Tasks.Read</code>, <code>User.Read</code>, <code>offline_access</code>. We do <b>not</b> request any mail permission, so your inbox cannot be read. We do not request any application-level permission, so there is no tenant-wide access. We can't change or delete anything in Microsoft.</p>
+    <p style="margin:6px 0"><b>Nothing is stored.</b> Your calendar events and To Do tasks are never written to our database, files or logs. They're fetched from Microsoft only when you open this page, relayed through our server's memory to your screen, and held only in your browser's memory until you leave. Close the page and they're gone. Flagged-email tasks are excluded.</p>
+    <p style="margin:6px 0"><b>What we do store.</b> Only the sign-in tokens Microsoft issues, so you don't have to sign in every time. They are encrypted at rest with AES-256-GCM, with a key held in a separate secrets store and not in the database. All traffic is encrypted in transit (TLS). The tokens are never sent to your browser.</p>
+    <p style="margin:6px 0"><b>Private from everyone, admins included.</b> No manager or admin screen, report or email reads any Microsoft data. Each request is tied to your own login only. It's impossible to ask for someone else's data. You can only connect your own TSD Microsoft account; another person's account is rejected.</p>
+    <p style="margin:6px 0"><b>Your control.</b> Disconnect any time on this page: your tokens are deleted immediately. You can also remove the app's access from your Microsoft account's app permissions. Our hosting provider may record basic request metadata (time, status), never the content.</p>
+    <p style="margin:6px 0">Your normal My Tasks list is unchanged and works exactly as before; Microsoft is an extra on top.</p></div>
+    <div class="row"><button class="btn" onclick="closeModal()">${withConnect ? 'Cancel' : 'Close'}</button>${withConnect ? '<button class="btn y" id="msyes">I understand, continue to Microsoft</button>' : ''}</div>`);
+  if (withConnect) document.getElementById('msyes').onclick = async e => {
+    e.target.disabled = true;
+    const j = await msApi('start').catch(() => ({}));
+    if (j.ok && j.url) (window.top || window).location.href = j.url; else { closeModal(); toast(j.error || "Couldn't start. Try again."); }
+  };
+}
 const hm = s => String(s || '').slice(11, 16);
 function renderMs(){
   const el = document.getElementById('ms'); if (!el) return;
   if (!MS) { el.innerHTML = ''; return; }
   const st = MS.st || {};
-  const priv = `<div class="lock">🔒 Private to you. Not shared with managers or admins, and not stored by us.</div>`;
+  const priv = `<div class="lock">🔒 Private to you. Not shared with managers or admins, and not stored by us. <a href="#" id="mspriv" style="color:var(--blue);font-weight:600">How this works</a></div>`;
   if (!st.configured && !st.connected) { el.innerHTML = ''; return; }   // not set up yet: stay out of the way
   if (!st.connected || st.expired) {
     el.innerHTML = `<div class="card ms"><h3>Microsoft calendar &amp; To Do</h3>${priv}
       <div class="sub" style="margin:8px 0">${st.expired ? 'Your Microsoft link needs reconnecting.' : 'See your Outlook calendar and your Microsoft To Do here. We can only read your own, and only while you\'re logged in. You can disconnect any time.'}</div>
       <button class="btn y" id="msgo">${st.expired ? 'Reconnect Microsoft' : 'Connect Microsoft'}</button></div>`;
-    document.getElementById('msgo').onclick = async e => {
-      e.target.disabled = true;
-      const j = await msApi('start').catch(() => ({}));
-      if (j.ok && j.url) (window.top || window).location.href = j.url; else { toast(j.error || "Couldn't start. Try again."); e.target.disabled = false; }
-    };
+    document.getElementById('msgo').onclick = () => msPrivacy(true);
+    document.getElementById('mspriv').onclick = e => { e.preventDefault(); msPrivacy(false); };
     return;
   }
   const days = {};
@@ -205,6 +219,7 @@ function renderMs(){
   el.innerHTML = `<div class="card ms"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap"><div><h3>Your Outlook calendar · next 7 days</h3>${priv}</div>
       <button class="btn sm" id="msoff">Disconnect Microsoft</button></div>${cal}</div>
     <div class="card ms"><h3>Your Microsoft To Do</h3><div class="sub">Read-only, just for you. Tick things off in Microsoft To Do itself.</div>${todo}</div>`;
+  document.getElementById('mspriv').onclick = e => { e.preventDefault(); msPrivacy(false); };
   document.getElementById('msoff').onclick = async () => {
     if (!confirm('Disconnect Microsoft? We delete the link straight away. Nothing else changes.')) return;
     await msApi('disconnect'); MS = null; toast('Disconnected'); loadMs();
@@ -218,7 +233,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261109154642';
+  const BUILD = '20261109163356';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
