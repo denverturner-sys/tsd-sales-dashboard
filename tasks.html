@@ -77,8 +77,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261110090806"></script>
-<script src="activity.js?v=20261110090806"></script>
+<script src="auth.js?v=20261110110828"></script>
+<script src="activity.js?v=20261110110828"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tasks';
 const mem = {};
@@ -117,7 +117,7 @@ function row(t){
   return `<div class="task ${done ? 'done' : ''}">
     <button class="tick ${done ? 'on' : ''}" data-done="${t.id}" data-on="${done ? 0 : 1}" title="${done ? 'Not done after all' : 'Done'}">${done ? '✓' : ''}</button>
     <div class="tb"><div class="tt">${t.priority ? `<span class="pri p${t.priority}">${t.priority === 2 ? 'URGENT' : 'HIGH'}</span>` : ''}${esc(t.title)}</div>
-      <div class="meta">${dueTxt(t)}<span>${done ? 'done ' + dmy(t.done_at) : age(t.created_at)}</span>${t.added_for_you ? '<span class="tag">Added for you</span>' : ''}</div>
+      <div class="meta">${dueTxt(t)}<span>${done ? 'done ' + dmy(t.done_at) : age(t.created_at)}</span>${t.added_for_you ? '<span class="tag">Added for you</span>' : ''}${t.project ? `<span class="tag">Project: ${esc(t.project)}</span>` : ''}</div>
       ${t.notes ? `<div class="notes">${esc(t.notes)}</div>` : ''}</div>
     ${!t.added_for_you && !done ? `<div class="acts"><button class="btn sm" data-edit="${t.id}">Edit</button></div>` : ''}
   </div>`;
@@ -291,7 +291,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110090806';
+  const BUILD = '20261110110828';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
