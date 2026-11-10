@@ -93,8 +93,8 @@ td.z{color:#6b6e6e}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261105160435"></script>
-<script src="activity.js?v=20261105160435"></script>
+<script src="auth.js?v=20261110133539"></script>
+<script src="activity.js?v=20261110133539"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
 const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[new URLSearchParams(location.search).get('tab')] || 'users';
@@ -136,19 +136,36 @@ function renderUsers(){
   const stale = s => !s || Date.now() - new Date(s).getTime() > 7 * 864e5;
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Users &amp; access</div>
-    <div class="sub">Tick what each person can see. Everyone always gets My Sales, My Tasks, Company and Quotes. Finance and Management are for admins only and can't be ticked. A change shows next time they open or refresh the system.</div></div></header>
+    <div class="sub">Tick what each person can see. Pick a team lead and that person can give them tasks from My Tasks. Lock out logs someone out now and stops them logging in until you let them back in. Everyone always gets My Sales, My Tasks, Company and Quotes. Finance and Management are for admins only and can't be ticked. A change shows next time they open or refresh the system.</div></div></header>
   <div class="card scroll"><table>
-    <tr><th class="l" rowspan="2">Person</th><th class="l" rowspan="2">Last login</th><th class="l" rowspan="2">Last active</th>${groups.map(([g, ids]) => `<th class="grp" colspan="${ids.length}">${g}</th>`).join('')}</tr>
+    <tr><th class="l" rowspan="2">Person</th><th class="l" rowspan="2">Last login</th><th class="l" rowspan="2">Last active</th><th class="l" rowspan="2">Team lead</th><th class="l" rowspan="2">Lock-out</th>${groups.map(([g, ids]) => `<th class="grp" colspan="${ids.length}">${g}</th>`).join('')}</tr>
     <tr>${cols.map(id => `<th title="${esc(S.get(id).note || '')}">${esc(S.get(id).name)}</th>`).join('')}</tr>
-    ${D.people.map(p => `<tr><td class="l name">${esc(p.name)}${p.locked ? ' <span class="seen old">locked out</span>' : ''}</td>
+    ${D.people.map(p => `<tr><td class="l name">${esc(p.name)}${p.locked ? ' <span class="seen old">PIN locked</span>' : ''}${p.held ? ' <span class="seen old">locked out</span>' : ''}</td>
       <td class="l"><span class="seen ${stale(p.last_login) ? 'old' : ''}" title="${esc(when(p.last_login))}">${ago(p.last_login)}</span></td>
       <td class="l"><span class="seen" title="${esc(when(p.last_seen))}">${p.last_seen ? ago(p.last_seen) : '–'}</span></td>
+      <td class="l">${p.is_admin ? '' : `<select data-lead="${esc(p.email)}" style="padding:3px 6px"><option value="">–</option>${D.people.filter(x => x.email !== p.email).map(x => `<option value="${esc(x.email)}" ${p.lead === x.email ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>`}</td>
+      <td class="l">${p.is_admin ? '' : `<button class="btn ${p.held ? 'y' : ''}" data-hold="${esc(p.email)}" style="padding:4px 10px;font-size:13px">${p.held ? 'Let back in' : 'Lock out'}</button>`}</td>
       ${p.is_admin ? `<td colspan="${cols.length}" class="adm">Admin: sees every screen, including Finance and Management</td>`
         : cols.map(id => `<td><input type="checkbox" data-e="${esc(p.email)}" data-s="${id}" ${p.screens.includes(id) ? 'checked' : ''} aria-label="${esc(p.name)}: ${esc(S.get(id).name)}"></td>`).join('')}</tr>`).join('')}
   </table>
   <div class="sub" style="margin-top:8px">Pick &amp; Dispatch, Van Team and Collections share one warehouse login behind the scenes, and so do Goods In and Stock: ticking one of a pair hides or shows the tab, but doesn't fence off the other completely.</div></div>
   <div class="card"><div class="k" style="margin-bottom:6px">Recent changes</div>
-    <div class="log">${D.log.length ? D.log.map(l => `${esc(when(l.at))}: <b>${esc(l.by)}</b> ${l.granted ? 'gave' : 'took'} <b>${esc(l.who)}</b> ${l.granted ? '' : 'off '}${esc(S.get(l.screen)?.name || l.screen)}`).join('<br>') : 'No changes yet.'}</div></div>`;
+    <div class="log">${D.log.length ? D.log.map(l => `${esc(when(l.at))}: <b>${esc(l.by)}</b> ${l.screen === 'hold' ? (l.granted ? 'locked out' : 'let back in') + ' <b>' + esc(l.who) + '</b>' : (l.granted ? 'gave' : 'took') + ' <b>' + esc(l.who) + '</b> ' + (l.granted ? '' : 'off ') + esc(S.get(l.screen)?.name || l.screen)}`).join('<br>') : 'No changes yet.'}</div></div>`;
+  document.querySelectorAll('select[data-lead]').forEach(sel => sel.onchange = async () => {
+    const p = D.people.find(x => x.email === sel.dataset.lead);
+    try { await api({ action: 'lead', email: p.email, lead: sel.value }); toast(sel.value ? `${D.people.find(x => x.email === sel.value).name} now leads ${p.name}` : `${p.name} has no team lead`); refresh(); }
+    catch(x){ toast(x.message); sel.value = p.lead; }
+  });
+  document.querySelectorAll('button[data-hold]').forEach(b => b.onclick = () => {
+    const p = D.people.find(x => x.email === b.dataset.hold), on = !p.held;
+    modal(`<div class="title" style="font-size:26px">${on ? 'Lock ' + esc(p.name) + ' out?' : 'Let ' + esc(p.name) + ' back in?'}</div>
+      <div>${on ? 'They will be logged out straight away, and if they try to log in they will just see a polite message that Bob is not available right now. Their screens and tasks stay exactly as they are.' : 'They will be able to log in again straight away.'}</div>
+      <div class="row"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn y" id="ok">${on ? 'Yes, lock out' : 'Yes, let back in'}</button></div>`);
+    document.getElementById('ok').onclick = async () => {
+      try { await api({ action: 'hold', email: p.email, on }); closeModal(); toast(`${p.name}: ${on ? 'locked out' : 'back in'}`); refresh(); }
+      catch(x){ toast(x.message); }
+    };
+  });
   document.querySelectorAll('input[type=checkbox][data-e]').forEach(c => c.onchange = () => {
     const on = c.checked; c.checked = !on;                      // only changes once confirmed
     const p = D.people.find(x => x.email === c.dataset.e), s = S.get(c.dataset.s);
@@ -367,7 +384,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105160435';
+  const BUILD = '20261110133539';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
