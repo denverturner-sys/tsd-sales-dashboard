@@ -77,8 +77,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261110110828"></script>
-<script src="activity.js?v=20261110110828"></script>
+<script src="auth.js?v=20261110133539"></script>
+<script src="activity.js?v=20261110133539"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tasks';
 const mem = {};
@@ -133,8 +133,8 @@ function render(){
       <button class="btn y" type="submit">Add</button></form></div>
   <div class="card"><div class="k">To do</div>${open.length ? open.map(row).join('') : '<div class="empty">All clear.</div>'}</div>
   ${done.length ? `<div class="card"><div class="k">Done in the last 2 weeks</div>${done.map(row).join('')}</div>` : ''}
-  <div id="ms"></div>`;
-  renderMs();
+  <div id="team"></div><div id="ms"></div>`;
+  renderMs(); if (D.is_lead) loadTeam();
   document.getElementById('af').onsubmit = async e => {
     e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
     try { await api({ action: 'add', title: document.getElementById('at').value, due: document.getElementById('ad').value, priority: document.getElementById('ap').value }); toast('Added'); poke(); refresh(); }
@@ -145,6 +145,44 @@ function render(){
     try { await api({ action: 'done', id: +b.dataset.done, on: b.dataset.on === '1' }); poke(); refresh(); } catch(x){ toast(x.message); b.disabled = false; }
   });
   document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => edit(D.tasks.find(t => t.id === +b.dataset.edit)));
+}
+// ---- My team (10 Nov): a team lead sees what they've given their people and can give them more ----
+let TM = null;
+async function teamApi(body){
+  const r = await fetch(API + (body ? '' : '?view=team'), body ? {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({}));
+  if (body && !j.ok) throw new Error(j.error || "Couldn't save");
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+async function loadTeam(){ try { TM = await teamApi(); renderTeam(); } catch(x){ if (x.message !== 'login') { const e = document.getElementById('team'); if (e) e.innerHTML = ''; } } }
+function teamRow(t){
+  const done = t.status === 'done', late = !done && t.due && t.due < TM.today;
+  return `<div class="task ${done ? 'done' : ''}"><div class="tb"><div class="tt">${t.priority ? `<span class="pri p${t.priority}">${t.priority === 2 ? 'URGENT' : 'HIGH'}</span>` : ''}${esc(t.title)}</div>
+    <div class="meta">${t.due ? (late ? `<span class="late">overdue · was due ${dmy(t.due)}</span>` : `<span>due ${dmy(t.due)}</span>`) : ''}<span>${done ? 'done ' + dmy(t.done_at) : age(t.created_at).replace('on your list', 'given').replace('added today', 'given today')}</span></div>
+    ${t.notes ? `<div class="notes">${esc(t.notes)}</div>` : ''}</div>
+    <div class="acts">${done ? '' : `<button class="btn sm" data-tdone="${t.id}">Done</button>`}<button class="btn sm del" data-tdel="${t.id}">Remove</button></div></div>`;
+}
+function renderTeam(){
+  const el = document.getElementById('team'); if (!el) return;
+  if (!TM.team.length) { el.innerHTML = ''; return; }
+  const open = TM.tasks.filter(t => t.status === 'open'), done = TM.tasks.filter(t => t.status === 'done');
+  el.innerHTML = `<div class="card"><div class="k" style="margin-bottom:8px">My team · give someone a task</div>
+    <form class="add" id="tf"><input class="full" id="tt" placeholder="What needs doing? e.g. Put the 6mm delivery away" maxlength="200" required>
+      <select id="tw">${TM.team.map(p => `<option value="${esc(p.email)}">${esc(p.name)}</option>`).join('')}</select><input type="date" id="td" title="Deadline (optional)">
+      <select id="tp"><option value="0">Normal</option><option value="1">High</option><option value="2">Urgent</option></select>
+      <button class="btn y" type="submit">Give task</button></form>
+    <div class="sub" style="margin-top:6px">They'll see it on their My Tasks as "Added for you". You'll see it here until it's done. Their own tasks stay private to them.</div></div>
+  ${TM.team.map(p => { const mine = open.filter(t => t.owner === p.email), d = done.filter(t => t.owner === p.email);
+    return `<div class="card"><div class="k">${esc(p.name)} · ${mine.length} open from you</div>${mine.length ? mine.map(teamRow).join('') : '<div class="empty">Nothing outstanding.</div>'}${d.length ? `<div class="sub" style="margin-top:8px">Done recently: ${d.map(t => esc(t.title)).join(' · ')}</div>` : ''}</div>`; }).join('')}`;
+  document.getElementById('tf').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
+    try { await teamApi({ action: 'team_add', email: document.getElementById('tw').value, title: document.getElementById('tt').value, due: document.getElementById('td').value, priority: document.getElementById('tp').value }); toast('Task given'); loadTeam(); }
+    catch(x){ toast(x.message); b.disabled = false; }
+  };
+  el.querySelectorAll('[data-tdone]').forEach(b => b.onclick = async () => { b.disabled = true; try { await teamApi({ action: 'team_done', id: +b.dataset.tdone, on: true }); loadTeam(); } catch(x){ toast(x.message); b.disabled = false; } });
+  el.querySelectorAll('[data-tdel]').forEach(b => b.onclick = async () => { if (!confirm('Remove this task from their list?')) return; b.disabled = true; try { await teamApi({ action: 'team_delete', id: +b.dataset.tdel }); loadTeam(); } catch(x){ toast(x.message); b.disabled = false; } });
 }
 function edit(t){
   modal(`<div class="title" style="font-size:26px">Edit task</div>
@@ -291,7 +329,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110110828';
+  const BUILD = '20261110133539';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
