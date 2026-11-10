@@ -48,7 +48,8 @@
 
   // ---- changes: every POST to Bob's server, and whether it worked ----
   const SECRET = /pin|pass|token|secret|key|^k$|^old$|^new$/i;   // set_pin sends old/new
-  const SKIP = new Set(['login_name', 'login', 'device_login', 'admin_list']);   // logins are recorded by the server itself
+  const SKIP = new Set(['login_name', 'login', 'device_login', 'admin_list']);
+  const QUIET = new Set(['msgraph:status', 'msgraph:calendar', 'msgraph:todo']);   // 10 Nov: My Tasks' background Outlook/To Do refresh every 2 min; only logged if it fails   // logins are recorded by the server itself
   function clean(b) {
     const o = {}; let n = 0;
     for (const [k, v] of Object.entries(b || {})) {
@@ -74,6 +75,7 @@
           p.then(r => r.clone().json().catch(() => ({})).then(j => {
             ev.ok = r.ok && j.ok !== false && !j.error;
             if (!ev.ok) ev.err = String(j.error || ('HTTP ' + r.status)).slice(0, 160);
+            if (ev.ok && QUIET.has(ev.fn + ':' + ev.action)) return;
             push(ev, tk);
           }), () => { ev.ok = false; ev.err = 'No connection'; push(ev, tk); }).catch(() => {});
         }
