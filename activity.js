@@ -69,7 +69,7 @@
       const method = String((init && init.method) || (typeof input !== 'string' && input.method) || 'GET').toUpperCase();
       if (m && method === 'POST' && m[1] !== 'activity' && m[1] !== 'survey') {   // survey answers are never logged, so an anonymous reply can't be tied to a person
         let body = {}; try { body = JSON.parse((init && init.body) || '{}'); } catch (e) {}
-        if (!SKIP.has(body.action)) {
+        if (!SKIP.has(body.action) && !(m[1] === 'msgraph' && /^teams_/.test(String(body.action || '')))) {   // Teams: message text is never logged
           const ev = { kind: 'change', fn: m[1], action: String(body.action || 'save').slice(0, 40), detail: clean(body) };
           const tk = token();
           p.then(r => r.clone().json().catch(() => ({})).then(j => {
