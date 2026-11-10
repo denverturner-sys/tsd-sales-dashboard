@@ -53,6 +53,14 @@ tr.done td input{border-color:var(--good)}
 .tag.warn{background:rgba(238,209,7,.18);color:var(--accent)}.tag.ok{background:rgba(125,219,152,.15);color:var(--good)}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 .pr{display:none}
+.mini{font-size:12px;color:var(--muted);line-height:1.3}
+.flag{display:inline-block;margin-top:3px;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700}
+.flag.bad{background:rgba(255,122,107,.18);color:var(--bad)}.flag.warn{background:rgba(238,209,7,.18);color:var(--accent)}
+tr.flash td{background:rgba(238,209,7,.22)}
+#scanbox{position:fixed;left:0;right:0;top:0;z-index:20;background:var(--panel);border-bottom:2px solid var(--accent);padding:10px 14px;display:none;max-width:900px;margin:0 auto}
+#reader{width:100%;max-height:34vh;overflow:hidden;border-radius:10px;background:#000}
+.hit{display:block;width:100%;text-align:left;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-top:6px;cursor:pointer}
+.hit b{font-family:var(--num);font-size:20px;letter-spacing:1px;font-weight:400}.hit small{display:block;color:var(--muted)}
 @media print{
   body{background:#fff;color:#000}.noprint,.bar{display:none!important}.pr{display:block}
   .card{background:#fff;padding:0}th{background:#fff;color:#000;position:static}td{border-top:1px solid #999;padding:7px 6px}
@@ -63,9 +71,11 @@ tr.done td input{border-color:var(--good)}
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
+<div id="scanbox"></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
-<script src="auth.js?v=20261110220256"></script>
-<script src="activity.js?v=20261110220256"></script>
+<script src="auth.js?v=20261110221656"></script>
+<script src="activity.js?v=20261110221656"></script>
+<script src="html5-qrcode.min.js?v=20261110221656"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/stockcount';
 const mem = {};
@@ -77,7 +87,7 @@ const store = {
 const SITES = ['Wootton Bassett', 'Bromham'];
 const qs = new URLSearchParams(location.search);
 let token = store.get('tsd_me_token'), ME = null, tab = (qs.get('open') || qs.get('count')) ? 'counts' : 'count', busy = false;
-let site = store.get('sc_site') || 'Wootton Bassett', suppliers = null, supplier = '', zero = false, blind = true;
+let site = store.get('sc_site') || 'Wootton Bassett', suppliers = null, supplier = '', zero = false, blind = false, scanAdd = true, scanner = null, lastCode = '', lastAt = 0, unknown = null, hits = [], qseq = 0, qtimer;
 let lines = null, vals = {}, loaded = {}, filter = '', note = '', result = null, err = '';
 let counts = null, detail = null;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -92,8 +102,8 @@ async function api(q, body){
   return j;
 }
 const dkey = () => `sc_draft|${site}|${supplier}|${zero ? 1 : 0}`;
-function saveDraft(){ if (lines) store.set(dkey(), JSON.stringify({vals, loaded, note})); }
-function loadDraft(){ try { const d = JSON.parse(store.get(dkey()) || 'null'); if (d) { vals = d.vals || {}; loaded = d.loaded || {}; note = d.note || ''; } } catch(e){} }
+function saveDraft(){ if (lines) store.set(dkey(), JSON.stringify({vals, loaded, note, extra: lines.filter(l => l.extra)})); }
+function loadDraft(){ try { const d = JSON.parse(store.get(dkey()) || 'null'); if (d) { vals = d.vals || {}; loaded = d.loaded || {}; note = d.note || ''; for (const x of (d.extra || [])) if (!lines.some(l => l.product_id === x.product_id)) lines.push(x); } } catch(e){} }
 
 async function boot(){
   try {
@@ -103,7 +113,7 @@ async function boot(){
     render();
   } catch(x){ if (x.message !== 'login') A().innerHTML = `<div class="msg bad">${esc(x.message)}</div>`; }
 }
-async function setSite(s){ site = s; store.set('sc_site', s); supplier = ''; lines = null; result = null; suppliers = null; render(); await boot(); }
+async function setSite(s){ stopScan(); site = s; store.set('sc_site', s); supplier = ''; lines = null; result = null; suppliers = null; render(); await boot(); }
 async function loadSheet(){
   if (!supplier) { lines = null; return render(); }
   busy = true; err = ''; render();
@@ -115,7 +125,12 @@ async function loadSheet(){
   } catch(x){ if (x.message !== 'login') err = x.message; lines = null; }
   busy = false; render();
 }
-function setVal(id, v){ if (v === '') delete vals[id]; else vals[id] = v; saveDraft(); const tr = document.getElementById('r' + id); if (tr) tr.classList.toggle('done', v !== ''); stat(); }
+function other(){ return site === 'Bromham' ? 'Wootton Bassett' : 'Bromham'; }
+function flagFor(l, v){ if (blind || v === '' || !isFinite(+v)) return ''; const c = +v, e = l.expected, d = c - e; if (!d) return '';
+  if (e > 0 && c < e * 0.5 && e - c >= 3) return `<span class="flag bad">Bob has ${num(e)}, you've got ${num(c)}. Might be stored elsewhere, have a look before submitting</span>`;
+  if (c > e * 1.5 && d >= 3) return `<span class="flag warn">${num(d)} more than Bob has. Double check it's the right product</span>`;
+  return `<span class="mini">${d > 0 ? '+' : ''}${num(d)} vs Bob</span>`; }
+function setVal(id, v){ if (v === '') delete vals[id]; else vals[id] = v; saveDraft(); const fl = document.getElementById('f' + id), L = lines.find(x => x.product_id === id); if (fl && L) fl.innerHTML = flagFor(L, v); const tr = document.getElementById('r' + id); if (tr) tr.classList.toggle('done', v !== ''); stat(); }
 function counted(){ return Object.keys(vals).filter(k => vals[k] !== '' && isFinite(+vals[k])).length; }
 function stat(){ const e = document.getElementById('stat'); if (e) e.textContent = `${counted()} of ${lines.length} counted`; const b = document.getElementById('sub'); if (b) b.disabled = !counted() || busy; }
 function setFilter(v){ filter = v.toLowerCase(); const f = filter.trim();
@@ -123,7 +138,9 @@ function setFilter(v){ filter = v.toLowerCase(); const f = filter.trim();
 function nextOnEnter(ev){ if (ev.key === 'Enter') { ev.preventDefault(); let tr = ev.target.closest('tr').nextElementSibling; while (tr && tr.style.display === 'none') tr = tr.nextElementSibling; const i = tr && tr.querySelector('input'); if (i) i.focus(); else ev.target.blur(); } }
 
 async function submit(){
-  const left = lines.length - counted();
+  const gaps = lines.filter(l => vals[l.product_id] !== undefined && vals[l.product_id] !== '' && /bad/.test(flagFor(l, vals[l.product_id]))).length;
+  if (gaps && !confirm(`${gaps} line${gaps > 1 ? 's are' : ' is'} way under what Bob has. That stock may just be in another spot. Submit anyway?`)) return;
+  const left = lines.filter(l => !l.extra).length - counted();
   if (left > 0 && !confirm(`${left} line${left > 1 ? 's' : ''} left blank. Those won't be adjusted, only the ones you've counted.\n\nSubmit now?`)) return;
   busy = true; err = ''; render();
   try {
@@ -165,16 +182,16 @@ function countView(){
     ${(suppliers || []).map(s => `<option value="${esc(s.name)}" ${s.name === supplier ? 'selected' : ''}>${esc(s.name)} (${s.n})</option>`).join('')}
     <option value="*" ${supplier === '*' ? 'selected' : ''}>Everything (all suppliers)</option></select></div></div>
     <label class="chk"><input type="checkbox" ${zero ? 'checked' : ''} onchange="zero=this.checked;if(supplier)loadSheet()"> Include products Bob shows as zero stock (so you can add stock he doesn't know about)</label>
-    <label class="chk"><input type="checkbox" ${blind ? '' : 'checked'} onchange="blind=!this.checked;render()"> Show what Bob expects (off = blind count, more honest)</label></div>`;
+    <label class="chk"><input type="checkbox" ${blind ? 'checked' : ''} onchange="blind=this.checked;render()"> Blind count: hide what Bob expects</label></div>`;
   if (busy && !lines) return pick + `<div class="m">Loading the sheet…</div>`;
   if (!lines) return pick + (supplier ? '' : `<div class="m">Pick a site and supplier to get the count sheet.</div>`);
   if (!lines.length) return pick + `<div class="card">Nothing in stock for that supplier at ${esc(site)}. Tick "include zero stock" if you want to count anyway.</div>`;
   const rows = lines.map(l => { const v = vals[l.product_id] ?? '';
-    return `<tr id="r${l.product_id}" class="${v !== '' ? 'done' : ''}" data-t="${esc((l.sku + ' ' + l.name).toLowerCase())}"><td class="sku">${esc(l.sku)}</td><td>${esc(l.name)}<div class="m">${esc(l.uom || '')}</div></td>
-      ${blind ? '' : `<td class="r m">${num(l.expected)}</td>`}
-      <td class="r"><span class="pr"><span class="box"></span></span><input class="noprint" type="number" inputmode="decimal" min="0" step="any" value="${esc(v)}" oninput="setVal('${l.product_id}', this.value)" onkeydown="nextOnEnter(event)"></td></tr>`; }).join('');
+    return `<tr id="r${l.product_id}" class="${v !== '' ? 'done' : ''}" data-t="${esc((l.sku + ' ' + l.name).toLowerCase())}"><td class="sku">${esc(l.sku)}</td><td>${esc(l.name)}<div class="m">${esc(l.uom || '')}${l.extra ? ' · added by scan' : ''}</div><div id="f${l.product_id}">${flagFor(l, v)}</div></td>
+      ${blind ? '' : `<td class="r">${num(l.expected)}<div class="mini">${l.allocated ? num(l.allocated) + ' allocated' : ''}${l.elsewhere ? (l.allocated ? '<br>' : '') + num(l.elsewhere) + ' at ' + esc(other()) : ''}</div></td>`}
+      <td class="r"><span class="pr"><span class="box"></span></span><input id="i${l.product_id}" class="noprint" type="number" inputmode="decimal" min="0" step="any" value="${esc(v)}" oninput="setVal('${l.product_id}', this.value)" onkeydown="nextOnEnter(event)"></td></tr>`; }).join('');
   return pick + `<div class="card"><div class="pr"><b>Stock count sheet: ${esc(site)} · ${esc(supplier === '*' ? 'All suppliers' : supplier)}</b> · ${new Date().toLocaleDateString('en-GB')} · Counted by: ____________</div>
-    <div class="noprint" style="display:flex;gap:10px;margin-bottom:10px"><input type="search" placeholder="Filter by SKU or name" oninput="setFilter(this.value)"><button class="btn alt" onclick="print()">Print sheet</button></div>
+    <div class="noprint" style="display:flex;gap:10px;margin-bottom:10px"><input type="search" placeholder="Filter by SKU or name" oninput="setFilter(this.value)"><button class="btn" onclick="startScan()">📷 Scan</button><button class="btn alt" onclick="print()">Print</button></div>
     <table><thead><tr><th>SKU</th><th>Product</th>${blind ? '' : '<th class="r">Bob has</th>'}<th class="r">Counted</th></tr></thead><tbody id="tb">${rows}</tbody></table></div>
     <div class="card noprint"><div class="k">Note for Toby (optional)</div><textarea rows="2" placeholder="e.g. pallet 3 was damaged, 2 boxes in the wrong bay" oninput="note=this.value;saveDraft()">${esc(note)}</textarea>
     <div class="m" style="margin-top:6px">Leave a line blank if you didn't count it. Only counted lines are compared. Your numbers save on this device as you go.</div></div>
@@ -195,11 +212,68 @@ function countsView(){
   return `<div class="card">${counts.map(c => `<div class="row" onclick="openCount(${c.id})"><div><b>${esc(c.site)} · ${esc(c.supplier === '*' ? 'All suppliers' : c.supplier)}</b><div class="m">${esc(c.counted_by_name)} · ${fdt(c.counted_at)} · ${c.n_counted} counted</div></div>
     <div style="text-align:right">${c.n_variance ? `<span class="tag ${c.status === 'adjusted' ? 'ok' : 'warn'}">${c.status === 'adjusted' ? 'Adjusted' : c.n_variance + ' to adjust'}</span>` : '<span class="tag ok">All matched</span>'}</div></div>`).join('')}</div>`;
 }
+
+// ---------- scanning (10 Nov): scan a barcode to jump to the product and count it ----------
+const validCode = c => { if (!/^(\d{8}|\d{12}|\d{13}|\d{14})$/.test(c)) return false; const d = c.split('').map(Number), k = d.pop(); return (10 - d.reverse().reduce((a, v, i) => a + v * (i % 2 ? 1 : 3), 0) % 10) % 10 === k; };
+function box(){ return document.getElementById('scanbox'); }
+function paintScan(msg, bad){
+  box().style.display = 'block';
+  box().innerHTML = `<div id="reader" style="${scanner ? '' : 'display:none'}"></div>
+    <div id="sm" class="${bad ? 'msg bad' : 'm'}" style="margin:8px 0">${msg || ''}</div>
+    ${unknown ? unknownHtml() : ''}
+    <div style="display:flex;gap:10px;align-items:center;justify-content:space-between"><label class="chk" style="margin:0"><input type="checkbox" ${scanAdd ? 'checked' : ''} onchange="scanAdd=this.checked"> Each scan adds 1</label>
+    <button class="btn alt" onclick="stopScan()">Close scanner</button></div>`;
+}
+function unknownHtml(){ return `<div class="card" style="margin:8px 0 0"><div class="k">Not saved yet: ${esc(unknown)}</div><input id="uq" type="search" placeholder="Which product is this? SKU or name" autocomplete="off" oninput="uSearch(this.value)"><div id="uh">${hits.map((p, i) => `<button class="hit" onclick="uSave(${i})"><b>${esc(p.sku)}</b><small>${esc(p.name)}</small></button>`).join('')}</div>
+  <button class="btn alt" style="margin-top:8px" onclick="unknown=null;hits=[];startScan()">Skip, scan the next</button></div>`; }
+function uSearch(v){ clearTimeout(qtimer); qtimer = setTimeout(async () => { const my = ++qseq; if (v.trim().length < 2) { hits = []; const h = document.getElementById('uh'); if (h) h.innerHTML = ''; return; }
+  try { const j = await api(`site=${encodeURIComponent(site)}&q=${encodeURIComponent(v.trim())}`); if (my === qseq) { hits = j.results; const h = document.getElementById('uh'); if (h) h.innerHTML = hits.map((p, i) => `<button class="hit" onclick="uSave(${i})"><b>${esc(p.sku)}</b><small>${esc(p.name)}</small></button>`).join(''); } } catch(e){} }, 250); }
+async function uSave(i){ const p = hits[i]; if (!p) return;
+  try { const j = await api('', {action:'barcode', barcode: unknown, sku: p.sku, site}); const c = unknown; unknown = null; hits = []; await startScan(); countLine(j.line, `Saved ${c} against ${j.line.sku}. `); }
+  catch(x){ const m = document.getElementById('sm'); if (m) { m.className = 'msg bad'; m.textContent = x.message; } } }
+function countLine(l, pre){
+  if (!lines) return;
+  let L = lines.find(x => x.product_id === l.product_id);
+  if (!L) { L = {...l, extra: true}; lines.push(L); render(); }
+  const cur = +(vals[L.product_id] || 0), nv = scanAdd ? cur + 1 : cur;
+  if (scanAdd) { vals[L.product_id] = String(nv); saveDraft(); }
+  const inp = document.getElementById('i' + L.product_id), tr = document.getElementById('r' + L.product_id);
+  if (inp && scanAdd) inp.value = nv;
+  if (tr) { tr.classList.add('done', 'flash'); setTimeout(() => tr.classList.remove('flash'), 1500); const f = document.getElementById('f' + L.product_id); if (f) f.innerHTML = flagFor(L, String(vals[L.product_id] ?? '')); tr.scrollIntoView({block:'center', behavior:'smooth'}); }
+  stat();
+  const m = document.getElementById('sm'); if (m) { m.className = 'm'; m.innerHTML = `${esc(pre || '')}<b style="color:var(--ink)">${esc(L.sku)}</b> ${esc(L.name)} · counted ${scanAdd ? nv : 'so far ' + (vals[L.product_id] || 0)}${L.extra ? ' (not on this sheet, added)' : ''}`; }
+}
+async function onCode(c){
+  const now = Date.now(); if (c === lastCode && now - lastAt < 2000) return; lastCode = c; lastAt = now; if (navigator.vibrate) navigator.vibrate(60);
+  try {
+    const j = await api(`site=${encodeURIComponent(site)}&code=${c}`);
+    if (j.found) return countLine(j.line);
+    await stopScan(true); unknown = c; hits = []; paintScan(`Barcode ${c} isn't saved against a product yet. Pick the right one and it's remembered from now on.`);
+  } catch(x){ if (x.message !== 'login') paintScan(esc(x.message), true); }
+}
+async function startScan(){
+  if (!lines) return;
+  if (!window.Html5Qrcode) { paintScan("The scanner didn't load. Refresh the page.", true); return; }
+  await stopScan(true); unknown = null;
+  scanner = true; paintScan('Starting the camera…');
+  const F = Html5QrcodeSupportedFormats, sc = new Html5Qrcode('reader', { formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.ITF], experimentalFeatures: { useBarCodeDetectorIfSupported: true }, verbose: false });
+  scanner = sc;
+  sc.start({ facingMode: 'environment' }, { fps: 10, qrbox: (w, h) => ({ width: Math.floor(w * 0.9), height: Math.floor(Math.min(h, w) * 0.5) }) },
+    txt => { const c = String(txt).replace(/\D/g, ''); if (validCode(c)) onCode(c); }, () => {})
+   .then(() => { const m = document.getElementById('sm'); if (m && /Starting/.test(m.textContent)) m.textContent = 'Scan a product. Hold it steady, 15-20cm away.'; })
+   .catch(e => { scanner = null; paintScan("Couldn't start the camera. Allow camera access for this site in your browser settings.", true); });
+}
+async function stopScan(keepOpen){
+  const s = scanner; scanner = null;
+  if (s && s !== true) { try { await s.stop(); s.clear(); } catch(e){} }
+  if (!keepOpen) { unknown = null; box().style.display = 'none'; box().innerHTML = ''; }
+}
+
 if (token) boot(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; boot(); });
 </script>
 <script>
-(function(){ const BUILD = '20261110220256'; let newer = false;
+(function(){ const BUILD = '20261110221656'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !document.activeElement?.matches('input,textarea,select') && !Object.keys(vals).length) location.reload(); } catch(e){} }, 120000);
 })();
