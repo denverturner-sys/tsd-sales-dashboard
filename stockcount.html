@@ -45,6 +45,8 @@ tr.done td input{border-color:var(--good)}
 .pos{color:var(--blue);font-weight:700}.neg{color:var(--bad);font-weight:700}.zero{color:var(--good)}
 .bar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;z-index:5}
 .bar .btn{white-space:nowrap}
+.bar{padding-right:210px}@media(max-width:560px){.bar{padding-right:96px;padding-bottom:64px}}
+.wrap{padding-bottom:140px}
 .chk{display:flex;align-items:center;gap:8px;margin-top:10px;color:var(--muted);font-size:14px;cursor:pointer}
 .chk input{width:auto}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
@@ -73,9 +75,9 @@ tr.flash td{background:rgba(238,209,7,.22)}
 <div id="login"><div id="lerr"></div></div>
 <div id="scanbox"></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
-<script src="auth.js?v=20261110223341"></script>
-<script src="activity.js?v=20261110223341"></script>
-<script src="html5-qrcode.min.js?v=20261110223341"></script>
+<script src="auth.js?v=20261110224349"></script>
+<script src="activity.js?v=20261110224349"></script>
+<script src="html5-qrcode.min.js?v=20261110224349"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/stockcount';
 const mem = {};
@@ -273,7 +275,7 @@ if (token) boot(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; boot(); });
 </script>
 <script>
-(function(){ const BUILD = '20261110223341'; let newer = false;
+(function(){ const BUILD = '20261110224349'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !document.activeElement?.matches('input,textarea,select') && !Object.keys(vals).length) location.reload(); } catch(e){} }, 120000);
 })();
