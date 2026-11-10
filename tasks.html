@@ -63,6 +63,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .ms .day{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin:12px 0 4px}
 .ms .ev{display:flex;gap:10px;padding:5px 0;font-size:14px}.ms .ev .t{color:var(--muted);flex:none;width:92px}
 .ms .li{padding:5px 0;font-size:14px;display:flex;gap:8px}.ms .li .imp{color:var(--bad);font-weight:800}
+.ms .calnav{display:flex;gap:8px;align-items:center;margin:10px 0}.ms .calnav b{flex:1;text-align:center;font-size:15px}
+.ms .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.ms .ch{font-size:11px;text-align:center;color:var(--muted);font-weight:700;text-transform:uppercase}
+.ms .cd{min-height:46px;border:1px solid var(--line);border-radius:6px;padding:3px 5px;cursor:pointer;background:var(--panel2);display:flex;flex-direction:column;justify-content:space-between}
+.ms .cd b{font-size:13px}.ms .cd.off{opacity:.4}.ms .cd.today{border-color:var(--accent)}.ms .cd.sel{background:var(--accent);color:#262727}.ms .cd .dot{font-size:10px;color:var(--blue);letter-spacing:1px}.ms .cd.sel .dot{color:#262727}
+.ms .msadd{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.ms .msadd input,.ms .msadd select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}.ms .msadd #msti{flex:1;min-width:180px}
+.ms .li input[type=checkbox]{width:18px;height:18px;flex:none;margin-top:2px;cursor:pointer}
 .ms .ln{font-size:12px;font-weight:700;color:var(--blue);margin:10px 0 2px}
 </style>
 </head>
@@ -71,8 +77,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261109164640"></script>
-<script src="activity.js?v=20261109164640"></script>
+<script src="auth.js?v=20261110090806"></script>
+<script src="activity.js?v=20261110090806"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tasks';
 const mem = {};
@@ -159,8 +165,8 @@ function edit(t){
 // ---- Microsoft (9 Nov): your own Outlook calendar + To Do, shown only to you. Nothing is saved in our system. Managers/admins can't see it. ----
 const MSAPI = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/msgraph';
 let MS = null;   // {status, cal, todo}, lives only in this page's memory
-async function msApi(action){
-  const r = await fetch(MSAPI, {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify({action})});
+async function msApi(action, extra){
+  const r = await fetch(MSAPI, {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify({action, ...(extra||{})})});
   if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
   return r.json().catch(() => ({ok:false}));
 }
@@ -214,17 +220,63 @@ function renderMs(){
     document.getElementById('mspriv').onclick = e => { e.preventDefault(); msPrivacy(false); };
     return;
   }
-  const days = {};
-  ((MS.cal && MS.cal.events) || []).forEach(ev => { const d = ev.start.slice(0, 10); (days[d] = days[d] || []).push(ev); });
-  const dl = d => d === MS.cal.today ? 'Today' : new Date(d + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'short'});
+  const MON = MS.month || (MS.cal && MS.cal.today || new Date().toISOString().slice(0,10)).slice(0,7);
+  const today = (MS.cal && MS.cal.today) || new Date().toLocaleDateString('en-CA', {timeZone:'Europe/London'});
+  MS.sel = MS.sel || today;
+  const byDay = {};
+  ((MS.cal && MS.cal.events) || []).forEach(ev => {   // multi-day events show on each day they cover
+    let d = ev.start.slice(0, 10);
+    let last = (ev.all_day ? new Date(new Date(ev.end.slice(0,10) + 'T12:00:00Z').getTime() - 86400e3).toISOString() : ev.end).slice(0, 10);
+    if (last < d) last = d;
+    for (let n = 0; n < 14 && d <= last; n++) { (byDay[d] = byDay[d] || []).push(ev); d = new Date(new Date(d + 'T12:00:00Z').getTime() + 86400e3).toISOString().slice(0, 10); }
+  });
+  const first = new Date(MON + '-01T12:00:00Z'), lead = (first.getUTCDay() + 6) % 7;          // Monday-first grid
+  const gridStart = new Date(first.getTime() - lead * 86400e3);
+  let cells = '';
+  const dim = new Date(Date.UTC(+MON.slice(0,4), +MON.slice(5,7), 0)).getUTCDate(), total = Math.ceil((lead + dim) / 7) * 7;
+  for (let i = 0; i < total; i++) {
+    const d = new Date(gridStart.getTime() + i * 86400e3).toISOString().slice(0, 10), inm = d.slice(0, 7) === MON, n = (byDay[d] || []).length;
+    cells += `<div class="cd${inm ? '' : ' off'}${d === today ? ' today' : ''}${d === MS.sel ? ' sel' : ''}" data-d="${d}"><b>${+d.slice(8)}</b>${n ? `<span class="dot">${n > 2 ? n : '●'.repeat(n)}</span>` : ''}</div>`;
+  }
+  const monLabel = first.toLocaleDateString('en-GB', {month:'long', year:'numeric', timeZone:'UTC'});
+  const selEv = (byDay[MS.sel] || []).slice().sort((x, y) => (x.all_day ? 0 : 1) - (y.all_day ? 0 : 1) || x.start.localeCompare(y.start));
+  const selTitle = new Date(MS.sel + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
+  const dayList = selEv.length ? selEv.map(ev => `<div class="ev"><span class="t">${ev.all_day ? 'All day' : hm(ev.start) + '–' + hm(ev.end)}</span><span>${esc(ev.subject)}${ev.location ? `<span class="sub"> · ${esc(ev.location)}</span>` : ''}</span></div>`).join('') : '<div class="empty" style="padding:4px 0">Nothing on.</div>';
   const cal = !MS.cal ? `<div class="empty">Couldn't load your calendar just now. <span class="sub">(${esc(MS.calErr || '')})</span></div>`
-    : Object.keys(days).length ? Object.keys(days).sort().map(d => `<div class="day">${dl(d)}</div>` + days[d].map(ev => `<div class="ev"><span class="t">${ev.all_day ? 'All day' : hm(ev.start) + '–' + hm(ev.end)}</span><span>${esc(ev.subject)}${ev.location ? `<span class="sub"> · ${esc(ev.location)}</span>` : ''}</span></div>`).join('')).join('')
-    : '<div class="empty">Nothing in your calendar for the next 7 days.</div>';
+    : `<div class="calnav"><button class="btn sm" id="cprev">‹</button><b>${monLabel}</b><button class="btn sm" id="cnext">›</button><button class="btn sm" id="ctoday">Today</button></div>
+       <div class="cgrid">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x => `<div class="ch">${x}</div>`).join('')}${cells}</div>
+       <div class="day">${selTitle}</div>${dayList}`;
+  const wr = !!(MS.st && MS.st.can_write);
+  const todoLists = MS.todo ? MS.todo.lists : [];
   const todo = !MS.todo ? `<div class="empty">Couldn't load your To Do just now. <span class="sub">(${esc(MS.todoErr || '')})</span></div>`
-    : MS.todo.lists.filter(l => l.tasks.length).map(l => `<div class="ln">${esc(l.name)}</div>` + l.tasks.map(t => `<div class="li"><span>${t.important ? '<span class="imp">!</span> ' : ''}${esc(t.title)}${t.due ? `<span class="sub"> · due ${dmy(t.due)}</span>` : ''}</span></div>`).join('')).join('') || '<div class="empty">Nothing open in your To Do.</div>';
-  el.innerHTML = `<div class="card ms"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap"><div><h3>Your Outlook calendar · next 7 days</h3>${priv}</div>
+    : todoLists.filter(l => l.tasks.length).map(l => `<div class="ln">${esc(l.name)}</div>` + l.tasks.map(t => `<div class="li">${wr ? `<input type="checkbox" class="mstick" data-l="${esc(l.id)}" data-t="${esc(t.id)}" title="Tick off in Microsoft To Do">` : ''}<span>${t.important ? '<span class="imp">!</span> ' : ''}${esc(t.title)}${t.due ? `<span class="sub"> · due ${dmy(t.due)}</span>` : ''}</span></div>`).join('')).join('') || '<div class="empty">Nothing open in your To Do.</div>';
+  const addf = !MS.todo ? '' : wr ? `<form id="msadd" class="msadd"><input id="msti" placeholder="Add to your Microsoft To Do…" maxlength="250" required><input id="msdue" type="date"><select id="mslist">${todoLists.map(l => `<option value="${esc(l.id)}">${esc(l.name)}</option>`).join('')}</select><button class="btn y sm">Add</button></form>`
+    : `<div class="sub" style="margin:8px 0">To add and tick off tasks from here, <a href="#" id="msre" style="color:var(--blue);font-weight:600">reconnect Microsoft</a> once to allow it. It only covers To Do, never email.</div>`;
+  el.innerHTML = `<div class="card ms"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap"><div><h3>Your Outlook calendar</h3>${priv}</div>
       <button class="btn sm" id="msoff">Disconnect Microsoft</button></div>${cal}</div>
-    <div class="card ms"><h3>Your Microsoft To Do</h3><div class="sub">Read-only, just for you. Tick things off in Microsoft To Do itself.</div>${todo}</div>`;
+    <div class="card ms"><h3>Your Microsoft To Do</h3><div class="sub">Just for you. Ticking here ticks it in Microsoft To Do too.</div>${addf}${todo}</div>`;
+  el.querySelectorAll('.cd').forEach(c => c.onclick = () => { MS.sel = c.dataset.d; renderMs(); });
+  const goMonth = async (m, sel) => { MS.month = m; MS.sel = sel || (m + '-01'); try { const c = await msApi('calendar', {month: m}); MS.cal = c.ok ? c : MS.cal; } catch(x){} renderMs(); };
+  const shift = k => { const d = new Date(MON + '-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + k); return d.toISOString().slice(0, 7); };
+  if (document.getElementById('cprev')) {
+    document.getElementById('cprev').onclick = () => goMonth(shift(-1));
+    document.getElementById('cnext').onclick = () => goMonth(shift(1));
+    document.getElementById('ctoday').onclick = () => goMonth(today.slice(0, 7), today);
+  }
+  if (document.getElementById('msre')) document.getElementById('msre').onclick = e => { e.preventDefault(); msPrivacy(true); };
+  el.querySelectorAll('.mstick').forEach(cb => cb.onchange = async () => {
+    cb.disabled = true; const row = cb.closest('.li');
+    const j = await msApi('todo_done', {list_id: cb.dataset.l, task_id: cb.dataset.t}).catch(() => ({}));
+    if (j.ok) { row.style.opacity = '.4'; row.style.textDecoration = 'line-through'; setTimeout(() => { const l = MS.todo.lists.find(x => x.id === cb.dataset.l); if (l) l.tasks = l.tasks.filter(x => x.id !== cb.dataset.t); renderMs(); }, 600); }
+    else { cb.checked = false; cb.disabled = false; toast(j.error ? "Couldn't tick it off (" + j.error + ")" : "Couldn't tick it off. Try again."); }
+  });
+  const af = document.getElementById('msadd');
+  if (af) af.onsubmit = async e => {
+    e.preventDefault(); const b = af.querySelector('button'); b.disabled = true;
+    const j = await msApi('todo_add', {title: document.getElementById('msti').value, due: document.getElementById('msdue').value || null, list_id: document.getElementById('mslist').value}).catch(() => ({}));
+    if (j.ok) { toast('Added to Microsoft To Do'); const t = await msApi('todo').catch(() => null); if (t && t.ok) MS.todo = t; renderMs(); }
+    else { b.disabled = false; toast(j.error ? "Couldn't add it (" + j.error + ")" : "Couldn't add it. Try again."); }
+  };
   document.getElementById('mspriv').onclick = e => { e.preventDefault(); msPrivacy(false); };
   document.getElementById('msoff').onclick = async () => {
     if (!confirm('Disconnect Microsoft? We delete the link straight away. Nothing else changes.')) return;
@@ -239,7 +291,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261109164640';
+  const BUILD = '20261110090806';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
