@@ -85,10 +85,11 @@ table.ol td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:m
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261110221853"></script>
-<script src="activity.js?v=20261110221853"></script>
+<script src="auth.js?v=20261110223341"></script>
+<script src="activity.js?v=20261110223341"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
+const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
 const VIEW_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orderview';
 const OPEN = new URLSearchParams(location.search).get('open');
 const mem = {};
@@ -137,6 +138,40 @@ async function vApi(qs){
   const j = await r.json().catch(() => ({})); if (j.error) throw new Error(j.error); return j;
 }
 // 10 Nov: click an order for the full details, big. Also opened from an SO- link in a Teams chat (?open=SO-12345).
+const WH_NAME = (w, wb) => ({ dispatch: 'Pick & Dispatch', van: 'Van Team', collection: wb ? 'WB Collections' : 'Collections' })[w];
+const WH_SCREEN = (w, wb) => ({ dispatch: 'pick', van: 'van', collection: wb ? 'wbcoll' : 'collections' })[w];
+const WH_URL = { pick: 'warehouse.html', van: 'van.html', collections: 'warehouse.html?tab=collections', wbcoll: 'warehouse.html?tab=collections&loc=wb' };
+function whBlock(j){
+  const w = j.where, wb = j.wb, o = j.order;
+  if (w === 'done') return `<div class="dn" style="background:var(--panel2);border-color:var(--line)"><div class="k">Warehouse</div>This order is complete, so it's not on any warehouse list.</div>`;
+  const others = wb ? [] : ['dispatch', 'van', 'collection'].filter(x => x !== w);
+  return `<div class="dn" style="background:var(--panel2);border-color:var(--line)"><div class="k">Where it is in the warehouse</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:16px">${WH_NAME(w, wb)}</b><button class="pbtn" id="whgo" style="border-color:var(--accent)">Open it in ${WH_NAME(w, wb)} →</button></div>
+    ${others.length ? `<div class="k" style="margin-top:10px">In the wrong place? Move it to</div><div style="display:flex;gap:8px;flex-wrap:wrap">${others.map(x => `<button class="pbtn" data-mv="${x}">${WH_NAME(x, wb)}</button>`).join('')}</div>
+    ${w === 'van' ? '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px" class="sub"><input type="checkbox" id="whtp" checked style="width:auto"> Also remove its Track-POD job if it has one</label>' : ''}<div id="whmsg" class="sub" style="margin-top:6px"></div>` : ''}</div>`;
+}
+function gotoWh(screen, no){
+  try { if (window.parent !== window) { window.parent.postMessage({ tsdGoto: { screen, open: no } }, location.origin); return; } } catch(e){}
+  location.href = WH_URL[screen] + (WH_URL[screen].includes('?') ? '&' : '?') + 'open=' + encodeURIComponent(no);
+}
+function wireWh(j){
+  const o = j.order, g = document.getElementById('whgo'); if (g) g.onclick = () => { closeModal(); gotoWh(WH_SCREEN(j.where, j.wb), o.no); };
+  document.querySelectorAll('[data-mv]').forEach(b => b.onclick = async () => {
+    const to = b.dataset.mv, from = j.where, tp = !!(document.getElementById('whtp') || {}).checked, msg = document.getElementById('whmsg');
+    if (!confirm(`Move ${o.no} to ${WH_NAME(to, j.wb)}?`)) return;
+    let body;
+    if (to === 'van') body = { action: 'van', id: o.id, on: true };
+    else if (to === 'collection') body = from === 'van' ? { action: 'to_collection', id: o.id, delete_tp: tp } : { action: 'collection', id: o.id, on: true };
+    else body = from === 'van' ? { action: 'to_courier', id: o.id, delete_tp: tp } : { action: 'collection', id: o.id, on: false };
+    document.querySelectorAll('[data-mv]').forEach(x => x.disabled = true); if (msg) msg.textContent = 'Moving…';
+    try {
+      const r = await fetch(WH_API, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) });
+      const x = await r.json().catch(() => ({}));
+      if (!r.ok || x.ok === false || x.error) throw new Error(x.error || "Couldn't move it");
+      toast(`${o.no} moved to ${WH_NAME(to, j.wb)}`); openOrder({ id: o.id });
+    } catch(e){ if (msg) msg.textContent = e.message; document.querySelectorAll('[data-mv]').forEach(x => x.disabled = false); }
+  });
+}
 async function openOrder(ref){
   const mb = document.getElementById('mbox'); modal('<div class="sub">Loading…</div>'); mb.style.maxWidth = '1000px'; mb.style.maxHeight = '92vh'; mb.style.overflow = 'auto';
   try {
@@ -150,9 +185,11 @@ async function openOrder(ref){
       ${o.notes ? `<div class="dn"><div class="k">Delivery notes</div>${esc(o.notes).replace(/\n/g, '<br>')}</div>` : ''}
       <table class="ol"><tr><th>SKU</th><th>Description</th><th class="r">Qty</th>${P ? '<th class="r">Unit price</th><th class="r">Total ex VAT</th>' : ''}</tr>${li}</table>
       ${P ? `<div class="tot"><div><span>Products</span><span>${gbp(prod)}</span></div>${Math.abs(other) > 0.004 ? `<div><span>Delivery / other</span><span>${gbp(other)}</span></div>` : ''}<div><span>Total ex VAT</span><span>${gbp(net)}</span></div><div><span>VAT (20%)</span><span>${gbp(net * 0.2)}</span></div><div class="g"><span>Total inc VAT</span><span>${gbp(net * 1.2)}</span></div></div>` : ''}
+      ${whBlock(j)}
       <div class="sub">${o.qty != null ? o.qty + ' items' : ''}${o.weight ? ' · approx ' + Math.round(+o.weight) + ' kg' : ''}</div>
       <div class="row"><button class="pbtn" id="vpr">Print…</button><button class="btn" onclick="closeModal()">Close</button></div>`);
     document.getElementById('mbox').style.maxWidth = '1000px'; document.getElementById('mbox').style.maxHeight = '92vh'; document.getElementById('mbox').style.overflow = 'auto';
+    wireWh(j);
     document.getElementById('vpr').onclick = () => { if (!D) return toast('Print from the order list'); printDlg({ id: o.id, no: o.no, customer: o.customer }); };
   } catch(x){ if (x.message === 'login') return; modal(`<div class="sub">${esc(x.message)}</div><div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`); }
 }
@@ -188,7 +225,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110221853';
+  const BUILD = '20261110223341';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
