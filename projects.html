@@ -78,7 +78,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .pill.on_track{background:rgba(125,219,152,.18);color:var(--good)} .pill.off_track{background:var(--bad);color:#262727} .pill.done{background:var(--line);color:var(--ink)}
 .bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden} .bar i{display:block;height:100%;background:var(--good)} .pc.off .bar i,.pc.lt .bar i{background:var(--bad)}
 .next{font-size:13px;color:var(--muted)} .next b{color:var(--ink);font-weight:600}
-.late{color:var(--bad)} .soon{color:var(--accent)}
+.late{color:var(--bad)} .soon{color:var(--accent)} .ok{color:var(--good)}
 .step{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
 .step .tt{font-size:15px;font-weight:500;flex:1} .step .who{font-size:13px;color:var(--blue);white-space:nowrap}
 .step .tick{width:22px;height:22px;margin:0}
@@ -96,12 +96,14 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261110110828"></script>
-<script src="activity.js?v=20261110110828"></script>
+<script src="auth.js?v=20261110140615"></script>
+<script src="activity.js?v=20261110140615"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/projects';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
+const TAPI = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tasks';
+let TD = null, TPEOPLE = [], asUser = '', ASV = null, canTeam = false;
 let token = store.get('tsd_me_token'), D = null, timer, view = 'projects', filter = 'all', showDone = false, openId = null;
 const qs = new URLSearchParams(location.search);
 (() => { const o = qs.get('open'); if (o === 'issues') view = 'issues'; else if (o) openId = +o || null; })();
@@ -126,7 +128,7 @@ async function api(body){
 // tell the main page so My Tasks / the bell stay in step
 const poke = () => { try { window.top.postMessage({ tsd: 'tasks' }, location.origin); } catch(e){} };
 async function refresh(){
-  try { D = await api(); render(); if (openId) { const p = D.projects.find(x => x.id === openId); if (p) openProject(p.id); else openId = null; } }
+  try { D = await api(); if (!TD && !canTeam) loadTeamDash(); else if (view === 'team') loadTeamDash(); render(); if (openId) { const p = D.projects.find(x => x.id === openId); if (p) openProject(p.id); else openId = null; } }
   catch(x){ if (x.message !== 'login' && !D) document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; }
 }
 window.addEventListener('message', e => { if (e.origin !== location.origin || !e.data || e.data.tsd !== 'open') return; const o = e.data.ref; if (o === 'issues') { view = 'issues'; render(); } else if (+o) { view = 'projects'; openProject(+o); } });
@@ -136,6 +138,40 @@ const isLate = p => p.status !== 'done' && p.due && p.due < D.today;
 const opts = (sel, blank) => (blank ? `<option value="">${blank}</option>` : '') + D.people.map(x => `<option value="${esc(x.email)}" ${x.email === sel ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
 const dueTag = (due, done) => !due ? '' : done ? `due ${dmy(due)}` : due < D.today ? `<span class="late"><b>overdue</b> · ${dmy(due)}</span>` : due === D.today ? `<span class="soon"><b>due today</b></span>` : `due ${dmy(due)}`;
 
+
+// ---- Team (10 Nov): leads see their people's workload; managers can view as anyone ----
+async function tapi(qs){
+  const r = await fetch(TAPI + qs, { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'error'); return j;
+}
+const asq = () => asUser ? '&as=' + encodeURIComponent(asUser) : '';
+async function loadTeamDash(){
+  try {
+    TD = await tapi('?view=dash' + asq()); canTeam = true;
+    ASV = asUser ? await tapi('?x=1' + asq()) : null;
+    if (D.me.is_admin && !TPEOPLE.length) TPEOPLE = (await tapi('?view=people')).people || [];
+  } catch(x){ if (x.message === 'login') return; if (!asUser) { canTeam = false; TD = null; if (view === 'team') view = 'projects'; } else { TD = { members: [], ops: {}, viewing_as: null, today: D.today, err: true }; ASV = null; } }
+  render();
+}
+const seenTxt = at => { if (!at) return '<span class="late">Not seen yet</span>'; const d = new Date(at), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' });
+  return `<span class="ok">Seen ${d.toLocaleDateString('en-GB', { timeZone: 'Europe/London' }) === new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/London' }) ? t : dmy(at) + ' ' + t}</span>`; };
+function busy(m){ return m.overdue >= 2 || m.open >= 6 ? ['Busy', 'late'] : m.open >= 4 ? ['Fairly full', 'soon'] : ['Has capacity', 'ok']; }
+function teamView(){
+  if (!TD) return '<div class="empty">Loading…</div>';
+  const o = TD.ops || {}, admin = D.me.is_admin;
+  const sel = admin ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><span class="k">View as</span><select id="asel"><option value="">Everyone (manager view)</option>${TPEOPLE.map(x => `<option value="${esc(x.email)}" ${x.email === asUser ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>${asUser ? `<span class="sub">Read-only. This is what ${esc(TD.viewing_as || '')} sees: nothing you do here marks anything as seen.</span>` : ''}</div>` : '';
+  const strip = `<div class="strip"><div class="stat"><span class="k">${esc(o.location || 'Bromham')} orders to send</span><b>${o.to_send ?? '–'}</b></div><div class="stat"><span class="k">Overdue now</span><b class="${o.overdue_now ? 'late' : ''}">${o.overdue_now ?? '–'}</b></div><div class="stat"><span class="k">Picked, waiting</span><b>${o.picked_waiting ?? '–'}</b></div><div class="stat"><span class="k">Sent today</span><b>${o.sent_today ?? '–'}</b></div></div>
+    <div class="sub" style="margin:-4px 0 12px">Orders aren't given to individuals, so these are the whole team's numbers. "Busy" means 6+ open tasks or 2+ overdue.</div>`;
+  const cards = TD.members.length ? TD.members.map(m => { const [bl, bc] = busy(m);
+    return `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b style="font-size:17px">${esc(m.name)}</b> <span class="${bc}" style="font-weight:700;margin-left:8px">${bl}</span></div>
+      <div class="sub">${m.open} open · <span class="${m.overdue ? 'late' : ''}">${m.overdue} overdue</span> · ${m.urgent} high/urgent · ${m.done_7d} done this week</div></div>
+      ${m.tasks.length ? m.tasks.map(t => `<div class="step"><div class="tt">${t.priority ? `<span class="pill ${t.priority === 2 ? 'off_track' : 'on_track'}" style="margin-right:6px">${t.priority === 2 ? 'URGENT' : 'HIGH'}</span>` : ''}${esc(t.title)}</div><div class="who" style="text-align:right">${t.due ? dueTag(t.due, false) + ' · ' : ''}${t.given ? seenTxt(t.seen_at) : 'their own'}</div></div>`).join('') : '<div class="empty">Nothing open that you can see.</div>'}
+      ${m.hidden ? `<div class="sub" style="margin-top:6px">+ ${m.hidden} of their own tasks (private, so only counted)</div>` : ''}</div>`; }).join('') : `<div class="card"><div class="empty">${TD.err ? 'Nothing to show for this person.' : 'No team set up yet. Set who leads whom in Management > Users &amp; access.'}</div></div>`;
+  const mine = ASV ? `<div class="card"><div class="k" style="margin-bottom:6px">${esc(TD.viewing_as || '')}'s own My Tasks</div>${ASV.tasks.filter(t => t.status === 'open').length ? ASV.tasks.filter(t => t.status === 'open').map(t => `<div class="step"><div class="tt">${esc(t.title)}${t.added_for_you ? ' <span class="tag">Added for you</span>' : ''}</div><div class="who">${t.due ? dueTag(t.due, false) : ''}</div></div>`).join('') : '<div class="empty">All clear.</div>'}</div>` : '';
+  return sel + strip + cards + mine;
+}
+
 function render(){
   const act = D.projects.filter(p => p.status !== 'done'), fin = D.projects.filter(p => p.status === 'done');
   const off = act.filter(p => p.status === 'off_track').length, late = act.filter(isLate).length;
@@ -143,9 +179,11 @@ function render(){
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Tasks &amp; Projects</div><div class="sub">What the company is working on, and what's stuck. Your own to-do list is on <b>My Tasks</b>; steps assigned to you in a project show up there too.</div></div>
     <button class="btn y" id="newbtn">${view === 'issues' ? '+ Raise an issue' : '+ New project'}</button></header>
-  <div class="tabs"><button data-v="projects" class="${view === 'projects' ? 'on' : ''}">Projects (${act.length})</button><button data-v="issues" class="${view === 'issues' ? 'on' : ''}">Issues (${openIss})</button></div>
-  ${view === 'projects' ? projectsView(act, fin, off, late, mineN) : issuesView()}`;
-  document.querySelectorAll('.tabs [data-v]').forEach(b => b.onclick = () => { view = b.dataset.v; render(); });
+  <div class="tabs"><button data-v="projects" class="${view === 'projects' ? 'on' : ''}">Projects (${act.length})</button><button data-v="issues" class="${view === 'issues' ? 'on' : ''}">Issues (${openIss})</button>${canTeam || D.me.is_admin ? `<button data-v="team" class="${view === 'team' ? 'on' : ''}">Team</button>` : ''}</div>
+  ${view === 'projects' ? projectsView(act, fin, off, late, mineN) : view === 'team' ? teamView() : issuesView()}`;
+  document.querySelectorAll('.tabs [data-v]').forEach(b => b.onclick = () => { view = b.dataset.v; if (view === 'team') loadTeamDash(); else render(); });
+  const as = document.getElementById('asel'); if (as) as.onchange = () => { asUser = as.value; TD = null; ASV = null; render(); loadTeamDash(); };
+  document.getElementById('newbtn').style.display = view === 'team' ? 'none' : '';
   document.getElementById('newbtn').onclick = () => view === 'issues' ? newIssue() : newProject();
   document.querySelectorAll('[data-p]').forEach(c => c.onclick = () => openProject(+c.dataset.p));
   document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
@@ -242,7 +280,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110110828';
+  const BUILD = '20261110140615';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

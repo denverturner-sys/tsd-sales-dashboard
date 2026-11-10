@@ -77,8 +77,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261110133539"></script>
-<script src="activity.js?v=20261110133539"></script>
+<script src="auth.js?v=20261110140615"></script>
+<script src="activity.js?v=20261110140615"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tasks';
 const mem = {};
@@ -122,6 +122,11 @@ function row(t){
     ${!t.added_for_you && !done ? `<div class="acts"><button class="btn sm" data-edit="${t.id}">Edit</button></div>` : ''}
   </div>`;
 }
+// 10 Nov read receipts: tasks given to me are stamped as "seen" only while this page is actually open and on screen (not hidden in another tab or pane)
+let seenPending = false;
+setInterval(() => { if (seenPending && token && document.visibilityState === 'visible' && document.body.offsetWidth > 0) { seenPending = false; api({ action: 'seen' }).catch(() => {}); } }, 3000);
+const seenTxt = at => { if (!at) return '<span class="late">Not seen yet</span>'; const d = new Date(at), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' }), same = d.toLocaleDateString('en-GB', { timeZone: 'Europe/London' }) === new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/London' });
+  return `<span style="color:var(--good)">✓ Seen ${same ? t : dmy(at) + ' ' + t}</span>`; };
 function render(){
   const open = D.tasks.filter(t => t.status === 'open'), done = D.tasks.filter(t => t.status === 'done');
   const late = open.filter(t => t.due && t.due < D.today).length;
@@ -135,6 +140,7 @@ function render(){
   ${done.length ? `<div class="card"><div class="k">Done in the last 2 weeks</div>${done.map(row).join('')}</div>` : ''}
   <div id="team"></div><div id="ms"></div>`;
   renderMs(); if (D.is_lead) loadTeam();
+  seenPending = D.tasks.some(t => t.added_for_you && t.status === 'open');
   document.getElementById('af').onsubmit = async e => {
     e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
     try { await api({ action: 'add', title: document.getElementById('at').value, due: document.getElementById('ad').value, priority: document.getElementById('ap').value }); toast('Added'); poke(); refresh(); }
@@ -160,7 +166,7 @@ async function loadTeam(){ try { TM = await teamApi(); renderTeam(); } catch(x){
 function teamRow(t){
   const done = t.status === 'done', late = !done && t.due && t.due < TM.today;
   return `<div class="task ${done ? 'done' : ''}"><div class="tb"><div class="tt">${t.priority ? `<span class="pri p${t.priority}">${t.priority === 2 ? 'URGENT' : 'HIGH'}</span>` : ''}${esc(t.title)}</div>
-    <div class="meta">${t.due ? (late ? `<span class="late">overdue · was due ${dmy(t.due)}</span>` : `<span>due ${dmy(t.due)}</span>`) : ''}<span>${done ? 'done ' + dmy(t.done_at) : age(t.created_at).replace('on your list', 'given').replace('added today', 'given today')}</span></div>
+    <div class="meta">${t.due ? (late ? `<span class="late">overdue · was due ${dmy(t.due)}</span>` : `<span>due ${dmy(t.due)}</span>`) : ''}<span>${done ? 'done ' + dmy(t.done_at) : age(t.created_at).replace('on your list', 'given').replace('added today', 'given today')}</span>${done ? '' : `<span>${seenTxt(t.seen_at)}</span>`}</div>
     ${t.notes ? `<div class="notes">${esc(t.notes)}</div>` : ''}</div>
     <div class="acts">${done ? '' : `<button class="btn sm" data-tdone="${t.id}">Done</button>`}<button class="btn sm del" data-tdel="${t.id}">Remove</button></div></div>`;
 }
@@ -329,7 +335,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110133539';
+  const BUILD = '20261110140615';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
