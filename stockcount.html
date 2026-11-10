@@ -10,7 +10,7 @@
 <title>Stock count · TSD</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Stock count (10 Nov): pick a site + supplier, count, submit. Differences go to Toby to adjust in Cin7. */
+/* Stock count (10 Nov): pick a site + supplier, count, submit. Differences are passed on to be adjusted in Cin7. */
 :root{--bg:#262727;--panel:#323333;--panel2:#3B3C3C;--line:#474949;--ink:#FFF;--muted:#B9BCBC;--accent:#EED107;--good:#7DDB98;--bad:#FF7A6B;--blue:#8EC5FF;
   --num:'Bebas Neue','Arial Narrow',Arial,sans-serif;--body:Barlow,'Segoe UI',Arial,sans-serif}
 *{box-sizing:border-box}
@@ -73,9 +73,9 @@ tr.flash td{background:rgba(238,209,7,.22)}
 <div id="login"><div id="lerr"></div></div>
 <div id="scanbox"></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
-<script src="auth.js?v=20261110221656"></script>
-<script src="activity.js?v=20261110221656"></script>
-<script src="html5-qrcode.min.js?v=20261110221656"></script>
+<script src="auth.js?v=20261110223341"></script>
+<script src="activity.js?v=20261110223341"></script>
+<script src="html5-qrcode.min.js?v=20261110223341"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/stockcount';
 const mem = {};
@@ -165,7 +165,7 @@ const fdt = s => new Date(s).toLocaleString('en-GB', {day:'numeric', month:'shor
 function render(){
   const a = A(); a.style.display = ''; document.getElementById('login').style.display = 'none';
   if (!ME) { a.innerHTML = `<div class="m">Loading…</div>`; return; }
-  const head = `<div class="noprint"><div class="title">Stock count</div><div class="sub">Count what's on the shelf, submit, and the differences go to Toby to adjust in Cin7.</div>
+  const head = `<div class="noprint"><div class="title">Stock count</div><div class="sub">Count what's on the shelf and submit. Any differences are passed on to be adjusted in Cin7.</div>
     <div class="seg"><button class="${tab === 'count' ? 'on' : ''}" onclick="tab='count';detail=null;render()">New count</button>
     <button class="${tab === 'counts' ? 'on' : ''}" onclick="tab='counts';detail=null;loadCounts()">${ME.can_review ? 'All counts' : 'My counts'}</button></div>
     ${err ? `<div class="msg bad">${esc(err)}</div>` : ''}</div>`;
@@ -174,7 +174,7 @@ function render(){
 }
 function countView(){
   if (result) return `<div class="card noprint"><div class="msg ok">Submitted. ${result.counted} lines counted.</div>
-    <p>${result.differences ? `<b>${result.differences}</b> ${result.differences > 1 ? 'differences' : 'difference'} found (${num(result.over)} units over, ${num(result.under)} under). Sent to Toby to adjust.` : 'Everything matched Bob\'s figures. Nothing to adjust.'}</p>
+    <p>${result.differences ? `<b>${result.differences}</b> ${result.differences > 1 ? 'differences' : 'difference'} found (${num(result.over)} units over, ${num(result.under)} under). Passed on for adjustment.` : 'Everything matched Bob\'s figures. Nothing to adjust.'}</p>
     <button class="btn full" onclick="result=null;render()">Count another supplier</button>
     <button class="btn alt full" onclick="tab='counts';openCount(${result.id});result=null">See this count</button></div>`;
   const pick = `<div class="card noprint"><div class="g2"><div><div class="k">Site</div><select onchange="setSite(this.value)">${SITES.map(s => `<option ${s === site ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
@@ -193,7 +193,7 @@ function countView(){
   return pick + `<div class="card"><div class="pr"><b>Stock count sheet: ${esc(site)} · ${esc(supplier === '*' ? 'All suppliers' : supplier)}</b> · ${new Date().toLocaleDateString('en-GB')} · Counted by: ____________</div>
     <div class="noprint" style="display:flex;gap:10px;margin-bottom:10px"><input type="search" placeholder="Filter by SKU or name" oninput="setFilter(this.value)"><button class="btn" onclick="startScan()">📷 Scan</button><button class="btn alt" onclick="print()">Print</button></div>
     <table><thead><tr><th>SKU</th><th>Product</th>${blind ? '' : '<th class="r">Bob has</th>'}<th class="r">Counted</th></tr></thead><tbody id="tb">${rows}</tbody></table></div>
-    <div class="card noprint"><div class="k">Note for Toby (optional)</div><textarea rows="2" placeholder="e.g. pallet 3 was damaged, 2 boxes in the wrong bay" oninput="note=this.value;saveDraft()">${esc(note)}</textarea>
+    <div class="card noprint"><div class="k">Note (optional)</div><textarea rows="2" placeholder="e.g. pallet 3 was damaged, 2 boxes in the wrong bay" oninput="note=this.value;saveDraft()">${esc(note)}</textarea>
     <div class="m" style="margin-top:6px">Leave a line blank if you didn't count it. Only counted lines are compared. Your numbers save on this device as you go.</div></div>
     <div class="bar noprint"><span id="stat" class="m"></span><button id="sub" class="btn" onclick="submit()" ${busy ? 'disabled' : ''}>${busy ? 'Sending…' : 'Submit count'}</button></div>`;
 }
@@ -273,7 +273,7 @@ if (token) boot(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; boot(); });
 </script>
 <script>
-(function(){ const BUILD = '20261110221656'; let newer = false;
+(function(){ const BUILD = '20261110223341'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !document.activeElement?.matches('input,textarea,select') && !Object.keys(vals).length) location.reload(); } catch(e){} }, 120000);
 })();
