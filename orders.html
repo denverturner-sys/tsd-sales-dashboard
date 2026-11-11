@@ -76,6 +76,7 @@ table.ol td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:m
 .dn{background:rgba(238,209,7,.12);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin:8px 0}.tot{margin-left:auto;width:260px;margin-top:10px}.tot div{display:flex;justify-content:space-between;padding:3px 0}.tot .g{border-top:2px solid var(--line);font-weight:800;font-size:17px;margin-top:4px;padding-top:6px}.r{text-align:right}
 .bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.bar input{flex:1;min-width:200px}.st{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--line)}.st.BACKORDERED{background:var(--accent);color:#262727}
 .pbtn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:13px}.pbtn:hover{border-color:var(--accent)}
+a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space:nowrap}a.trk:hover{text-decoration:underline}
 #pv{width:100%;height:62vh;border:0;background:#fff;border-radius:8px}.on{color:var(--good)}.off{color:var(--bad)}
 @media(max-width:700px){table.ol .hm{display:none}}
 </style>
@@ -85,8 +86,8 @@ table.ol td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:m
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261110223341"></script>
-<script src="activity.js?v=20261110223341"></script>
+<script src="auth.js?v=20261111104821"></script>
+<script src="activity.js?v=20261111104821"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
 const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -96,16 +97,27 @@ const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 const PR = { dispatch: 'Dispatch printer', counter: 'Trade counter printer', office: 'Office printer' };
 const lastPr = () => { try { return localStorage.getItem('tsd_print_pr'); } catch(e){ return null; } };
-let token = store.get('tsd_me_token'), D = null, timer, q = '', loc = '', status = 'open', qt;
+let token = store.get('tsd_me_token'), D = null, timer, q = (OPEN && OPEN.startsWith('q:') ? OPEN.slice(2) : ''), loc = '', status = (OPEN && OPEN.startsWith('q:') ? 'all' : 'open'), qt;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dmy = s => s ? new Date(String(s).slice(0,10) + 'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
 const gbp = n => n == null ? '' : '£' + Number(n).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+// 11 Nov: tracking links for dispatched orders (same courier rules as the Tracking screen)
+function trackUrl(courier, n, postcode){
+  const t = encodeURIComponent(String(n).trim()), u = String(n).trim().toUpperCase(); let c = String(courier || '').toLowerCase();
+  if (!c) c = /^\d{14}$/.test(u) ? 'dpd' : /^[A-Z]{2}\d{9}GB$/.test(u) ? 'royal mail' : /^\d{12}$/.test(u) ? 'fedex' : '';
+  if (c.includes('dpd')) return `https://track.dpd.co.uk/search?reference=${t}${postcode ? '&postcode=' + encodeURIComponent(postcode) : ''}`;
+  if (c.includes('royal mail')) return `https://www.royalmail.com/track-your-item#/tracking-results/${t}`;
+  if (c.includes('parcelforce')) return `https://www.parcelforce.com/track-trace?trackNumber=${t}`;
+  if (c.includes('fedex')) return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
+  return `https://www.google.com/search?q=${encodeURIComponent((courier || '') + ' tracking ' + n)}`;
+}
+const trackLinks = (ps, pc, long) => (ps || []).map(p => `<a class="trk" title="${esc((p.courier || '') + ' ' + p.n)}" href="${esc(trackUrl(p.courier, p.n, pc))}" target="_blank" rel="noopener">${long ? esc((p.courier || 'Track') + ' ' + p.n) : 'Track'} ↗</a>`).join(' ');
 function toast(t){ const e = document.getElementById('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(e._t); e._t = setTimeout(() => e.style.display = 'none', 3500); }
 function modal(h){ document.getElementById('mbox').innerHTML = h; document.getElementById('mbox').style.maxWidth = '860px'; document.getElementById('mbox').style.maxHeight = ''; document.getElementById('mbox').style.overflow = ''; document.getElementById('modal').style.display = 'flex'; }
 function closeModal(){ document.getElementById('modal').style.display = 'none'; }
 document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
 function showLogin(msg){ clearInterval(timer); document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
-function start(){ document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block'; shell(); load(); if (OPEN && !start.done) { start.done = true; openOrder(/^[0-9a-f-]{36}$/i.test(OPEN) ? { id: OPEN } : { no: OPEN }); } clearInterval(timer); timer = setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input')) load(); }, 60000); }
+function start(){ document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block'; shell(); load(); if (OPEN && !OPEN.startsWith('q:') && !start.done) { start.done = true; openOrder(/^[0-9a-f-]{36}$/i.test(OPEN) ? { id: OPEN } : { no: OPEN }); } clearInterval(timer); timer = setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input')) load(); }, 60000); }
 async function api(qs, body){
   const r = await fetch(API + (qs || ''), body ? {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
   if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
@@ -113,7 +125,7 @@ async function api(qs, body){
 }
 function shell(){
   document.getElementById('app').innerHTML = `<header><div><div class="title">Sales orders</div><div class="sub">Find any order and print its pick sheet, sales order or VAT invoice. <span id="stn"></span></div></div></header>
-  <div class="bar"><input id="sq" placeholder="Search order number, customer or postcode" value="${esc(q)}"><select id="sl"><option value="">Both sites</option><option>Bromham</option><option>Wootton Bassett</option></select>
+  <div class="bar"><input id="sq" placeholder="Search order number, website order number, customer or postcode" value="${esc(q)}"><select id="sl"><option value="">Both sites</option><option>Bromham</option><option>Wootton Bassett</option></select>
   <select id="ss"><option value="open">Open orders</option><option value="done">Completed</option><option value="all">All</option></select></div>
   <div class="card" id="list"><div class="empty">Loading…</div></div><div id="adm"></div>`;
   document.getElementById('sl').value = loc; document.getElementById('ss').value = status;
@@ -126,8 +138,9 @@ async function load(){
 }
 function draw(){
   const stn = document.getElementById('stn'); if (stn) stn.innerHTML = D.online.office ? '<b class="on">● Office printer connected</b>' : '<b class="off">● Office printer is not connected</b> <span class="sub">(you can still print from this screen)</span>';
-  document.getElementById('list').innerHTML = D.orders.length ? `<table class="ol"><tr><th>Order</th><th>Date</th><th>Customer</th><th class="hm">Site</th><th>Status</th>${D.can_price ? '<th class="r hm">Ex VAT</th>' : ''}<th></th></tr>` +
-    D.orders.map(o => `<tr class="clk" data-row="${o.id}"><td><b>${esc(o.no)}</b></td><td>${dmy(o.date)}</td><td>${esc(o.customer)}</td><td class="hm">${esc(o.location)}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span></td>${D.can_price ? `<td class="r hm">${gbp(o.total)}</td>` : ''}<td class="r"><button class="pbtn" data-o="${o.id}">Print…</button></td></tr>`).join('') + '</table>' + (D.orders.length >= 100 ? '<div class="sub" style="margin-top:8px">Showing the latest 100. Search to narrow it down.</div>' : '') : '<div class="empty">No orders match.</div>';
+  document.getElementById('list').innerHTML = D.orders.length ? `<table class="ol"><tr><th>Order</th><th>Date</th><th>Customer</th><th class="hm">Site</th><th>Status</th><th>Tracking</th>${D.can_price ? '<th class="r hm">Ex VAT</th>' : ''}<th></th></tr>` +
+    D.orders.map(o => `<tr class="clk" data-row="${o.id}"><td><b>${esc(o.no)}</b>${o.ref ? `<div class="sub">Web #${esc(o.ref)}</div>` : ''}</td><td>${dmy(o.date)}</td><td>${esc(o.customer)}</td><td class="hm">${esc(o.location)}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span></td><td>${trackLinks(o.parcels, o.postcode, false)}</td>${D.can_price ? `<td class="r hm">${gbp(o.total)}</td>` : ''}<td class="r"><button class="pbtn" data-o="${o.id}">Print…</button></td></tr>`).join('') + '</table>' + (D.orders.length >= 100 ? '<div class="sub" style="margin-top:8px">Showing the latest 100. Search to narrow it down.</div>' : '') : '<div class="empty">No orders match.</div>';
+  document.querySelectorAll('a.trk').forEach(a => a.onclick = e => e.stopPropagation());
   document.querySelectorAll('[data-o]').forEach(b => b.onclick = e => { e.stopPropagation(); printDlg(D.orders.find(o => o.id === b.dataset.o)); });
   document.querySelectorAll('tr[data-row]').forEach(r => r.onclick = () => openOrder({ id: r.dataset.row }));
   const a = document.getElementById('adm'); if (D.is_admin && !a.innerHTML) a.innerHTML = '<div class="card"><div class="k">Office print station</div><div class="sub" style="margin:6px 0">Set up once on the always-on PC at work.</div><button class="pbtn" id="stset">Show set-up steps</button></div>', document.getElementById('stset').onclick = stationSetup;
@@ -181,7 +194,7 @@ async function openOrder(ref){
     modal(`<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div><div class="title" style="font-size:30px">${esc(o.no)}</div><div style="font-size:18px;font-weight:700">${esc(o.customer)}</div></div><span class="st ${esc(o.status)}">${esc(o.status)}</span></div>
       <div class="dv"><div><div class="k">Customer</div>${esc(o.contact && o.contact !== o.customer ? o.contact : '')}${o.phone ? '<br>' + esc(o.phone) : ''}${o.email ? '<br>' + esc(o.email) : ''}</div>
       <div><div class="k">Deliver to</div>${esc(o.address || '').replace(/, /g, '<br>')}</div>
-      <div><div class="k">Order</div>${dmy(o.date)} · ${esc(o.location || '')}${o.ship_by ? '<br>Needed by ' + dmy(o.ship_by) : ''}${o.carrier ? '<br>Delivery: ' + esc(o.carrier) : ''}${o.rep ? '<br>Rep: ' + esc(o.rep) : ''}<br><span class="sub">Pick: ${esc(o.pick || 'n/a')} · Pack: ${esc(o.pack || 'n/a')} · Ship: ${esc(o.ship || 'n/a')}</span>${o.tracking ? '<br>Tracking: ' + esc(o.tracking) : ''}</div></div>
+      <div><div class="k">Order</div>${dmy(o.date)} · ${esc(o.location || '')}${o.ship_by ? '<br>Needed by ' + dmy(o.ship_by) : ''}${o.carrier ? '<br>Delivery: ' + esc(o.carrier) : ''}${o.rep ? '<br>Rep: ' + esc(o.rep) : ''}<br><span class="sub">Pick: ${esc(o.pick || 'n/a')} · Pack: ${esc(o.pack || 'n/a')} · Ship: ${esc(o.ship || 'n/a')}</span>${o.ref ? '<br>Website order #' + esc(o.ref) : ''}${(o.parcels || []).length ? '<br>Tracking: ' + trackLinks(o.parcels, o.postcode, true) : (o.tracking ? '<br>Tracking: ' + esc(o.tracking) : '')}</div></div>
       ${o.notes ? `<div class="dn"><div class="k">Delivery notes</div>${esc(o.notes).replace(/\n/g, '<br>')}</div>` : ''}
       <table class="ol"><tr><th>SKU</th><th>Description</th><th class="r">Qty</th>${P ? '<th class="r">Unit price</th><th class="r">Total ex VAT</th>' : ''}</tr>${li}</table>
       ${P ? `<div class="tot"><div><span>Products</span><span>${gbp(prod)}</span></div>${Math.abs(other) > 0.004 ? `<div><span>Delivery / other</span><span>${gbp(other)}</span></div>` : ''}<div><span>Total ex VAT</span><span>${gbp(net)}</span></div><div><span>VAT (20%)</span><span>${gbp(net * 0.2)}</span></div><div class="g"><span>Total inc VAT</span><span>${gbp(net * 1.2)}</span></div></div>` : ''}
@@ -225,7 +238,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110223341';
+  const BUILD = '20261111104821';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
