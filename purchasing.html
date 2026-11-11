@@ -114,6 +114,7 @@ td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;d
 .who.none{background:transparent;border:1px dashed var(--line);color:var(--muted)}
 .rang{color:var(--good);font-weight:600}
 .filters .lab{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:6px}
+a.solink{color:inherit;text-decoration:underline dotted;cursor:pointer}a.solink:hover{color:var(--accent,#2563eb)}
 </style>
 </head>
 <body>
@@ -131,8 +132,8 @@ td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;d
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261105154936"></script>
-<script src="activity.js?v=20261105154936"></script>
+<script src="auth.js?v=20261111160802"></script>
+<script src="activity.js?v=20261111160802"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -452,10 +453,10 @@ function newBos(){ return (M?.backorders || []).filter(b => b.is_new).sort((a, b
 function ringBox(wide){
   const list = newBos();
   const item = b => {
-    const lines = b.lines.map(l => `${n1(l.bo)}× ${esc(l.sku)}`).join(', ');
+    const lines = b.lines.map(l => `${n1(l.bo)}× <b>${esc(l.sku)}</b>${l.name ? ' ' + esc(l.name) : ''}`).join('<br>');
     const tags = [b.all_in_stock ? '<span class="tag t-in">Stock in</span>' : '', b.no_po ? '<span class="tag t-nopo">No PO</span>' : '', !b.no_po && !b.all_in_stock && b.expected ? `<span class="tag t-po">Due ${dmy(b.expected)}</span>` : ''].join('');
     return `<div class="ri">
-      <div class="t"><b>${esc(b.no)}</b><span class="muted">${ago(b.seen_at)}</span></div>
+      <div class="t"><b>${soLink(b.no)}</b><span class="muted">${ago(b.seen_at)}</span></div>
       <div><b>${esc(b.customer)}</b>${b.contact && b.contact !== b.customer ? ` <span class="muted">· ${esc(b.contact)}</span>` : ''}</div>
       ${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}">📞 ${esc(b.phone)}</a>` : '<span class="muted">No phone on the order</span>'}
       <div class="muted" style="font-size:13px">${lines} ${tags}</div>
@@ -471,6 +472,8 @@ function ringBox(wide){
     ${list.length ? `<div ${wide ? 'class="cards" style="margin-top:4px"' : ''}>${list.map(item).join('')}</div>` : '<div class="empty" style="margin-top:8px">All caught up. New backorders appear here within a minute or two of being authorised in Cin7.</div>'}
   </div>`;
 }
+const soLink = no => `<a href="#" class="solink" title="Open ${esc(no)} in Sales orders" onclick="event.stopPropagation();event.preventDefault();openSO('${esc(no)}')">${esc(no)}</a>`;
+function openSO(no){ try { window.parent.postMessage({ tsdGoto: { screen: 'orders', open: no } }, location.origin); } catch(e){} }
 const whoTag = o => o ? `<span class="who ${o === me?.name ? 'me' : ''}">${o === me?.name ? 'Mine' : esc(o) + "'s"}</span>` : '<span class="who none">Nobody yet</span>';
 async function boPost(body){
   const r = await fetch(API.replace('/purchasing', '/bo_pin'), {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)});
@@ -494,11 +497,11 @@ async function boContact(id, what, no){
 function boTable(list, compact){
   return `<table><thead><tr><th>Order</th><th>Customer</th><th class="r">Age</th><th>Backordered lines</th>${compact ? '' : '<th>Follow-up</th><th></th>'}</tr></thead><tbody>
   ${list.map(b => {
-    const lines = b.lines.map(l => { const [c,t] = FLAG[l.flag] || ['t-po','']; return `<div class="ln"><b>${n1(l.bo)}×</b><span class="s">${esc(l.sku)}</span><span class="tag ${c}">${t}</span>${l.flag==='on_po'||l.flag==='overdue' ? `<span class="muted">${(l.pos||[]).map(p => esc(p.po) + (p.expected ? ' due ' + dmy(p.expected) : '')).join(', ') || 'on order ' + n1(l.on_order)}</span>` : ''}</div>`; }).join('');
+    const lines = b.lines.map(l => { const [c,t] = FLAG[l.flag] || ['t-po','']; return `<div class="ln"><b>${n1(l.bo)}×</b><span class="s">${esc(l.sku)}</span><span>${esc(l.name || '')}</span><span class="tag ${c}">${t}</span>${l.flag==='on_po'||l.flag==='overdue' ? `<span class="muted">${(l.pos||[]).map(p => esc(p.po) + (p.expected ? ' due ' + dmy(p.expected) : '')).join(', ') || 'on order ' + n1(l.on_order)}</span>` : ''}</div>`; }).join('');
     const fu = `<div style="margin-bottom:3px">${whoTag(b.owner)}${b.contacted_at ? `<span class="rang">✓ Rung ${dmy(b.contacted_at)} ${hm(b.contacted_at)}${b.contacted_by ? ' · ' + esc(b.contacted_by) : ''}</span>` : `<span class="bad">Not rung yet</span>${b.attempts ? ` <span class="muted">(${b.attempts} no answer)</span>` : ''}`}</div>${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
     const open = openBo === b.id;
     return `<tr class="click" onclick="openBo = openBo === '${b.id}' ? null : '${b.id}'; ${compact ? "boFilter='all';boSearch='" + esc(b.no) + "';setTab('backorders')" : 'render()'}">
-      <td><b>${esc(b.no)}</b>${b.forced || b.pinned ? `<div><span class="tag t-snz" title="${b.pinned ? 'Added by hand' : 'Cin7 no longer shows this as backordered but it is not fully shipped'}">${b.pinned ? 'Added by hand' : esc(String(b.sx_status || '').toLowerCase()) + ' · ' + esc(String(b.ship_status || '').toLowerCase())}</span></div>` : ''}<div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div>${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}" onclick="event.stopPropagation()">📞 ${esc(b.phone)}</a>` : ''}</td>
+      <td><b>${soLink(b.no)}</b>${b.forced || b.pinned ? `<div><span class="tag t-snz" title="${b.pinned ? 'Added by hand' : 'Cin7 no longer shows this as backordered but it is not fully shipped'}">${b.pinned ? 'Added by hand' : esc(String(b.sx_status || '').toLowerCase()) + ' · ' + esc(String(b.ship_status || '').toLowerCase())}</span></div>` : ''}<div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div>${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}" onclick="event.stopPropagation()">📞 ${esc(b.phone)}</a>` : ''}</td>
       <td class="r">${b.age}d<div class="muted">${dmy(b.order_date)}</div></td><td class="lines">${lines}</td>
       ${compact ? '' : `<td class="fu">${fu}</td><td onclick="event.stopPropagation()"><div class="acts">
         <select onchange="if(this.value){snooze('${b.id}', +this.value);this.value=''}"><option value="">Remind me in…</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option><option value="14">14 days</option></select>
@@ -662,7 +665,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261105154936';
+  const BUILD = '20261111160802';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
