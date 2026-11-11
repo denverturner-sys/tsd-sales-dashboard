@@ -4,6 +4,7 @@
 <style>body{background:#262727;color:#fff;font-family:Arial,sans-serif;margin:0;padding:24px}h1{margin:0 0 4px;font-size:26px}.sub{color:#B9BCBC;font-size:14px}.ok{color:#7DDB98}.bad{color:#FF7A6B}.wait{color:#EED107}
 table{border-collapse:collapse;margin-top:16px;width:100%;max-width:760px}th{text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#B9BCBC;padding:6px 8px;border-bottom:1px solid #474949}td{padding:7px 8px;border-bottom:1px solid #474949}iframe{position:fixed;left:0;top:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none;z-index:-1}</style></head>
 <body><h1 id="h">Print queue</h1><div class="sub" id="s">Starting…</div>
+<div id="cfg" style="display:none;margin:14px 0;padding:14px;border:1px solid #474949;border-radius:10px;max-width:760px"><div class="sub" style="margin-bottom:8px">Set this PC up once. The key is in Bob (Sales orders &gt; Print stations). Chrome remembers it.</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="ck" placeholder="Paste the station key" style="flex:1;min-width:220px;padding:9px;border-radius:8px;border:1px solid #474949;background:#1c1d1d;color:#fff"><select id="cp" style="padding:9px;border-radius:8px;border:1px solid #474949;background:#1c1d1d;color:#fff"><option value="dispatch">Dispatch printer</option><option value="office">Office printer</option><option value="counter">Trade counter printer</option></select><button id="cs" style="padding:9px 16px;border-radius:8px;border:0;background:#EED107;font-weight:bold;cursor:pointer">Save</button></div></div><a href="#" id="cl" class="sub" style="display:inline-block;margin-top:6px">Change printer / key</a>
 <table><thead><tr><th>Time</th><th>Order</th><th>Document</th><th>Asked by</th><th>Status</th></tr></thead><tbody id="log"></tbody></table><iframe id="f"></iframe>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
@@ -11,6 +12,10 @@ const NAMES = { dispatch: 'Dispatch printer', counter: 'Trade counter printer', 
 const qs = new URLSearchParams(location.search); let key = qs.get('k'), pr = qs.get('p');
 try { if (key) localStorage.setItem('tsd_ps_key', key); else key = localStorage.getItem('tsd_ps_key'); if (pr) localStorage.setItem('tsd_ps_pr', pr); else pr = localStorage.getItem('tsd_ps_pr'); } catch(e){}
 if (!NAMES[pr]) pr = 'office';
+const cfg = document.getElementById('cfg'); document.getElementById('cp').value = pr; if (key) document.getElementById('ck').value = key;
+if (!key || !localStorage.getItem('tsd_ps_pr')) cfg.style.display = 'block';
+document.getElementById('cl').onclick = e => { e.preventDefault(); cfg.style.display = cfg.style.display === 'block' ? 'none' : 'block'; };
+document.getElementById('cs').onclick = () => { const k = document.getElementById('ck').value.trim(); if (!k) return; try { localStorage.setItem('tsd_ps_key', k); localStorage.setItem('tsd_ps_pr', document.getElementById('cp').value); } catch(e){} location.reload(); };
 if (qs.get('k')) history.replaceState(null, '', location.pathname);
 document.getElementById('h').textContent = NAMES[pr] + ' queue'; document.title = NAMES[pr] + ' · TSD';
 const st = document.getElementById('s'); let busy = false;
@@ -21,7 +26,7 @@ function draw(q){ document.getElementById('log').innerHTML = (q || []).map(j => 
 const printHtml = (html, copies) => new Promise((res, rej) => { const f = document.getElementById('f'); const to = setTimeout(() => rej(new Error('Chrome did not print within 25 seconds. Check the default printer and that Chrome was opened with --kiosk-printing')), 25000);
   f.onload = () => { setTimeout(() => { try { for (let i = 0; i < copies; i++) f.contentWindow.print(); clearTimeout(to); res(); } catch(e){ clearTimeout(to); rej(e); } }, 600); }; f.srcdoc = html; });
 async function tick(){
-  if (!key) { st.innerHTML = '<span class="bad">No key. Open this page from the link in Bob (Sales orders > Print stations).</span>'; return; }
+  if (!key) { st.innerHTML = '<span class="bad">No key yet. Paste it in the box above.</span>'; return; }
   if (busy) return; busy = true;
   try {
     const r = await fetch(API, { method: 'POST', headers: hdr(), body: JSON.stringify({ action: 'poll', printer: pr }) });
