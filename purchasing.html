@@ -132,8 +132,8 @@ a.solink{color:inherit;text-decoration:underline dotted;cursor:pointer}a.solink:
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261111160802"></script>
-<script src="activity.js?v=20261111160802"></script>
+<script src="auth.js?v=20261111161150"></script>
+<script src="activity.js?v=20261111161150"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -413,7 +413,23 @@ function closeIssue(id, no){
 }
 
 // ---------- backorders ----------
-const FLAG = {in_stock:['t-in','Stock in'], no_po:['t-nopo','No PO'], overdue:['t-over','PO overdue'], on_po:['t-po','On order']};
+const FLAG = {in_stock:['t-in','Stock in'], no_po:['t-nopo','No PO'], overdue:['t-over','PO overdue'], on_po:['t-po','On order'], other_site:['t-in','At other depot']};
+const SHORT = x => x === 'Wootton Bassett' ? 'Bassett' : x;
+const xferQty = l => Math.max(1, Math.ceil((+l.bo || 0) - (+l.avail || 0)));
+function otherBit(l, b){
+  if (l.flag !== 'other_site') return '';
+  const q = xferQty(l), from = l.other_loc, to = b.location;
+  return `<span class="tag t-in">${esc(SHORT(from))} has ${n1(l.other_avail)}</span>${SVC() ? '' : `<button class="btn sm go" onclick="event.stopPropagation();sendXfer('${esc(l.pid)}','${esc(from)}','${esc(to)}',${q},'${esc(l.sku)}')">Transfer ${n1(q)} to ${esc(SHORT(to))}</button>`}`;
+}
+async function sendXfer(pid, from, to, qty, sku){
+  if (!confirm(`Send ${qty} × ${sku} from ${from} to ${to}?\n\nThis books a transfer in Cin7 and marks it In transit. Someone then needs to Receive it at ${to} on the Stock moves screen.`)) return;
+  try {
+    const r = await fetch(API.replace('/purchasing', '/stockmove'), {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify({action:'send', product_id:pid, from, to, qty})});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.ok === false) throw new Error(j.error || 'Transfer failed');
+    toast(`${qty} × ${sku} on its way to ${to}. Receive it on Stock moves when it lands`); await refresh();
+  } catch(x){ toast(x.message); }
+}
 function boMatches(b){
   if (boWho === 'mine' && b.owner !== me?.name) return false;
   if (boWho === 'nobody' && b.owner) return false;
@@ -454,7 +470,7 @@ function ringBox(wide){
   const list = newBos();
   const item = b => {
     const lines = b.lines.map(l => `${n1(l.bo)}× <b>${esc(l.sku)}</b>${l.name ? ' ' + esc(l.name) : ''}`).join('<br>');
-    const tags = [b.all_in_stock ? '<span class="tag t-in">Stock in</span>' : '', b.no_po ? '<span class="tag t-nopo">No PO</span>' : '', !b.no_po && !b.all_in_stock && b.expected ? `<span class="tag t-po">Due ${dmy(b.expected)}</span>` : ''].join('');
+    const tags = [b.all_in_stock ? '<span class="tag t-in">Stock in</span>' : '', b.other_site ? '<span class="tag t-in">Stock at other depot</span>' : '', b.no_po ? '<span class="tag t-nopo">No PO</span>' : '', !b.no_po && !b.all_in_stock && b.expected ? `<span class="tag t-po">Due ${dmy(b.expected)}</span>` : ''].join('');
     return `<div class="ri">
       <div class="t"><b>${soLink(b.no)}</b><span class="muted">${ago(b.seen_at)}</span></div>
       <div><b>${esc(b.customer)}</b>${b.contact && b.contact !== b.customer ? ` <span class="muted">· ${esc(b.contact)}</span>` : ''}</div>
@@ -497,7 +513,7 @@ async function boContact(id, what, no){
 function boTable(list, compact){
   return `<table><thead><tr><th>Order</th><th>Customer</th><th class="r">Age</th><th>Backordered lines</th>${compact ? '' : '<th>Follow-up</th><th></th>'}</tr></thead><tbody>
   ${list.map(b => {
-    const lines = b.lines.map(l => { const [c,t] = FLAG[l.flag] || ['t-po','']; return `<div class="ln"><b>${n1(l.bo)}×</b><span class="s">${esc(l.sku)}</span><span>${esc(l.name || '')}</span><span class="tag ${c}">${t}</span>${l.flag==='on_po'||l.flag==='overdue' ? `<span class="muted">${(l.pos||[]).map(p => esc(p.po) + (p.expected ? ' due ' + dmy(p.expected) : '')).join(', ') || 'on order ' + n1(l.on_order)}</span>` : ''}</div>`; }).join('');
+    const lines = b.lines.map(l => { const [c,t] = FLAG[l.flag] || ['t-po','']; return `<div class="ln"><b>${n1(l.bo)}×</b><span class="s">${esc(l.sku)}</span><span>${esc(l.name || '')}</span><span class="tag ${c}">${l.flag==='other_site' ? 'Wrong depot' : t}</span>${otherBit(l, b)}${l.flag==='on_po'||l.flag==='overdue' ? `<span class="muted">${(l.pos||[]).map(p => esc(p.po) + (p.expected ? ' due ' + dmy(p.expected) : '')).join(', ') || 'on order ' + n1(l.on_order)}</span>` : ''}</div>`; }).join('');
     const fu = `<div style="margin-bottom:3px">${whoTag(b.owner)}${b.contacted_at ? `<span class="rang">✓ Rung ${dmy(b.contacted_at)} ${hm(b.contacted_at)}${b.contacted_by ? ' · ' + esc(b.contacted_by) : ''}</span>` : `<span class="bad">Not rung yet</span>${b.attempts ? ` <span class="muted">(${b.attempts} no answer)</span>` : ''}`}</div>${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
     const open = openBo === b.id;
     return `<tr class="click" onclick="openBo = openBo === '${b.id}' ? null : '${b.id}'; ${compact ? "boFilter='all';boSearch='" + esc(b.no) + "';setTab('backorders')" : 'render()'}">
@@ -517,7 +533,7 @@ function boDetail(b){
   return `<table><thead><tr><th>SKU</th><th>Product</th><th>Supplier</th><th class="r">Ordered</th><th class="r">Backordered</th><th class="r">Available</th><th class="r">On order</th><th>Purchase orders</th></tr></thead><tbody>
     ${b.lines.map(l => `<tr><td>${esc(l.sku)}</td><td>${esc(l.name)}</td><td>${esc(l.supplier || '–')}</td><td class="r">${n1(l.qty)}</td><td class="r"><b>${n1(l.bo)}</b></td>
       <td class="r ${l.avail >= l.bo ? 'good' : ''}">${n1(l.avail)}</td><td class="r">${n1(l.on_order)}</td>
-      <td>${(l.pos||[]).map(p => `${esc(p.po)} · ${esc(p.supplier)} · ${n1(p.qty)} · ${p.expected ? 'due ' + dmy(p.expected) : 'no date'}`).join('<br>') || (l.next_delivery ? 'Next delivery ' + dmy(l.next_delivery) : '<span class="bad">None</span>')}</td></tr>`).join('')}
+      <td>${l.flag === 'other_site' ? otherBit(l, b) + '<br>' : ''}${(l.pos||[]).map(p => `${esc(p.po)} · ${esc(p.supplier)} · ${n1(p.qty)} · ${p.expected ? 'due ' + dmy(p.expected) : 'no date'}`).join('<br>') || (l.next_delivery ? 'Next delivery ' + dmy(l.next_delivery) : '<span class="bad">None</span>')}</td></tr>`).join('')}
   </tbody></table>${b.ship_status && b.ship_status !== 'NOT SHIPPED' ? `<div class="muted" style="margin-top:6px">Rest of the order: ${esc(b.ship_status.toLowerCase())}.</div>` : ''}`;
 }
 async function fuPost(body, msg){ try { const j = await api('', Object.assign({action:'follow_up'}, body)); if (j.ok === false) throw new Error(j.error); toast(msg); await refresh(); } catch(x){ toast(x.message); } }
@@ -665,7 +681,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261111160802';
+  const BUILD = '20261111161150';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
