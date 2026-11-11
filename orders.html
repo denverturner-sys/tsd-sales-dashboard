@@ -86,8 +86,8 @@ a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261111132912"></script>
-<script src="activity.js?v=20261111132912"></script>
+<script src="auth.js?v=20261111142757"></script>
+<script src="activity.js?v=20261111142757"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
 const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -233,16 +233,17 @@ function preview(o, j, doc){
 }
 async function stationSetup(){
   try {
-    const j = await api('?view=station'), base = location.origin + location.pathname.replace(/[^/]*$/, '') + 'printstation.html?k=' + encodeURIComponent(j.key);
-    const box = (p, nm) => `<div style="margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:8px"><b>${nm}</b> ${j.online[p] ? '<b class="on">● connected now</b>' : '<b class="off">● not connected yet</b>'}<br><input readonly value="${esc(base + '&p=' + p)}" style="width:100%;margin:6px 0" onclick="this.select()"></div>`;
+    const j = await api('?view=station'), url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'printstation.html';
+    const st = (p, nm) => `<b>${nm}</b> ${j.online[p] ? '<b class="on">● connected now</b>' : '<b class="off">● not connected yet</b>'}`;
     modal(`<h3 style="margin:0">Print stations</h3><div class="sub" style="color:var(--ink);line-height:1.6">
-      One PC per printer, switched on and left logged in, next to or on the same network as that printer. Do this once on each PC. No login needed, the link is the key, so <b>keep both links private.</b><br>
-      1. Copy the Chrome shortcut. Right-click the copy, Properties, and add <code>--kiosk-printing</code> to the very end of the Target line (after a space). That stops Chrome asking before it prints.<br>
-      2. Set that PC's Windows default printer to the printer it should print to.<br>
-      3. Open the shortcut and paste that printer's link (below). Press Ctrl+P once, choose the printer and close the box.<br>
-      4. Leave the window open (minimised is fine). Put the shortcut in the Startup folder (Windows key + R, type <code>shell:startup</code>) so it comes back after a restart.<br>
-      The page title tells you which printer that window is for.</div>
-      ${box('dispatch', 'Dispatch printer')}${box('office', 'Office printer')}<div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`);
+      One PC per printer, switched on and left open. Do this once on each PC. Keep the key private.<br>
+      <b>1. Make the shortcut.</b> Copy the Chrome shortcut, right-click the copy, Properties, and make the Target line end with <code>--kiosk-printing https://</code> followed by the short address below (about 100 characters in total, so it fits).<br>
+      <b>2. Set the PC's Windows default printer</b> to the printer it should print to. This is what chooses the printer, so the dispatch PC needs the dispatch printer as default and the office PC the office one.<br>
+      <b>3. Open the shortcut.</b> A box appears: paste the key, pick Dispatch or Office from the list, press Save. Done. Chrome remembers it. To change later, use "Change printer / key" on that page.<br>
+      <b>4. Leave it open</b> (minimised is fine) and put the shortcut in the Startup folder (Windows key + R, type <code>shell:startup</code>).</div>
+      <div style="margin:10px 0">Short address<br><input readonly value="${esc(url.replace(/^https?:\/\//, ''))}" style="width:100%;margin:4px 0" onclick="this.select()"></div>
+      <div style="margin:10px 0">Station key<br><input readonly value="${esc(j.key)}" style="width:100%;margin:4px 0" onclick="this.select()"></div>
+      <div>${st('dispatch', 'Dispatch printer')}<br>${st('office', 'Office printer')}</div><div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`);
   } catch(x){ toast(x.message); }
 }
 if (token) start(); else showLogin();
@@ -250,7 +251,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261111132912';
+  const BUILD = '20261111142757';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
