@@ -12,7 +12,7 @@ const qs = new URLSearchParams(location.search); let key = qs.get('k'), pr = qs.
 try { if (key) localStorage.setItem('tsd_ps_key', key); else key = localStorage.getItem('tsd_ps_key'); if (pr) localStorage.setItem('tsd_ps_pr', pr); else pr = localStorage.getItem('tsd_ps_pr'); } catch(e){}
 if (!NAMES[pr]) pr = 'office';
 if (qs.get('k')) history.replaceState(null, '', location.pathname);
-document.getElementById('h').textContent = 'Print queue'; document.title = 'Print queue · TSD';
+document.getElementById('h').textContent = NAMES[pr] + ' queue'; document.title = NAMES[pr] + ' · TSD';
 const st = document.getElementById('s'); let busy = false;
 const hdr = () => ({ 'Content-Type': 'application/json', 'x-station-key': key });
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
