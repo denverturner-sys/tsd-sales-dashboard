@@ -86,8 +86,8 @@ a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261111104821"></script>
-<script src="activity.js?v=20261111104821"></script>
+<script src="auth.js?v=20261111132912"></script>
+<script src="activity.js?v=20261111132912"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
 const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -100,6 +100,8 @@ const lastPr = () => { try { return localStorage.getItem('tsd_print_pr'); } catc
 let token = store.get('tsd_me_token'), D = null, timer, q = (OPEN && OPEN.startsWith('q:') ? OPEN.slice(2) : ''), loc = '', status = (OPEN && OPEN.startsWith('q:') ? 'all' : 'open'), qt;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dmy = s => s ? new Date(String(s).slice(0,10) + 'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+const when = s => { const d = new Date(s), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); return d.toDateString() === new Date().toDateString() ? 'Today ' + t : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' ' + t; };
+const PN = { dispatch: 'Dispatch printer', office: 'Office printer', counter: 'Trade counter printer', browser: 'This computer' }, DN = { pick: 'Pick sheet', order: 'Sales order', invoice: 'VAT invoice' };
 const gbp = n => n == null ? '' : '£' + Number(n).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 // 11 Nov: tracking links for dispatched orders (same courier rules as the Tracking screen)
 function trackUrl(courier, n, postcode){
@@ -137,13 +139,13 @@ async function load(){
   catch(x){ if (x.message !== 'login') { const l = document.getElementById('list'); if (l) l.innerHTML = `<div class="empty">${esc(x.message)}</div>`; } }
 }
 function draw(){
-  const stn = document.getElementById('stn'); if (stn) stn.innerHTML = D.online.office ? '<b class="on">● Office printer connected</b>' : '<b class="off">● Office printer is not connected</b> <span class="sub">(you can still print from this screen)</span>';
+  const stn = document.getElementById('stn'); if (stn) stn.innerHTML = ['dispatch', 'office'].map(p => D.online[p] ? `<b class="on">● ${PR[p]} connected</b>` : `<b class="off">● ${PR[p]} not connected</b>`).join(' &nbsp; ') + ' <span class="sub">(you can still print from this screen)</span>';
   document.getElementById('list').innerHTML = D.orders.length ? `<table class="ol"><tr><th>Order</th><th>Date</th><th>Customer</th><th class="hm">Site</th><th>Status</th><th>Tracking</th>${D.can_price ? '<th class="r hm">Ex VAT</th>' : ''}<th></th></tr>` +
-    D.orders.map(o => `<tr class="clk" data-row="${o.id}"><td><b>${esc(o.no)}</b>${o.ref ? `<div class="sub">Web #${esc(o.ref)}</div>` : ''}</td><td>${dmy(o.date)}</td><td>${esc(o.customer)}</td><td class="hm">${esc(o.location)}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span></td><td>${trackLinks(o.parcels, o.postcode, false)}</td>${D.can_price ? `<td class="r hm">${gbp(o.total)}</td>` : ''}<td class="r"><button class="pbtn" data-o="${o.id}">Print…</button></td></tr>`).join('') + '</table>' + (D.orders.length >= 100 ? '<div class="sub" style="margin-top:8px">Showing the latest 100. Search to narrow it down.</div>' : '') : '<div class="empty">No orders match.</div>';
+    D.orders.map(o => `<tr class="clk" data-row="${o.id}"><td><b>${esc(o.no)}</b>${o.ref ? `<div class="sub">Web #${esc(o.ref)}</div>` : ''}${o.prints ? `<div class="sub" title="Last printed ${esc(when(o.prints.at))} by ${esc(o.prints.by)} (${esc(PN[o.prints.printer] || o.prints.printer)})">🖨 printed${o.prints.n > 1 ? ' ×' + o.prints.n : ''} · ${esc(o.prints.by)}</div>` : ''}</td><td>${dmy(o.date)}</td><td>${esc(o.customer)}</td><td class="hm">${esc(o.location)}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span></td><td>${trackLinks(o.parcels, o.postcode, false)}</td>${D.can_price ? `<td class="r hm">${gbp(o.total)}</td>` : ''}<td class="r"><button class="pbtn" data-o="${o.id}">Print…</button></td></tr>`).join('') + '</table>' + (D.orders.length >= 100 ? '<div class="sub" style="margin-top:8px">Showing the latest 100. Search to narrow it down.</div>' : '') : '<div class="empty">No orders match.</div>';
   document.querySelectorAll('a.trk').forEach(a => a.onclick = e => e.stopPropagation());
   document.querySelectorAll('[data-o]').forEach(b => b.onclick = e => { e.stopPropagation(); printDlg(D.orders.find(o => o.id === b.dataset.o)); });
   document.querySelectorAll('tr[data-row]').forEach(r => r.onclick = () => openOrder({ id: r.dataset.row }));
-  const a = document.getElementById('adm'); if (D.is_admin && !a.innerHTML) a.innerHTML = '<div class="card"><div class="k">Office print station</div><div class="sub" style="margin:6px 0">Set up once on the always-on PC at work.</div><button class="pbtn" id="stset">Show set-up steps</button></div>', document.getElementById('stset').onclick = stationSetup;
+  const a = document.getElementById('adm'); if (D.is_admin && !a.innerHTML) a.innerHTML = '<div class="card"><div class="k">Print stations</div><div class="sub" style="margin:6px 0">Set up once on the PC next to each printer (dispatch and office).</div><button class="pbtn" id="stset">Show set-up steps</button></div>', document.getElementById('stset').onclick = stationSetup;
 }
 async function vApi(qs){
   const r = await fetch(VIEW_API + qs, { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
@@ -162,6 +164,10 @@ function whBlock(j){
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:16px">${WH_NAME(w, wb)}</b><button class="pbtn" id="whgo" style="border-color:var(--accent)">Open it in ${WH_NAME(w, wb)} →</button></div>
     ${others.length ? `<div class="k" style="margin-top:10px">In the wrong place? Move it to</div><div style="display:flex;gap:8px;flex-wrap:wrap">${others.map(x => `<button class="pbtn" data-mv="${x}">${WH_NAME(x, wb)}</button>`).join('')}</div>
     ${w === 'van' ? '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px" class="sub"><input type="checkbox" id="whtp" checked style="width:auto"> Also remove its Track-POD job if it has one</label>' : ''}<div id="whmsg" class="sub" style="margin-top:6px"></div>` : ''}</div>`;
+}
+function printBlock(j){
+  const ph = j.prints || [], ok = ph.filter(x => x.status !== 'failed').length;
+  return `<div class="dn" style="background:var(--panel2);border-color:var(--line)"><div class="k">Printed from Bob</div>${ph.length ? `<div style="font-weight:700">${ok ? 'Printed ' + ok + ' time' + (ok > 1 ? 's' : '') : 'Print failed'}</div>` + ph.map(x => `<div class="sub" style="color:var(--ink)">${esc(when(x.requested_at))} · ${esc(DN[x.doc] || x.doc)}${x.copies > 1 ? ' ×' + x.copies : ''} · ${esc(PN[x.printer] || x.printer)} · by ${esc(x.requested_by)}${x.status === 'failed' ? ' · <span class="off">failed</span>' : x.status === 'queued' || x.status === 'printing' ? ' · <span class="sub">waiting to print</span>' : ''}</div>`).join('') : '<span class="sub">Not printed from Bob yet. (Prints done straight from Cin7 are not recorded here.)</span>'}</div>`;
 }
 function gotoWh(screen, no){
   try { if (window.parent !== window) { window.parent.postMessage({ tsdGoto: { screen, open: no } }, location.origin); return; } } catch(e){}
@@ -198,6 +204,7 @@ async function openOrder(ref){
       ${o.notes ? `<div class="dn"><div class="k">Delivery notes</div>${esc(o.notes).replace(/\n/g, '<br>')}</div>` : ''}
       <table class="ol"><tr><th>SKU</th><th>Description</th><th class="r">Qty</th>${P ? '<th class="r">Unit price</th><th class="r">Total ex VAT</th>' : ''}</tr>${li}</table>
       ${P ? `<div class="tot"><div><span>Products</span><span>${gbp(prod)}</span></div>${Math.abs(other) > 0.004 ? `<div><span>Delivery / other</span><span>${gbp(other)}</span></div>` : ''}<div><span>Total ex VAT</span><span>${gbp(net)}</span></div><div><span>VAT (20%)</span><span>${gbp(net * 0.2)}</span></div><div class="g"><span>Total inc VAT</span><span>${gbp(net * 1.2)}</span></div></div>` : ''}
+      ${printBlock(j)}
       ${whBlock(j)}
       <div class="sub">${o.qty != null ? o.qty + ' items' : ''}${o.weight ? ' · approx ' + Math.round(+o.weight) + ' kg' : ''}</div>
       <div class="row"><button class="pbtn" id="vpr">Print…</button><button class="btn" onclick="closeModal()">Close</button></div>`);
@@ -208,29 +215,34 @@ async function openOrder(ref){
 }
 function printDlg(o){
   const docs = [['pick', 'Pick sheet', 'no prices'], ...(D.can_price ? [['order', 'Sales order', 'with prices'], ['invoice', 'VAT invoice', 'from Cin7']] : [])];
-  modal(`<h3 style="margin:0">${esc(o.no)} · ${esc(o.customer)}</h3><div class="sub">${D.online.office ? 'Prints on the office printer.' : 'The office printer is not connected, so an office print would wait in the queue until it is.'}</div>
-    ${docs.map(([d, n, h]) => `<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)"><div style="flex:1"><b>${n}</b> <span class="sub">${h}</span></div>
-      <button class="pbtn" data-pv="${d}">View / print here</button><button class="pbtn" data-q="${d}" style="border-color:var(--accent)">🖨 Print at the office</button></div>`).join('')}
+  const full = (D.orders || []).find(x => x.id === o.id), pr = o.prints || (full && full.prints);
+  const st = ['dispatch', 'office'].map(p => D.online[p] ? `<span class="on">● ${PR[p]} connected</span>` : `<span class="off">● ${PR[p]} not connected</span>`).join(' &nbsp; ');
+  modal(`<h3 style="margin:0">${esc(o.no)} · ${esc(o.customer)}</h3><div class="sub">${st}</div>
+    ${pr ? `<div class="sub" style="color:var(--ink);margin-top:6px">🖨 Already printed ${pr.n > 1 ? pr.n + ' times' : 'once'}. Last: ${esc(when(pr.at))} by ${esc(pr.by)}.</div>` : ''}
+    ${docs.map(([d, n, h]) => `<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap"><div style="flex:1;min-width:130px"><b>${n}</b> <span class="sub">${h}</span></div>
+      <button class="pbtn" data-pv="${d}">View / print here</button><button class="pbtn" data-q="${d}" data-p="dispatch" style="border-color:var(--accent)">🖨 Dispatch</button><button class="pbtn" data-q="${d}" data-p="office" style="border-color:var(--accent)">🖨 Office</button></div>`).join('')}
     <div id="perr" class="sub"></div><div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`);
-  document.querySelectorAll('[data-pv]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Loading…'; try { const j = await api('?doc=' + b.dataset.pv + '&id=' + o.id); preview(o, j); } catch(x){ document.getElementById('perr').textContent = x.message; b.disabled = false; b.textContent = 'View / print here'; } });
-  document.querySelectorAll('[data-q]').forEach(b => b.onclick = async () => { b.disabled = true; try { const pr = 'office';
-    const j = await api('', { action: 'print', id: o.id, doc: b.dataset.q, printer: pr }); closeModal(); toast(j.online[pr] ? 'Sent to the ' + PR[pr].toLowerCase() : 'Queued. The ' + PR[pr].toLowerCase() + ' is not connected, it will print when it is back.'); } catch(x){ document.getElementById('perr').textContent = x.message; b.disabled = false; } });
+  document.querySelectorAll('[data-pv]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Loading…'; try { const j = await api('?doc=' + b.dataset.pv + '&id=' + o.id); preview(o, j, b.dataset.pv); } catch(x){ document.getElementById('perr').textContent = x.message; b.disabled = false; b.textContent = 'View / print here'; } });
+  document.querySelectorAll('[data-q]').forEach(b => b.onclick = async () => { b.disabled = true; try { const pr = b.dataset.p;
+    const j = await api('', { action: 'print', id: o.id, doc: b.dataset.q, printer: pr }); closeModal(); toast(j.online[pr] ? 'Sent to the ' + PR[pr].toLowerCase() : 'Queued. The ' + PR[pr].toLowerCase() + ' is not connected, it will print when it is back.'); load(); } catch(x){ document.getElementById('perr').textContent = x.message; b.disabled = false; } });
 }
-function preview(o, j){
+function preview(o, j, doc){
   modal(`<h3 style="margin:0">${esc(j.title)}</h3><iframe id="pv"></iframe><div class="row"><button class="btn" id="pb">Back</button><button class="btn y" id="pp">Print this</button></div>`);
   const f = document.getElementById('pv'); f.srcdoc = j.html;
-  document.getElementById('pb').onclick = () => printDlg(o); document.getElementById('pp').onclick = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch(e){ toast("Couldn't open the print box"); } };
+  document.getElementById('pb').onclick = () => printDlg(o); document.getElementById('pp').onclick = () => { try { f.contentWindow.focus(); f.contentWindow.print(); if (doc) api('', { action: 'logprint', id: o.id, doc }).then(load).catch(() => {}); } catch(e){ toast("Couldn't open the print box"); } };
 }
 async function stationSetup(){
   try {
-    const j = await api('?view=station'), link = location.origin + location.pathname.replace(/[^/]*$/, '') + 'printstation.html?k=' + encodeURIComponent(j.key);
-    modal(`<h3 style="margin:0">Office print station</h3><div class="sub" style="color:var(--ink);line-height:1.6">
-      On the always-on PC at work, once. No login needed, the link is the key.<br>
+    const j = await api('?view=station'), base = location.origin + location.pathname.replace(/[^/]*$/, '') + 'printstation.html?k=' + encodeURIComponent(j.key);
+    const box = (p, nm) => `<div style="margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:8px"><b>${nm}</b> ${j.online[p] ? '<b class="on">● connected now</b>' : '<b class="off">● not connected yet</b>'}<br><input readonly value="${esc(base + '&p=' + p)}" style="width:100%;margin:6px 0" onclick="this.select()"></div>`;
+    modal(`<h3 style="margin:0">Print stations</h3><div class="sub" style="color:var(--ink);line-height:1.6">
+      One PC per printer, switched on and left logged in, next to or on the same network as that printer. Do this once on each PC. No login needed, the link is the key, so <b>keep both links private.</b><br>
       1. Copy the Chrome shortcut. Right-click the copy, Properties, and add <code>--kiosk-printing</code> to the very end of the Target line (after a space). That stops Chrome asking before it prints.<br>
-      2. Open that shortcut, paste the link below, press Ctrl+P once, choose the printer and close the box. Chrome remembers it.<br>
-      3. Leave the window open (minimised is fine). Put the shortcut in the Startup folder (Windows key + R, type <code>shell:startup</code>) so it comes back after a restart.<br>
-      <input readonly value="${esc(link)}" style="width:100%;margin:8px 0" onclick="this.select()"><b>Keep this link private.</b><br>
-      Status: ${j.online.office ? '<b class="on">connected now</b>' : '<b class="off">not connected yet</b>'}</div><div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`);
+      2. Set that PC's Windows default printer to the printer it should print to.<br>
+      3. Open the shortcut and paste that printer's link (below). Press Ctrl+P once, choose the printer and close the box.<br>
+      4. Leave the window open (minimised is fine). Put the shortcut in the Startup folder (Windows key + R, type <code>shell:startup</code>) so it comes back after a restart.<br>
+      The page title tells you which printer that window is for.</div>
+      ${box('dispatch', 'Dispatch printer')}${box('office', 'Office printer')}<div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`);
   } catch(x){ toast(x.message); }
 }
 if (token) start(); else showLogin();
@@ -238,7 +250,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261111104821';
+  const BUILD = '20261111132912';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
