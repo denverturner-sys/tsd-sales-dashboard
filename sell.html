@@ -56,9 +56,9 @@ table.t input{padding:6px 8px}.r{text-align:right}.q{width:78px}.pr{width:100px}
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261112115455"></script>
-<script src="activity.js?v=20261112115455"></script>
-<script src="pay.js?v=20261112115455"></script>
+<script src="auth.js?v=20261112125330"></script>
+<script src="activity.js?v=20261112125330"></script>
+<script src="pay.js?v=20261112125330"></script>
 <script>
 const SELL = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/sell';
 const mem = {};
@@ -186,7 +186,7 @@ function totals(){
   $('tot').innerHTML = `<div class="tot"><div><span>Total ex VAT</span><span>${gbp(net)}</span></div><div><span>VAT (${Math.round(rate() * 100)}%)</span><span>${gbp(vat)}</span></div><div class="gt"><span>Total inc VAT</span><span>${gbp(net + vat)}</span></div></div>`;
 }
 async function submit(mode, draft){
-  const err = t => $('err').textContent = t || ''; err('');
+  const err = t => { $('err').textContent = t || ''; if (t) { toast(t); try { $('err').scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(e){} } }; err('');
   if (!S.cust && !(S.newc && $('ncn') && $('ncn').value.trim())) return err('Pick a customer first.');
   if (!S.lines.length) return err('Add at least one product.');
   if (S.lines.some(l => !(+l.qty > 0) || !l.product_id)) return err('Check the quantities. Every line needs a quantity above zero.');
@@ -240,7 +240,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261112115455';
+  const BUILD = '20261112125330';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || (S && (S.lines.length || S.cust)) ; };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
