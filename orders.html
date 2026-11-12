@@ -86,8 +86,8 @@ a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261111142757"></script>
-<script src="activity.js?v=20261111142757"></script>
+<script src="auth.js?v=20261112081653"></script>
+<script src="activity.js?v=20261112081653"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
 const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -101,7 +101,7 @@ let token = store.get('tsd_me_token'), D = null, timer, q = (OPEN && OPEN.starts
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dmy = s => s ? new Date(String(s).slice(0,10) + 'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
 const when = s => { const d = new Date(s), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); return d.toDateString() === new Date().toDateString() ? 'Today ' + t : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' ' + t; };
-const PN = { dispatch: 'Dispatch printer', office: 'Office printer', counter: 'Trade counter printer', browser: 'This computer' }, DN = { pick: 'Pick sheet', order: 'Sales order', invoice: 'VAT invoice' };
+const PN = { dispatch: 'Dispatch printer', office: 'Office printer', counter: 'Trade counter printer', browser: 'This computer' }, DN = { pick: 'Pick sheet', picklist: 'Pick list', packslip: 'Packing slip', order: 'Sales order', quote: 'Quote', proforma: 'Proforma invoice', invoice: 'VAT invoice' };
 const gbp = n => n == null ? '' : '£' + Number(n).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 // 11 Nov: tracking links for dispatched orders (same courier rules as the Tracking screen)
 function trackUrl(courier, n, postcode){
@@ -214,7 +214,7 @@ async function openOrder(ref){
   } catch(x){ if (x.message === 'login') return; modal(`<div class="sub">${esc(x.message)}</div><div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`); }
 }
 function printDlg(o){
-  const docs = [['pick', 'Pick sheet', 'no prices'], ...(D.can_price ? [['order', 'Sales order', 'with prices'], ['invoice', 'VAT invoice', 'from Cin7']] : [])];
+  const docs = [['pick', 'Pick sheet', 'no prices'], ['picklist', 'Pick list', 'with bin locations'], ['packslip', 'Packing slip', 'no prices'], ...(D.can_price ? [['order', 'Sales order', 'with prices'], ['quote', 'Quote', 'with prices'], ['proforma', 'Proforma invoice', 'with bank details'], ['invoice', 'VAT invoice', 'from Cin7']] : [])];
   const full = (D.orders || []).find(x => x.id === o.id), pr = o.prints || (full && full.prints);
   const st = ['dispatch', 'office'].map(p => D.online[p] ? `<span class="on">● ${PR[p]} connected</span>` : `<span class="off">● ${PR[p]} not connected</span>`).join(' &nbsp; ');
   modal(`<h3 style="margin:0">${esc(o.no)} · ${esc(o.customer)}</h3><div class="sub">${st}</div>
@@ -251,7 +251,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261111142757';
+  const BUILD = '20261112081653';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

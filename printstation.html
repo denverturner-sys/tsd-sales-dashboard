@@ -8,7 +8,7 @@ table{border-collapse:collapse;margin-top:16px;width:100%;max-width:760px}th{tex
 <table><thead><tr><th>Time</th><th>Order</th><th>Document</th><th>Asked by</th><th>Status</th></tr></thead><tbody id="log"></tbody></table><iframe id="f"></iframe>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
-const NAMES = { dispatch: 'Dispatch printer', counter: 'Trade counter printer', office: 'Office printer' }, DOCS = { pick: 'Pick sheet', order: 'Sales order', invoice: 'VAT invoice' };
+const NAMES = { dispatch: 'Dispatch printer', counter: 'Trade counter printer', office: 'Office printer' }, DOCS = { pick: 'Pick sheet', picklist: 'Pick list', packslip: 'Packing slip', order: 'Sales order', quote: 'Quote', proforma: 'Proforma invoice', invoice: 'VAT invoice' };
 const qs = new URLSearchParams(location.search); let key = qs.get('k'), pr = qs.get('p');
 try { if (key) localStorage.setItem('tsd_ps_key', key); else key = localStorage.getItem('tsd_ps_key'); if (pr) localStorage.setItem('tsd_ps_pr', pr); else pr = localStorage.getItem('tsd_ps_pr'); } catch(e){}
 if (!NAMES[pr]) pr = 'office';
