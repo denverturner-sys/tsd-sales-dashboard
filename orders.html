@@ -86,9 +86,9 @@ a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261112113435"></script>
-<script src="activity.js?v=20261112113435"></script>
-<script src="pay.js?v=20261112113435"></script>
+<script src="auth.js?v=20261112115455"></script>
+<script src="activity.js?v=20261112115455"></script>
+<script src="pay.js?v=20261112115455"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
 const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -254,7 +254,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261112113435';
+  const BUILD = '20261112115455';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

@@ -62,7 +62,7 @@ window.TSDPay = (function () {
     document.getElementById('ppdr').onclick = async () => {
       const b = document.getElementById('ppdr'); b.disabled = true; msg('Creating the draft…');
       try {
-        const r = await call(o.token, 'msgraph', { action: 'mail_draft', to: document.getElementById('ppto').value.trim(), subject: document.getElementById('ppsu').value, html: e.html });
+        const r = await call(o.token, 'msgraph', { action: 'mail_draft', sale_id: o.saleId, to: document.getElementById('ppto').value.trim(), subject: document.getElementById('ppsu').value, html: e.html });
         msg(`Done. It's in your Outlook Drafts folder, ready to check and send.${r.web_link ? ` <a href="${esc(r.web_link)}" target="_blank" rel="noopener" style="color:var(--blue,#8EC5FF);font-weight:700">Open it ↗</a>` : ''}`);
         if (e.link_id) call(o.token, 'sell', { action: 'emailed', id: e.link_id }).then(() => o.onChange && o.onChange()).catch(() => {});
       } catch (x) {

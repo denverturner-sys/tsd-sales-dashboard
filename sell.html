@@ -56,14 +56,15 @@ table.t input{padding:6px 8px}.r{text-align:right}.q{width:78px}.pr{width:100px}
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261112113435"></script>
-<script src="activity.js?v=20261112113435"></script>
-<script src="pay.js?v=20261112113435"></script>
+<script src="auth.js?v=20261112115455"></script>
+<script src="activity.js?v=20261112115455"></script>
+<script src="pay.js?v=20261112115455"></script>
 <script>
 const SELL = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/sell';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), META = null, S = null, TAB = new URLSearchParams(location.search).get('tab') === 'links' ? 'links' : 'new', LK = null, LF = 'open', timer;
+const MODE = (() => { const o = new URLSearchParams(location.search).get('open') || ''; return o === 'new:quote' ? 'quote' : o === 'new:order' ? 'order' : ''; })();   // 12 Nov: the + button in Bob's top bar opens this as a new quote or a new order
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const gbp = n => '£' + Number(n || 0).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 const $ = id => document.getElementById(id);
@@ -85,7 +86,7 @@ async function start(){
   timer = setInterval(() => { if (TAB === 'links' && !document.activeElement?.matches('input')) loadLinks(); }, 60000);
 }
 function shell(){
-  $('app').innerHTML = `<header><div><div class="title">New sale</div><div class="sub">Raise a quote or an order. It goes straight into Cin7. Then make the payment link and email it from here.</div></div>
+  $('app').innerHTML = `<header><div><div class="title">${MODE === 'quote' ? 'New quote' : MODE === 'order' ? 'New order' : 'New sale'}</div><div class="sub">Raise a quote or an order. It goes straight into Cin7. Then make the payment link and email it from here.</div></div>
     <div class="tabs"><button id="t1" class="${TAB === 'new' ? 'on' : ''}">New sale</button><button id="t2" class="${TAB === 'links' ? 'on' : ''}">Payment links <span id="nopen"></span></button></div></header>
     <div id="pa" style="display:${TAB === 'new' ? 'block' : 'none'}"></div><div id="pb" style="display:${TAB === 'links' ? 'block' : 'none'}"></div>`;
   $('t1').onclick = () => { TAB = 'new'; shell(); }; $('t2').onclick = () => { TAB = 'links'; shell(); };
@@ -114,6 +115,7 @@ function form(){
   drawCust(); drawLines(); drawCharges();
   let t; $('ps').oninput = e => { clearTimeout(t); t = setTimeout(() => prodSearch(e.target.value.trim()), 300); };
   $('addch').onclick = () => { S.charges.push({ desc: '', price: '' }); drawCharges(); };
+  if (MODE === 'order') { $('bq').style.display = 'none'; $('bd').style.display = 'none'; } else if (MODE === 'quote') $('bo').style.display = 'none';
   $('bq').onclick = () => submit('quote', false); $('bo').onclick = () => submit('order', false); $('bd').onclick = () => submit('quote', true);
 }
 function drawCust(){
@@ -238,7 +240,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261112113435';
+  const BUILD = '20261112115455';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || (S && (S.lines.length || S.cust)) ; };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
