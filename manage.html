@@ -93,8 +93,8 @@ td.z{color:#6b6e6e}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261110133539"></script>
-<script src="activity.js?v=20261110133539"></script>
+<script src="auth.js?v=20261112113435"></script>
+<script src="activity.js?v=20261112113435"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
 const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[new URLSearchParams(location.search).get('tab')] || 'users';
@@ -127,7 +127,7 @@ async function refresh(){ if (TAB === 'activity') return loadActivity(); try { D
 const poke = () => { try { window.top.postMessage({ tsd: 'tasks' }, location.origin); } catch(e){} };
 
 // ---------------- Users & access ----------------
-const GROUPS = [['Sales', ['wbsales']], ['Customer Service', ['backorders','tracking']], ['Warehouse', ['collections','wbcoll','pick','van','barcodes','transfer','stockadj']],
+const GROUPS = [['Sales', ['wbsales','sell']], ['Customer Service', ['backorders','tracking']], ['Warehouse', ['collections','wbcoll','pick','van','barcodes','transfer','stockadj']],
   ['Operations', ['goodsin','stock','purchasing','website']], ['Finance', ['accounts']]];
 function renderUsers(){
   const S = new Map(D.screens.map(s => [s.id, s]));
@@ -306,7 +306,7 @@ const WHAT = {
   'me:admin_pin': d => `${d.what === 'reset' ? 'Reset' : 'Unlocked'} ${d.name || 'someone'}'s PIN`,
 };
 const SCREEN_NAMES = { wbsales: 'WB Sales', backorders: 'Backorders', tracking: 'Tracking', collections: 'Collections', wbcoll: 'WB Collections', pick: 'Pick & Dispatch',
-  van: 'Van Team', transfer: 'Transfers', stockadj: 'Adjustments', barcodes: 'Scan barcodes', goodsin: 'Goods In', stock: 'Stock', purchasing: 'Purchasing', website: 'Website', accounts: 'Accounts' };
+  van: 'Van Team', transfer: 'Transfers', stockadj: 'Adjustments', barcodes: 'Scan barcodes', goodsin: 'Goods In', stock: 'Stock', sell: 'New sale', purchasing: 'Purchasing', website: 'Website', accounts: 'Accounts' };
 const HIDE = new Set(['id', 'sale_id', 'po_id', 'email', 'on', 'person', 'loc', 'by', 'v', 'pick', 'fulfil', 'van', 'part', 'what', 'name', 'screen']);
 function what(r){
   const d = r.detail || {};
@@ -384,7 +384,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110133539';
+  const BUILD = '20261112113435';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

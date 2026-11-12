@@ -86,8 +86,9 @@ a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261112081653"></script>
-<script src="activity.js?v=20261112081653"></script>
+<script src="auth.js?v=20261112113435"></script>
+<script src="activity.js?v=20261112113435"></script>
+<script src="pay.js?v=20261112113435"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
 const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -207,7 +208,9 @@ async function openOrder(ref){
       ${printBlock(j)}
       ${whBlock(j)}
       <div class="sub">${o.qty != null ? o.qty + ' items' : ''}${o.weight ? ' · approx ' + Math.round(+o.weight) + ' kg' : ''}</div>
+      <div id="payhost"></div>
       <div class="row"><button class="pbtn" id="vpr">Print…</button><button class="btn" onclick="closeModal()">Close</button></div>`);
+    if (o.id && window.TSDPay) TSDPay.panel(document.getElementById('payhost'), { token: () => token, saleId: o.id, toast, quiet: true });   // payment links (only shows for people with the New sale screen)
     document.getElementById('mbox').style.maxWidth = '1000px'; document.getElementById('mbox').style.maxHeight = '92vh'; document.getElementById('mbox').style.overflow = 'auto';
     wireWh(j);
     document.getElementById('vpr').onclick = () => { if (!D) return toast('Print from the order list'); printDlg({ id: o.id, no: o.no, customer: o.customer }); };
@@ -251,7 +254,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261112081653';
+  const BUILD = '20261112113435';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
