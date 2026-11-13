@@ -91,14 +91,16 @@ table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #msg{padding:40px;text-align:center;color:var(--muted)}.er{color:var(--bad);font-weight:600}
 #reader{width:100%;max-width:420px;margin:0 auto}
+.lnk{background:none;border:0;color:var(--accent);font:inherit;font-size:14px;cursor:pointer;margin-top:10px;padding:4px;text-decoration:underline;text-underline-offset:3px}
+.dform input,.dform select{width:100%;margin-top:6px;box-sizing:border-box}
 </style>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261113133140"></script>
-<script src="html5-qrcode.min.js?v=20261113133140"></script>
+<script src="auth.js?v=20261113153950"></script>
+<script src="html5-qrcode.min.js?v=20261113153950"></script>
 <script>
 // Trade counter POS (13 Nov). Counter PCs keep a paired key (tsd_pos_dev); everyone else uses their own Bob login.
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/pos';
@@ -152,7 +154,7 @@ function armIdle(){
 }
 function askName(){
   DONE = null;
-  $('app').innerHTML = `<header><div><div class="title">Who's serving?</div><div class="sub">${esc(BOOT.device.name)} · tap your name</div></div></header>
+  $('app').innerHTML = `<header><div><div class="title">Who's serving?</div><div class="sub">${BOOT.device ? esc(BOOT.device.name) + ' · tap your name' : 'Taking over an order? Tap who is serving it'}</div></div></header>
     <div class="names">${BOOT.staff.map(s => `<button data-e="${esc(s.email)}">${esc(s.name)}</button>`).join('') || '<div class="sub">No one is available to pick.</div>'}</div>`;
   document.querySelectorAll('.names [data-e]').forEach(b => b.onclick = () => { SERVED = BOOT.staff.find(s => s.email === b.dataset.e); shell(); });
 }
@@ -162,12 +164,12 @@ function shell(){
   const counter = BOOT.mode === 'counter';
   $('app').innerHTML = `<header><div><div class="title">Trade counter</div><div class="sub">${counter ? esc(BOOT.device.name) : 'Your login'} · stock checked live in Cin7</div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      ${counter ? `<button class="pill" id="chg">Serving: ${esc(SERVED.name)} <span style="color:var(--accent)">⇄ Change</span></button>` : `<span class="pill">Serving: ${esc(SERVED.name)}</span>`}
+      <button class="pill" id="chg">Serving: ${esc(SERVED.name)} <span style="color:var(--accent)">⇄ Change</span></button>
       <span class="pill">Stock from <select id="loc">${BOOT.locations.map(l => `<option ${l === S.loc ? 'selected' : ''}>${l}</option>`).join('')}</select></span>
       <div class="tabs"><button id="t1" class="${TAB === 'sale' ? 'on' : ''}">New sale</button><button id="t2" class="${TAB === 'list' ? 'on' : ''}">Counter sales</button></div>
       ${!counter && BOOT.me && BOOT.me.admin ? '<button class="pill" id="setup">⚙ Counter PCs</button>' : ''}
     </div></header><div id="body"></div><div id="bar"></div>`;
-  if (counter) $('chg').onclick = e => { e.preventDefault(); SERVED = null; askName(); };   // the basket stays as it is
+  $('chg').onclick = e => { e.preventDefault(); SERVED = null; askName(); };   // the basket stays as it is (13 Nov: personal logins too, for taking over an order)
   $('loc').onchange = e => { S.loc = e.target.value; if (!counter) S.printer = S.loc === 'Wootton Bassett' ? 'wbcounter' : 'counter'; S.lines.forEach(l => l.stock && (l.avail = l.stock[S.loc].available)); drawBasket(); };
   $('t1').onclick = () => { TAB = 'sale'; shell(); }; $('t2').onclick = () => { TAB = 'list'; shell(); };
   if ($('setup')) $('setup').onclick = setup;
@@ -370,6 +372,7 @@ function chargeScreen(){
         <div class="seg">${[['card', 'Card'], ['cash', 'Cash'], ['account', 'On account']].map(([v, t]) => `<button class="${d.paid === v ? 'on' : ''}" data-pay="${v}" ${d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div></div>
       <div class="step ${d.finished ? 'done' : ''}"><div class="lbl"><b>${d.finished ? '✓' : '2'}</b>Collection</div>
         <div class="seg">${[['all', 'All collected'], ['part', 'Part collected'], ['none', 'Not collected']].map(([v, t]) => `<button class="${d.finished === v ? 'on' : ''}" data-fin="${v}" ${d.finished || !d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div>
+        ${d.finished === 'delivery' ? `<div class="sub" style="margin-top:8px">🚚 Going out for delivery (${esc(d.carrier || '')}). It's on Pick & Dispatch now.</div>` : (!d.finished || d.finished === 'none') ? '<button class="lnk" id="dlv">🚚 Delivering instead? Add a delivery address</button>' : ''}
         <div id="part"></div><div id="ferr"></div></div>
       <div class="ft"><button class="btn" id="docs">Print other documents</button><button class="btn y big" id="next" style="min-width:200px" ${d.paid && d.finished ? '' : 'disabled'}>New sale</button></div>
       <div id="docbox" style="padding:0 22px"></div></div>`;
@@ -377,6 +380,35 @@ function chargeScreen(){
     ov.querySelectorAll('[data-fin]').forEach(b => b.onclick = () => finish(b.dataset.fin));
     $('docs').onclick = docMenu;
     $('next').onclick = nextSale;
+    if ($('dlv')) $('dlv').onclick = deliverForm;
+  };
+  // 13 Nov: add a delivery address -> Cin7 order gets the address and a delivery method, and moves to Pick & Dispatch
+  const deliverForm = async () => {
+    const box = $('part');
+    box.innerHTML = '<div class="sub" style="margin-top:8px">Loading delivery methods…</div>';
+    let carriers = [];
+    try { carriers = ((await api('?carriers=1')).carriers || []).filter(c => !/^collect/i.test(c)); } catch(x){ box.innerHTML = `<div class="bad">${esc(x.message)}</div>`; return; }
+    const f = (id, ph, v = '', extra = '') => `<input id="${id}" placeholder="${ph}" value="${esc(v)}" ${extra}>`;
+    box.innerHTML = `<div class="card dform" style="text-align:left;max-width:640px;margin:10px auto"><div class="k">Delivery address</div>
+      ${f('a1', 'First line *')}${f('a2', 'Second line')}
+      <div class="g2">${f('at', 'Town')}${f('ac', 'County')}</div>
+      <div class="g2">${f('ap', 'Postcode *', '', 'style="text-transform:uppercase"')}${f('aph', 'Phone for the driver', d.phone || '', 'inputmode="tel"')}</div>
+      ${f('an', 'Contact name', d.contact || '')}${f('ano', 'Delivery notes (gate code, where to leave it)')}
+      <div class="k" style="margin-top:8px">How is it going?</div>
+      <select id="acr"><option value="">Pick a delivery method</option>${carriers.map(c => `<option>${esc(c)}</option>`).join('')}</select>
+      <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="ax">Cancel</button><button class="btn y" id="ago" style="flex:1">Send for delivery</button></div></div>`;
+    $('ax').onclick = () => { box.innerHTML = ''; };
+    $('ago').onclick = async () => {
+      const v = id => $(id).value.trim();
+      if (!v('a1') || !v('ap')) return toast('Enter at least the first line and postcode');
+      if (!v('acr')) return toast('Pick a delivery method');
+      $('ago').disabled = true;
+      try {
+        const j = await api('', { action: 'deliver', id: d.id, served: SERVED.email, carrier: v('acr'),
+          address: { line1: v('a1'), line2: v('a2'), city: v('at'), county: v('ac'), postcode: v('ap'), phone: v('aph'), contact: v('an'), notes: v('ano') } });
+        d.finished = 'delivery'; d.carrier = j.carrier; draw(); toast('Sent for delivery');
+      } catch(x){ $('ago').disabled = false; toast(x.message); }
+    };
   };
   const finish = async mode => {
     if (mode === 'part') {
@@ -468,7 +500,7 @@ else { if (token) start(); else showLogin(); TSDAuth.mount(t => { token = t; sta
 </script>
 <script>
 (function(){   // pick up a new version by itself, but never in the middle of a sale
-  const BUILD = '20261113133140';
+  const BUILD = '20261113153950';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || DONE || (S && (S.lines.length || S.cust)); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
