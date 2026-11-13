@@ -61,10 +61,21 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .names{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;max-width:900px;margin:20px auto}
 .names button{min-height:86px;font-size:22px;font-weight:700;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:var(--ink);cursor:pointer}.names button:hover{border-color:var(--accent)}
 .ov{position:fixed;inset:0;background:var(--bg);z-index:60;overflow:auto;padding:16px}
-.charge{text-align:center;max-width:1000px;margin:0 auto}
-.charge .amt{font-family:var(--num);font-size:clamp(54px,16vw,240px);line-height:.9;color:var(--accent);letter-spacing:2px;margin:6px 0}
-.charge .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
-.charge .row .btn{flex:1 1 200px;max-width:300px}
+.charge{max-width:760px;margin:4vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.charge .hd{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.charge .no{font-weight:800;font-size:18px}.charge .who{color:var(--muted);font-size:14px}
+.charge .prn{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}.charge .prn i{width:8px;height:8px;border-radius:50%;background:var(--good);display:inline-block}
+.charge .amtbox{padding:26px 22px 22px;text-align:center;background:linear-gradient(180deg,rgba(238,209,7,.07),transparent)}
+.charge .lbl{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+.charge .amt{font-family:var(--num);font-size:clamp(46px,9vw,92px);line-height:1;color:var(--accent);letter-spacing:1.5px;margin:6px 0 4px}
+.charge .vat{font-size:13px;color:var(--muted)}
+.charge .step{padding:14px 22px;border-top:1px solid var(--line)}
+.charge .step .lbl{display:flex;align-items:center;gap:8px;margin-bottom:10px}.charge .step .lbl b{width:20px;height:20px;border-radius:50%;background:var(--line);color:var(--ink);font-size:11px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0}
+.charge .step.done .lbl b{background:var(--good);color:#262727}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(max-width:560px){.seg{grid-template-columns:1fr}}
+.seg button{min-height:54px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-weight:700;font-size:16px;cursor:pointer}
+.seg button:hover:not(:disabled){border-color:var(--accent)}.seg button:disabled{opacity:.4;cursor:default}.seg button.on{background:var(--good);border-color:var(--good);color:#262727;opacity:1}
+.charge .ft{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 22px;border-top:1px solid var(--line);flex-wrap:wrap}
 .chosen{outline:3px solid var(--good)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:90;padding:16px}
 .modal .box{background:var(--panel);border-radius:14px;padding:18px;max-width:520px;width:100%}
@@ -86,8 +97,8 @@ table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261113105739"></script>
-<script src="html5-qrcode.min.js?v=20261113105739"></script>
+<script src="auth.js?v=20261113133140"></script>
+<script src="html5-qrcode.min.js?v=20261113133140"></script>
 <script>
 // Trade counter POS (13 Nov). Counter PCs keep a paired key (tsd_pos_dev); everyone else uses their own Bob login.
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/pos';
@@ -151,12 +162,12 @@ function shell(){
   const counter = BOOT.mode === 'counter';
   $('app').innerHTML = `<header><div><div class="title">Trade counter</div><div class="sub">${counter ? esc(BOOT.device.name) : 'Your login'} · stock checked live in Cin7</div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <span class="pill">Serving: ${esc(SERVED.name)}${counter ? ' <a href="#" id="chg" style="color:var(--accent)">change</a>' : ''}</span>
+      ${counter ? `<button class="pill" id="chg">Serving: ${esc(SERVED.name)} <span style="color:var(--accent)">⇄ Change</span></button>` : `<span class="pill">Serving: ${esc(SERVED.name)}</span>`}
       <span class="pill">Stock from <select id="loc">${BOOT.locations.map(l => `<option ${l === S.loc ? 'selected' : ''}>${l}</option>`).join('')}</select></span>
       <div class="tabs"><button id="t1" class="${TAB === 'sale' ? 'on' : ''}">New sale</button><button id="t2" class="${TAB === 'list' ? 'on' : ''}">Counter sales</button></div>
       ${!counter && BOOT.me && BOOT.me.admin ? '<button class="pill" id="setup">⚙ Counter PCs</button>' : ''}
     </div></header><div id="body"></div><div id="bar"></div>`;
-  if (counter) $('chg').onclick = e => { e.preventDefault(); SERVED = null; askName(); };
+  if (counter) $('chg').onclick = e => { e.preventDefault(); SERVED = null; askName(); };   // the basket stays as it is
   $('loc').onchange = e => { S.loc = e.target.value; if (!counter) S.printer = S.loc === 'Wootton Bassett' ? 'wbcounter' : 'counter'; S.lines.forEach(l => l.stock && (l.avail = l.stock[S.loc].available)); drawBasket(); };
   $('t1').onclick = () => { TAB = 'sale'; shell(); }; $('t2').onclick = () => { TAB = 'list'; shell(); };
   if ($('setup')) $('setup').onclick = setup;
@@ -334,7 +345,9 @@ async function authorise(again){
     warnings: Object.values(S.warn), lines: S.lines.map(l => ({ product_id: l.product_id, sku: l.sku, name: l.name, qty: l.qty, price: l.price, discount: l.discount })) };
   try {
     const j = await api('', body);
-    DONE = { ...j, lines: j.lines, cust: S.cust ? S.cust.name : (S.cash.name || 'Cash sale'), account: !!S.cust, paid: null, finished: null };
+    DONE = { ...j, lines: j.lines, cust: S.cust ? S.cust.name : (S.cash.name || 'Cash sale'), account: !!S.cust, paid: null, finished: null, copies: j.printed_to ? 2 : 0 };
+    // 13 Nov (Denver): two copies of the sales order, one for the records tray and one for the customer
+    if (j.printed_to) api('', { action: 'print', id: j.id, doc: 'order', printer: j.printed_to, served: SERVED.email }).catch(() => toast("The customer's copy didn't print. Use Print other documents."));
     S = fresh(); showM = false; chargeScreen();
   } catch(x){
     S.busy = false;
@@ -348,15 +361,18 @@ function chargeScreen(){
   const d = DONE, ov = document.createElement('div'); ov.className = 'ov'; ov.id = 'ov'; document.body.appendChild(ov);
   const pn = (BOOT.printers.find(p => p.id === d.printed_to) || {}).name;
   const draw = () => {
-    ov.innerHTML = `<div class="charge"><div class="sub" style="font-size:16px">${esc(d.number)} · ${esc(d.cust)} · ${pn ? 'Sales order printing on the ' + esc(pn) + ' printer' : 'Not printed'}</div>
-      <div class="amt">${gbp(d.total_inc)}</div><div style="font-size:20px;font-weight:700;letter-spacing:2px;color:var(--muted)">TO CHARGE · INC VAT</div>
-      <div class="k" style="margin-top:26px">How did they pay?</div>
-      <div class="row">${[['card', 'Paid by card'], ['cash', 'Paid by cash'], ['account', 'On account']].map(([v, t]) => `<button class="btn big ${d.paid === v ? 'g chosen' : ''}" data-pay="${v}" ${d.paid ? 'disabled' : ''}>${d.paid === v ? '✓ ' : ''}${t}</button>`).join('')}</div>
-      <div class="k" style="margin-top:20px">Finish</div>
-      <div class="row">${[['all', 'Everything collected'], ['part', 'Part collected'], ['none', 'Not collected']].map(([v, t]) => `<button class="btn big ${d.finished === v ? 'g chosen' : ''}" data-fin="${v}" ${d.finished || !d.paid ? 'disabled' : ''}>${d.finished === v ? '✓ ' : ''}${t}</button>`).join('')}</div>
-      <div id="part"></div><div id="ferr"></div>
-      <div class="row" style="margin-top:22px"><button class="btn" id="docs">Print other documents</button><button class="btn y big" id="next" ${d.paid && d.finished ? '' : 'disabled'}>New sale</button></div>
-      <div id="docbox"></div></div>`;
+    // 13 Nov (Denver): calmer, premium layout; the amount is big but not shouting
+    ov.innerHTML = `<div class="charge">
+      <div class="hd"><div><div class="no">${esc(d.number)}</div><div class="who">${esc(d.cust)}</div></div>
+        <div class="prn">${pn ? `<i></i>Sales order · ${d.copies || 1} cop${(d.copies || 1) === 1 ? 'y' : 'ies'} · ${esc(pn)}` : 'Not printed'}</div></div>
+      <div class="amtbox"><div class="lbl">Amount to charge</div><div class="amt">${gbp(d.total_inc)}</div>${d.total_ex != null ? `<div class="vat">${gbp(d.total_ex)} + VAT ${gbp(d.total_inc - d.total_ex)}</div>` : ''}</div>
+      <div class="step ${d.paid ? 'done' : ''}"><div class="lbl"><b>${d.paid ? '✓' : '1'}</b>Payment</div>
+        <div class="seg">${[['card', 'Card'], ['cash', 'Cash'], ['account', 'On account']].map(([v, t]) => `<button class="${d.paid === v ? 'on' : ''}" data-pay="${v}" ${d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div></div>
+      <div class="step ${d.finished ? 'done' : ''}"><div class="lbl"><b>${d.finished ? '✓' : '2'}</b>Collection</div>
+        <div class="seg">${[['all', 'All collected'], ['part', 'Part collected'], ['none', 'Not collected']].map(([v, t]) => `<button class="${d.finished === v ? 'on' : ''}" data-fin="${v}" ${d.finished || !d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div>
+        <div id="part"></div><div id="ferr"></div></div>
+      <div class="ft"><button class="btn" id="docs">Print other documents</button><button class="btn y big" id="next" style="min-width:200px" ${d.paid && d.finished ? '' : 'disabled'}>New sale</button></div>
+      <div id="docbox" style="padding:0 22px"></div></div>`;
     ov.querySelectorAll('[data-pay]').forEach(b => b.onclick = async () => { b.disabled = true; try { await api('', { action: 'paid', id: d.id, method: b.dataset.pay, served: SERVED.email }); d.paid = b.dataset.pay; draw(); } catch(x){ b.disabled = false; toast(x.message); } });
     ov.querySelectorAll('[data-fin]').forEach(b => b.onclick = () => finish(b.dataset.fin));
     $('docs').onclick = docMenu;
@@ -452,7 +468,7 @@ else { if (token) start(); else showLogin(); TSDAuth.mount(t => { token = t; sta
 </script>
 <script>
 (function(){   // pick up a new version by itself, but never in the middle of a sale
-  const BUILD = '20261113105739';
+  const BUILD = '20261113133140';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || DONE || (S && (S.lines.length || S.cust)); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
