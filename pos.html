@@ -85,8 +85,8 @@ table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261113095153"></script>
-<script src="html5-qrcode.min.js?v=20261113095153"></script>
+<script src="auth.js?v=20261113104745"></script>
+<script src="html5-qrcode.min.js?v=20261113104745"></script>
 <script>
 // Trade counter POS (13 Nov). Counter PCs keep a paired key (tsd_pos_dev); everyone else uses their own Bob login.
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/pos';
@@ -219,14 +219,18 @@ function drawCust(){
       ${c.on_hold ? '<div class="bad"><b>On credit hold in Cin7.</b> You can still go ahead; it gets noted on the order.</div>' : ''}
       <div class="g2" style="margin-top:10px"><div><div class="k">Their reference / PO</div><input id="rf" value="${esc(S.ref)}" placeholder="Job name or PO number"></div>
       <div><div class="k">Contact</div><input id="ctn" value="${esc(c.contact || '')}"></div></div>`;
-    $('cx').onclick = () => { S.cust = null; S.hold = false; delete S.warn._hold; repriceAll(); drawCust(); };
+    $('cx').onclick = () => { S.cust = null; S.hold = false; S.acct = true; delete S.warn._hold; repriceAll(); drawCust(); };
     $('rf').oninput = e => S.ref = e.target.value; $('ctn').oninput = e => S.cust.contact = e.target.value;
     return;
   }
-  el.innerHTML = `<div class="custsel"><div><b style="font-size:18px">Cash sale</b><div class="sub">Name and phone help find it later if something comes back</div></div></div>
-    <div class="g2" style="margin-top:10px"><div><div class="k">Name (optional)</div><input id="cn" value="${esc(S.cash.name)}"></div><div><div class="k">Phone (optional)</div><input id="cp" value="${esc(S.cash.phone)}" inputmode="tel"></div></div>
-    <div class="k" style="margin-top:10px">Or an account customer</div><input id="cs" placeholder="Search account customers" autocomplete="off"><div id="cres"></div>`;
-  $('cn').oninput = e => S.cash.name = e.target.value; $('cp').oninput = e => S.cash.phone = e.target.value;
+  // 13 Nov (Denver): make it obvious how to switch between a cash sale and an account customer
+  el.innerHTML = `<div class="tabs" style="margin-bottom:10px"><button id="mc" class="${S.acct ? '' : 'on'}">Cash sale</button><button id="ma" class="${S.acct ? 'on' : ''}">Account customer</button></div>
+    ${S.acct ? `<input id="cs" placeholder="Type the account customer's name" autocomplete="off"><div id="cres"></div>`
+    : `<div class="sub">Name and phone are optional, but help find the sale later if something comes back.</div>
+    <div class="g2" style="margin-top:8px"><div><div class="k">Name</div><input id="cn" value="${esc(S.cash.name)}"></div><div><div class="k">Phone</div><input id="cp" value="${esc(S.cash.phone)}" inputmode="tel"></div></div>`}`;
+  $('mc').onclick = () => { S.acct = false; drawCust(); };
+  $('ma').onclick = () => { S.acct = true; drawCust(); setTimeout(() => $('cs') && $('cs').focus(), 0); };
+  if (!S.acct) { $('cn').oninput = e => S.cash.name = e.target.value; $('cp').oninput = e => S.cash.phone = e.target.value; return; }
   $('cs').oninput = e => { clearTimeout(custT); const q = e.target.value.trim(); custT = setTimeout(async () => {
     const box = $('cres'); if (q.length < 2) { box.innerHTML = ''; return; }
     try { const j = await api('?customers=' + encodeURIComponent(q)); box.innerHTML = j.customers.length ? `<div class="res">${j.customers.map(c => `<div class="it" data-id="${c.customer_id}">${esc(c.name)}</div>`).join('')}</div>` : '<div class="sub" style="margin-top:6px">No account customers match</div>';
@@ -443,7 +447,7 @@ else { if (token) start(); else showLogin(); TSDAuth.mount(t => { token = t; sta
 </script>
 <script>
 (function(){   // pick up a new version by itself, but never in the middle of a sale
-  const BUILD = '20261113095153';
+  const BUILD = '20261113104745';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || DONE || (S && (S.lines.length || S.cust)); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
