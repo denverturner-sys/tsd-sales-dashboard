@@ -56,9 +56,9 @@ table.t input{padding:6px 8px}.r{text-align:right}.q{width:78px}.pr{width:100px}
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261112125330"></script>
-<script src="activity.js?v=20261112125330"></script>
-<script src="pay.js?v=20261112125330"></script>
+<script src="auth.js?v=20261113143211"></script>
+<script src="activity.js?v=20261113143211"></script>
+<script src="pay.js?v=20261113143211"></script>
 <script>
 const SELL = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/sell';
 const mem = {};
@@ -240,7 +240,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261112125330';
+  const BUILD = '20261113143211';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || (S && (S.lines.length || S.cust)) ; };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
