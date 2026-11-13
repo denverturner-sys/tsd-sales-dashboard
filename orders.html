@@ -86,9 +86,9 @@ a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261112115455"></script>
-<script src="activity.js?v=20261112115455"></script>
-<script src="pay.js?v=20261112115455"></script>
+<script src="auth.js?v=20261113094342"></script>
+<script src="activity.js?v=20261113094342"></script>
+<script src="pay.js?v=20261113094342"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/orders';
 const WH_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
@@ -96,13 +96,13 @@ const VIEW_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/ordervie
 const OPEN = new URLSearchParams(location.search).get('open');
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
-const PR = { dispatch: 'Dispatch printer', counter: 'Trade counter printer', office: 'Office printer' };
+const PR = { dispatch: 'Dispatch printer', counter: 'Bromham counter printer', wbcounter: 'Wootton Bassett counter printer', office: 'Office printer' };
 const lastPr = () => { try { return localStorage.getItem('tsd_print_pr'); } catch(e){ return null; } };
 let token = store.get('tsd_me_token'), D = null, timer, q = (OPEN && OPEN.startsWith('q:') ? OPEN.slice(2) : ''), loc = '', status = (OPEN && OPEN.startsWith('q:') ? 'all' : 'open'), qt;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dmy = s => s ? new Date(String(s).slice(0,10) + 'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
 const when = s => { const d = new Date(s), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); return d.toDateString() === new Date().toDateString() ? 'Today ' + t : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' ' + t; };
-const PN = { dispatch: 'Dispatch printer', office: 'Office printer', counter: 'Trade counter printer', browser: 'This computer' }, DN = { pick: 'Pick sheet', picklist: 'Pick list', packslip: 'Packing slip', order: 'Sales order', quote: 'Quote', proforma: 'Proforma invoice', invoice: 'VAT invoice' };
+const PN = { dispatch: 'Dispatch printer', office: 'Office printer', counter: 'Bromham counter printer', wbcounter: 'Wootton Bassett counter printer', browser: 'This computer' }, DN = { pick: 'Pick sheet', picklist: 'Pick list', packslip: 'Packing slip', order: 'Sales order', quote: 'Quote', proforma: 'Proforma invoice', invoice: 'VAT invoice' };
 const gbp = n => n == null ? '' : '£' + Number(n).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 // 11 Nov: tracking links for dispatched orders (same courier rules as the Tracking screen)
 function trackUrl(courier, n, postcode){
@@ -254,7 +254,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261112115455';
+  const BUILD = '20261113094342';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
