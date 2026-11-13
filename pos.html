@@ -73,6 +73,7 @@ table.lt{width:100%;border-collapse:collapse}table.lt th{font-size:11px;letter-s
 table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:middle}table.lt tr.cl{cursor:pointer}table.lt tr.cl:hover td{background:var(--panel2)}
 .r{text-align:right}.st{font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;background:var(--line);white-space:nowrap}.st.g{background:var(--good);color:#262727}.st.a{background:var(--amber);color:#262727}.st.b{background:var(--blue);color:#262727}
 #bar{display:none}
+.mgn{font-size:12px;font-weight:700;color:var(--blue);display:flex;gap:6px;justify-content:flex-end}
 @media(max-width:560px){.ln .ctl{grid-template-columns:1fr 1fr}.ln .ctl>div:first-child{grid-column:1/-1}.ln .lt{grid-column:1/-1}}
 @media(max-width:900px){#bar{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));gap:10px;align-items:center;justify-content:space-between;z-index:40}}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 18px;border-radius:10px;display:none;z-index:120;max-width:90vw}
@@ -85,8 +86,8 @@ table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261113104745"></script>
-<script src="html5-qrcode.min.js?v=20261113104745"></script>
+<script src="auth.js?v=20261113105739"></script>
+<script src="html5-qrcode.min.js?v=20261113105739"></script>
 <script>
 // Trade counter POS (13 Nov). Counter PCs keep a paired key (tsd_pos_dev); everyone else uses their own Bob login.
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/pos';
@@ -264,13 +265,16 @@ async function refresh(l){
 }
 function repriceAll(){ S.lines.forEach(l => { l.edited = false; refresh(l); }); }
 function checkStock(l){ if (l.avail != null && l.qty > l.avail) { if (!l.ackQty || l.qty > l.ackQty) l.ack = false; } else l.ack = false; }
+// 13 Nov (Denver): margin in £ and %, hidden until someone taps "Margin" (customers can see the screen); hides itself after 20 seconds
+let showM = false, showT = null;
+const mgTxt = (net, cost) => { const m = r2(net - cost); return `${gbp(m)} · ${net > 0 ? Math.round(m / net * 1000) / 10 : 0}%`; };
 const lineNet = l => r2((l.qty || 0) * (l.price || 0) * (1 - (l.discount || 0) / 100));
 function drawBasket(){
   const el = $('bk'); if (!el) return;
   const net = r2(S.lines.reduce((t, l) => t + lineNet(l), 0)), vat = r2(net * 0.2), tot = r2(net + vat);
   const blocked = S.lines.some(l => l.loading || l.err || !l.product_id || (l.avail != null && l.qty > l.avail && !l.ack));
   const other = S.loc === 'Bromham' ? 'Wootton Bassett' : 'Bromham';
-  el.innerHTML = `<div class="k" style="display:flex;justify-content:space-between"><span>Basket</span>${S.lines.length ? '<a href="#" id="clr" style="color:var(--muted)">Clear</a>' : ''}</div>
+  el.innerHTML = `<div class="k" style="display:flex;justify-content:space-between"><span>Basket</span><span style="display:flex;gap:14px;align-items:center">${S.lines.length ? `<a href="#" id="mg" style="color:var(--muted)">${showM ? 'Hide margin' : 'Margin'}</a><a href="#" id="clr" style="color:var(--muted)">Clear</a>` : ''}</span></div>
     ${S.lines.length ? S.lines.map((l, i) => {
       const short = l.avail != null && l.qty > l.avail;
       const st = l.stock ? l.stock[other] : null, nx = l.stock ? l.stock[S.loc].next : null;
@@ -279,16 +283,17 @@ function drawBasket(){
           <div><div class="k">Qty${l.uom ? ' (' + esc(l.uom) + ')' : ''}</div><div class="qty"><button data-dn="${i}">−</button><input data-q="${i}" value="${qf(l.qty)}" inputmode="decimal"><button data-up="${i}">+</button></div></div>
           <div><div class="k">Price ex VAT</div><input data-p="${i}" value="${(l.price ?? 0).toFixed(2)}" inputmode="decimal"></div>
           <div><div class="k">Discount %</div><input data-d="${i}" value="${qf(l.discount)}" inputmode="decimal"></div>
-          <div class="lt">${gbp(lineNet(l))}</div></div>
+          <div class="lt">${gbp(lineNet(l))}${showM && l.cost != null ? `<div class="mgn">${mgTxt(lineNet(l), l.cost * l.qty)}</div>` : ''}</div></div>
           ${short ? (l.ack ? `<div class="okmsg">Selling ${qf(l.qty)} with ${qf(l.avail)} here: the rest goes on backorder.</div>` : `<div class="warn"><b>Only ${qf(Math.max(0, l.avail))} available at ${esc(S.loc)}.</b> ${st ? `${qf(st.available)} at ${esc(other)}.` : ''} ${nx ? 'Next delivery ' + dmy(nx) + '.' : ''}
             <div class="acts">${l.avail > 0 ? `<button class="btn sm" data-red="${i}">Reduce to ${qf(l.avail)}</button>` : ''}<button class="btn sm" data-ack="${i}">Sell anyway (backorder)</button><button class="btn sm" data-rm="${i}">Remove</button></div></div>`) : ''}`}</div>`; }).join('')
     : '<div class="sub" style="padding:14px 0">Tap a product or scan a barcode to add it.</div>'}
-    <div class="tot" style="margin-top:8px"><div><span>Total ex VAT</span><span>${gbp(net)}</span></div><div><span>VAT</span><span>${gbp(vat)}</span></div><div class="gt"><span>To pay</span><span>${gbp(tot)}</span></div></div>
+    <div class="tot" style="margin-top:8px"><div><span>Total ex VAT</span><span>${gbp(net)}</span></div><div><span>VAT</span><span>${gbp(vat)}</span></div>${showM && S.lines.some(l => l.cost != null) ? `<div class="mgn" style="justify-content:space-between"><span>Margin</span><span>${mgTxt(net, S.lines.reduce((t, l) => t + (l.cost || 0) * l.qty, 0))}</span></div>` : ''}<div class="gt"><span>To pay</span><span>${gbp(tot)}</span></div></div>
     ${BOOT.mode !== 'counter' ? `<div style="margin-top:10px"><div class="k">Print the sales order on</div><select id="prn">${BOOT.printers.map(p => `<option value="${p.id}" ${p.id === S.printer ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>` : ''}
     <div id="aerr"></div>
     <button class="btn y big" id="auth" style="width:100%;margin-top:12px" ${!S.lines.length || blocked || S.busy ? 'disabled' : ''}>${S.busy ? 'Authorising…' : 'Authorise ' + gbp(tot)}</button>
     ${blocked && S.lines.length && !S.busy ? '<div class="sub" style="margin-top:6px;text-align:center">Sort the stock warnings above first</div>' : ''}`;
   const bar = $('bar'); if (bar) { bar.innerHTML = S.lines.length ? `<div><b>${S.lines.length} item${S.lines.length === 1 ? '' : 's'}</b> · ${gbp(tot)}</div><button class="btn y" id="bar2" ${blocked ? 'disabled' : ''}>Basket & authorise</button>` : ''; if ($('bar2')) $('bar2').onclick = () => $('bk').scrollIntoView({ behavior: 'smooth' }); }
+  if ($('mg')) $('mg').onclick = e => { e.preventDefault(); showM = !showM; clearTimeout(showT); if (showM) showT = setTimeout(() => { showM = false; drawBasket(); }, 20000); drawBasket(); };
   if ($('clr')) $('clr').onclick = e => { e.preventDefault(); S.lines = []; S.warn = S.warn._hold ? { _hold: S.warn._hold } : {}; drawBasket(); };
   if ($('prn')) $('prn').onchange = e => S.printer = e.target.value;
   el.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { const l = S.lines.splice(+b.dataset.rm, 1)[0]; delete S.warn[l.sku]; drawBasket(); });
@@ -330,7 +335,7 @@ async function authorise(again){
   try {
     const j = await api('', body);
     DONE = { ...j, lines: j.lines, cust: S.cust ? S.cust.name : (S.cash.name || 'Cash sale'), account: !!S.cust, paid: null, finished: null };
-    S = fresh(); chargeScreen();
+    S = fresh(); showM = false; chargeScreen();
   } catch(x){
     S.busy = false;
     if (x.short) { x.short.forEach(s => { const l = S.lines.find(z => z.product_id === s.product_id); if (l) { l.avail = s.available; l.ack = false; } }); drawBasket(); $('aerr').innerHTML = '<div class="bad"><b>Stock has changed since you added it.</b> Sort the lines marked above, then authorise again.</div>'; return; }
@@ -447,7 +452,7 @@ else { if (token) start(); else showLogin(); TSDAuth.mount(t => { token = t; sta
 </script>
 <script>
 (function(){   // pick up a new version by itself, but never in the middle of a sale
-  const BUILD = '20261113104745';
+  const BUILD = '20261113105739';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || DONE || (S && (S.lines.length || S.cust)); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
