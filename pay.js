@@ -50,13 +50,26 @@ window.TSDPay = (function () {
       <iframe id="ppfr"></iframe>
       ${e.link_id ? '' : '<div class="sm" style="margin:6px 0">This email has no payment link in it. Close this and make a link first if you want one.</div>'}
       <div id="ppmsg" class="sm" style="margin:8px 0"></div>
-      <div class="row"><button class="b y" id="ppdr">Create draft in Outlook</button><button class="b" id="ppcp">Copy email</button><button class="b" id="ppx">Close</button></div>`;
+      <div class="row"><button class="b y" id="ppol">Open in Outlook</button><button class="b" id="ppdr">Save to Drafts</button><button class="b" id="ppcp">Copy email</button><button class="b" id="ppx">Close</button></div>
+      <div class="sm" style="margin-top:6px">Open in Outlook opens a ready-to-send email in Outlook on this PC. First time only: when Chrome shows the download, click the arrow next to it and pick "Always open files of this type".</div>`;
     document.getElementById('ppfr').srcdoc = e.html;
     const msg = t => document.getElementById('ppmsg').innerHTML = t;
     document.getElementById('ppx').onclick = () => m.style.display = 'none';
     document.getElementById('ppcp').onclick = async () => {
       try { await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([e.html], { type: 'text/html' }), 'text/plain': new Blob([e.text], { type: 'text/plain' }) })]); msg('Copied. Paste it into a new email.'); }
       catch (x) { try { const f = document.getElementById('ppfr'); f.contentWindow.focus(); f.contentWindow.document.execCommand('selectAll'); document.execCommand('copy'); msg('Copied. Paste it into a new email.'); } catch (y) { msg('Your browser wouldn\'t let me copy. Select the text in the box above and copy it.'); } }
+      if (e.link_id) call(o.token, 'sell', { action: 'emailed', id: e.link_id }).then(() => o.onChange && o.onChange()).catch(() => {});
+    };
+    // 13 Nov (Denver): everyone uses classic Outlook on the desktop. An .eml marked "unsent" opens there as a new email to check and send.
+    document.getElementById('ppol').onclick = () => {
+      const b64 = t => btoa(unescape(encodeURIComponent(t))).replace(/.{76}/g, '$&\r\n');
+      const to = document.getElementById('ppto').value.trim().replace(/[\r\n]/g, ''), su = document.getElementById('ppsu').value.replace(/[\r\n]/g, ' ');
+      const eml = [`To: ${to}`, `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(su)))}?=`, 'X-Unsent: 1', 'MIME-Version: 1.0',
+        'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', b64(e.html)].join('\r\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([eml], { type: 'message/rfc822' }));
+      a.download = (su.match(/(SO|QU)-?\d+/i) || ['email'])[0] + ' email.eml'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+      msg('Opening in Outlook. Check it and press Send there.');
       if (e.link_id) call(o.token, 'sell', { action: 'emailed', id: e.link_id }).then(() => o.onChange && o.onChange()).catch(() => {});
     };
     document.getElementById('ppdr').onclick = async () => {
