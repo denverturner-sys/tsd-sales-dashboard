@@ -24,7 +24,7 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 const SC = { queued: ['Waiting', 'wait'], printing: ['Printing…', 'wait'], done: ['Printed', 'ok'], failed: ['Failed', 'bad'] };
 function draw(q){ document.getElementById('log').innerHTML = (q || []).map(j => { const [t, c] = SC[j.status] || [j.status, '']; return `<tr><td>${new Date(j.requested_at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</td><td><b>${esc(j.order_no)}</b></td><td>${DOCS[j.doc] || esc(j.doc)}${j.copies > 1 ? ' ×' + j.copies : ''}</td><td>${esc(j.requested_by)}</td><td class="${c}">${t}${j.error ? ' · ' + esc(j.error) : ''}</td></tr>`; }).join('') || '<tr><td colspan="5" class="sub">Nothing printed yet.</td></tr>'; }
 const printHtml = (html, copies) => new Promise((res, rej) => { const f = document.getElementById('f'); const to = setTimeout(() => rej(new Error('Chrome did not print within 25 seconds. Check the default printer and that Chrome was opened with --kiosk-printing')), 25000);
-  f.onload = () => { setTimeout(() => { try { for (let i = 0; i < copies; i++) f.contentWindow.print(); clearTimeout(to); res(); } catch(e){ clearTimeout(to); rej(e); } }, 600); }; f.srcdoc = html; });
+  f.onload = () => { setTimeout(async () => { try { for (let i = 0; i < copies; i++) { if (i) await new Promise(r => setTimeout(r, 2500)); f.contentWindow.print(); } clearTimeout(to); res(); } catch(e){ clearTimeout(to); rej(e); } }, 600); }; f.srcdoc = html; });
 async function tick(){
   if (!key) { st.innerHTML = '<span class="bad">No key yet. Paste it in the box above.</span>'; return; }
   if (busy) return; busy = true;
