@@ -99,8 +99,8 @@ table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261113153950"></script>
-<script src="html5-qrcode.min.js?v=20261113153950"></script>
+<script src="auth.js?v=20261116094059"></script>
+<script src="html5-qrcode.min.js?v=20261116094059"></script>
 <script>
 // Trade counter POS (13 Nov). Counter PCs keep a paired key (tsd_pos_dev); everyone else uses their own Bob login.
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/pos';
@@ -338,48 +338,70 @@ async function priceCheck(l){
   } else delete S.warn[l.sku];
   drawBasket();
 }
-async function authorise(again){
-  if (S.busy) return;
-  S.busy = true; drawBasket();
-  const body = { action: 'create', served: SERVED.email, location: S.loc, customer_id: S.cust ? S.cust.id : null, cash_name: S.cash.name, cash_phone: S.cash.phone,
-    reference: S.ref, contact: S.cust ? S.cust.contact : '', phone: S.cust ? S.cust.phone : '', email: S.cust ? S.cust.email : '', printer: S.printer,
-    accept_short: S.lines.every(l => l.avail == null || l.qty <= l.avail || l.ack),
-    warnings: Object.values(S.warn), lines: S.lines.map(l => ({ product_id: l.product_id, sku: l.sku, name: l.name, qty: l.qty, price: l.price, discount: l.discount })) };
-  try {
-    const j = await api('', body);
-    DONE = { ...j, lines: j.lines, cust: S.cust ? S.cust.name : (S.cash.name || 'Cash sale'), account: !!S.cust, paid: null, finished: null, copies: j.printed_to ? 2 : 0 };
-    // 13 Nov (Denver): two copies of the sales order, one for the records tray and one for the customer
-    if (j.printed_to) api('', { action: 'print', id: j.id, doc: 'order', printer: j.printed_to, served: SERVED.email }).catch(() => toast("The customer's copy didn't print. Use Print other documents."));
-    S = fresh(); showM = false; chargeScreen();
-  } catch(x){
-    S.busy = false;
-    if (x.short) { x.short.forEach(s => { const l = S.lines.find(z => z.product_id === s.product_id); if (l) { l.avail = s.available; l.ack = false; } }); drawBasket(); $('aerr').innerHTML = '<div class="bad"><b>Stock has changed since you added it.</b> Sort the lines marked above, then authorise again.</div>'; return; }
-    drawBasket(); if (x.message !== 'login') $('aerr').innerHTML = `<div class="bad">${esc(x.message)}</div>`;
-  }
+// 16 Nov (Denver): Authorise now opens the charge screen first; nothing goes to Cin7 until a payment button is pressed,
+// so if the customer remembers something while the amount is going into the card machine, "Back to basket" just goes back.
+function authorise(){
+  if (S.busy || !S.lines.length) return;
+  const net = r2(S.lines.reduce((t, l) => t + lineNet(l), 0)), vat = r2(net * 0.2);
+  DONE = { pre: true, total_ex: net, total_inc: r2(net + vat), cust: S.cust ? S.cust.name : (S.cash.name || 'Cash sale'), account: !!S.cust, paid: null, finished: null, snap: S };
+  chargeScreen();
+}
+async function placeSale(method){
+  const T = DONE.snap;
+  const body = { action: 'create', paid: method, served: SERVED.email, location: T.loc, customer_id: T.cust ? T.cust.id : null, cash_name: T.cash.name, cash_phone: T.cash.phone,
+    reference: T.ref, contact: T.cust ? T.cust.contact : '', phone: T.cust ? T.cust.phone : '', email: T.cust ? T.cust.email : '', printer: T.printer,
+    accept_short: T.lines.every(l => l.avail == null || l.qty <= l.avail || l.ack),
+    warnings: Object.values(T.warn), lines: T.lines.map(l => ({ product_id: l.product_id, sku: l.sku, name: l.name, qty: l.qty, price: l.price, discount: l.discount })) };
+  const j = await api('', body);   // copies are decided by the server: 2 for card/cash, 1 (with signature box) on account
+  Object.assign(DONE, { ...j, pre: false, lines: j.lines, paid: method, copies: j.copies || (j.printed_to ? 1 : 0) });
+  S = fresh(); showM = false;
+}
+function backToBasket(snap, msg){
+  const ov = $('ov'); if (ov) ov.remove();
+  S = snap; S.busy = false; DONE = null; TAB = 'sale'; shell();
+  if (msg) toast(msg);
 }
 
 // ---------- charge + finish ----------
 function chargeScreen(){
   const d = DONE, ov = document.createElement('div'); ov.className = 'ov'; ov.id = 'ov'; document.body.appendChild(ov);
-  const pn = (BOOT.printers.find(p => p.id === d.printed_to) || {}).name;
   const draw = () => {
+    const pn = (BOOT.printers.find(p => p.id === d.printed_to) || {}).name;
     // 13 Nov (Denver): calmer, premium layout; the amount is big but not shouting
     ov.innerHTML = `<div class="charge">
-      <div class="hd"><div><div class="no">${esc(d.number)}</div><div class="who">${esc(d.cust)}</div></div>
-        <div class="prn">${pn ? `<i></i>Sales order · ${d.copies || 1} cop${(d.copies || 1) === 1 ? 'y' : 'ies'} · ${esc(pn)}` : 'Not printed'}</div></div>
+      <div class="hd"><div><div class="no">${d.pre ? 'Ready to charge' : esc(d.number)}</div><div class="who">${esc(d.cust)}</div></div>
+        <div class="prn">${d.pre ? `<a href="#" id="back" class="lnk" style="margin:0">← Back to basket</a>` : pn ? `<i></i>Sales order · ${d.copies || 1} cop${(d.copies || 1) === 1 ? 'y' : 'ies'} · ${esc(pn)}` : 'Not printed'}</div></div>
       <div class="amtbox"><div class="lbl">Amount to charge</div><div class="amt">${gbp(d.total_inc)}</div>${d.total_ex != null ? `<div class="vat">${gbp(d.total_ex)} + VAT ${gbp(d.total_inc - d.total_ex)}</div>` : ''}</div>
-      <div class="step ${d.paid ? 'done' : ''}"><div class="lbl"><b>${d.paid ? '✓' : '1'}</b>Payment</div>
+      <div class="step ${d.paid ? 'done' : ''}"><div class="lbl"><b>${d.paid ? '✓' : '1'}</b>Payment</div>${d.pre ? '<div class="sub" style="margin:-4px 0 10px">Press once the card has gone through. That puts the order into Cin7 and prints it.</div>' : ''}
         <div class="seg">${[['card', 'Card'], ['cash', 'Cash'], ['account', 'On account']].map(([v, t]) => `<button class="${d.paid === v ? 'on' : ''}" data-pay="${v}" ${d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div></div>
-      <div class="step ${d.finished ? 'done' : ''}"><div class="lbl"><b>${d.finished ? '✓' : '2'}</b>Collection</div>
+      ${d.pre ? '<div id="ferr" style="padding:0 22px"></div>' : `<div class="step ${d.finished ? 'done' : ''}"><div class="lbl"><b>${d.finished ? '✓' : '2'}</b>Collection</div>
         <div class="seg">${[['all', 'All collected'], ['part', 'Part collected'], ['none', 'Not collected']].map(([v, t]) => `<button class="${d.finished === v ? 'on' : ''}" data-fin="${v}" ${d.finished || !d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div>
         ${d.finished === 'delivery' ? `<div class="sub" style="margin-top:8px">🚚 Going out for delivery (${esc(d.carrier || '')}). It's on Pick & Dispatch now.</div>` : (!d.finished || d.finished === 'none') ? '<button class="lnk" id="dlv">🚚 Delivering instead? Add a delivery address</button>' : ''}
-        <div id="part"></div><div id="ferr"></div></div>
-      <div class="ft"><button class="btn" id="docs">Print other documents</button><button class="btn y big" id="next" style="min-width:200px" ${d.paid && d.finished ? '' : 'disabled'}>New sale</button></div>
+        <div id="part"></div><div id="ferr"></div>
+        ${d.snap && (!d.finished || d.finished === 'none') ? '<button class="lnk" id="undo" style="display:block;margin:10px auto 0;color:var(--muted)">↩ Customer wants to change something? Undo this sale</button>' : ''}</div>`}
+      ${d.pre ? '' : `<div class="ft"><button class="btn" id="docs">Print other documents</button><button class="btn y big" id="next" style="min-width:200px" ${d.paid && d.finished ? '' : 'disabled'}>New sale</button></div>`}
       <div id="docbox" style="padding:0 22px"></div></div>`;
-    ov.querySelectorAll('[data-pay]').forEach(b => b.onclick = async () => { b.disabled = true; try { await api('', { action: 'paid', id: d.id, method: b.dataset.pay, served: SERVED.email }); d.paid = b.dataset.pay; draw(); } catch(x){ b.disabled = false; toast(x.message); } });
+    ov.querySelectorAll('[data-pay]').forEach(b => b.onclick = async () => {
+      ov.querySelectorAll('[data-pay]').forEach(x => x.disabled = true); b.textContent = 'Putting it into Cin7…';
+      try {
+        if (d.pre) await placeSale(b.dataset.pay);
+        else { await api('', { action: 'paid', id: d.id, method: b.dataset.pay, served: SERVED.email }); d.paid = b.dataset.pay; }
+        draw();
+      } catch(x){
+        if (d.pre && x.short) { const snap = d.snap; x.short.forEach(z => { const l = snap.lines.find(q => q.product_id === z.product_id); if (l) { l.avail = z.available; l.ack = false; } }); backToBasket(snap); $('aerr').innerHTML = '<div class="bad"><b>Stock has changed since you added it.</b> Sort the lines marked, then authorise again. Nothing went into Cin7.</div>'; return; }
+        draw(); $('ferr').innerHTML = `<div class="bad" style="max-width:640px;margin:10px auto">${esc(x.message)}${d.pre ? '<br>Nothing went into Cin7. Try again.' : ''}</div>`;
+      }
+    });
+    if ($('back')) $('back').onclick = e => { e.preventDefault(); backToBasket(d.snap); };
+    if ($('undo')) $('undo').onclick = async () => {
+      const ok = await modal('Undo this sale?', `${esc(d.number)} will be cancelled in Cin7 and the basket comes back so you can change it and authorise again. Bin the printed copies.${d.paid === 'card' ? '<br><br><b>If the card has already been charged</b>, refund it on the card machine or charge the difference.' : ''}`, [{ t: 'Keep the sale', v: false }, { t: 'Undo and change it', v: true, cls: 'y' }]);
+      if (!ok) return;
+      try { await api('', { action: 'undo', id: d.id, served: SERVED.email }); backToBasket(d.snap, `${d.number} cancelled. Change the basket and authorise again.`); }
+      catch(x){ toast(x.message); }
+    };
     ov.querySelectorAll('[data-fin]').forEach(b => b.onclick = () => finish(b.dataset.fin));
-    $('docs').onclick = docMenu;
-    $('next').onclick = nextSale;
+    if ($('docs')) $('docs').onclick = docMenu;
+    if ($('next')) $('next').onclick = nextSale;
     if ($('dlv')) $('dlv').onclick = deliverForm;
   };
   // 13 Nov: add a delivery address -> Cin7 order gets the address and a delivery method, and moves to Pick & Dispatch
@@ -500,7 +522,7 @@ else { if (token) start(); else showLogin(); TSDAuth.mount(t => { token = t; sta
 </script>
 <script>
 (function(){   // pick up a new version by itself, but never in the middle of a sale
-  const BUILD = '20261113153950';
+  const BUILD = '20261116094059';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || DONE || (S && (S.lines.length || S.cust)); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
