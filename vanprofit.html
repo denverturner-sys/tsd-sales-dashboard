@@ -81,8 +81,8 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--panel2)}
 </div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261116083847"></script>
-<script src="activity.js?v=20261116083847"></script>
+<script src="auth.js?v=20261116090701"></script>
+<script src="activity.js?v=20261116090701"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/vanprofit';
 const mem = {};
@@ -164,7 +164,8 @@ function totalsTiles(routes, extra){
 }
 function warnBox(routes, s){
   const m = missing(routes, s);
-  return m.length ? `<div class="warn"><b>Not fully costed yet:</b> ${m.join(', ')} ${m.length > 1 ? "aren't" : "isn't"} filled in, so net profit is higher than it really is. <a href="#" onclick="costs();return false" style="color:var(--accent)">Fill in running costs</a></div>` : '';
+  const est = s && s.estimated ? `<div class="warn"><b>Running costs are estimates</b> worked out from payroll and Xero averages, not exact figures for each van. <a href="#" onclick="costs();return false" style="color:var(--accent)">See how they were worked out</a></div>` : '';
+  return est + (m.length ? `<div class="warn"><b>Not fully costed yet:</b> ${m.join(', ')} ${m.length > 1 ? "aren't" : "isn't"} filled in, so net profit is higher than it really is. <a href="#" onclick="costs();return false" style="color:var(--accent)">Fill in running costs</a></div>` : '');
 }
 
 function drawDay(d){
@@ -244,11 +245,15 @@ function costs(){
   const row = (id, label, hint, val, step = '0.01') => `<div class="frow"><label>${label}${hint ? `<span class="h">${hint}</span>` : ''}</label><input type="number" min="0" step="${step}" data-k="${id}" value="${v(val)}" placeholder="£"></div>`;
   $('mbox').innerHTML = `<h2 style="font-family:var(--num);font-size:30px;margin:0">Running costs</h2>
     <div class="sub">Rough is fine to start. Leave a box empty if you don't know it yet: the screen will say it's not costed.</div>
+    ${last && last.costs_set_by ? `<div class="sub" style="margin-top:6px">Last set by ${esc(last.costs_set_by)} on ${new Date(last.costs_set_at).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})}.</div>` : ''}
+    <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:15px"><input type="checkbox" id="cEst" ${s.estimated ? 'checked' : ''} style="width:18px;height:18px"> These are estimates (shows a note on the screen)</label>
+    <div class="ftitle">How they were worked out</div>
+    <textarea id="cBasis" rows="4" style="width:100%;background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:14px;padding:8px 10px;border-radius:10px">${esc(s.basis || '')}</textarea>
     <div class="ftitle">Drivers (cost per day out)</div>
     ${row('driver_default', 'Default day rate', 'Used for anyone without their own rate. Include employer NI and pension if you can.', s.driver_default)}
     ${[...drivers].sort().map(n => row('drivers.' + n, esc(n), '', (s.drivers || {})[n])).join('')}
     <div class="ftitle">Fuel</div>
-    ${row('fuel_per_mile', 'Cost per mile', 'Diesel at about £1.45 a litre in a van doing 30 mpg is roughly £0.22 a mile.', s.fuel_per_mile, '0.001')}
+    ${row('fuel_per_mile', 'Cost per mile', 'Diesel at about £1.20 a litre ex VAT in a loaded van doing 26 mpg is roughly £0.21 a mile.', s.fuel_per_mile, '0.001')}
     <div class="ftitle">Vans (fixed cost per month)</div>
     <div class="sub">Lease or finance + insurance + road tax + servicing and tyres, per month. Shared over the days the van goes out.</div>
     ${[...vans].sort().map(n => row('vans.' + n, esc(n), '', (s.vans || {})[n])).join('')}
@@ -259,7 +264,7 @@ function costs(){
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="btn" onclick="closeM()">Cancel</button><button class="btn y" id="saveC">Save</button></div>`;
   $('modal').style.display = 'flex';
   $('saveC').onclick = async () => {
-    const out = { drivers: {}, vans: {}, extras: {} };
+    const out = { drivers: {}, vans: {}, extras: {}, estimated: $('cEst').checked, basis: $('cBasis').value.trim() };
     document.querySelectorAll('#mbox input[data-k]').forEach(i => { const [a, b] = i.dataset.k.split(/\.(.+)/); const val = i.value === '' ? null : Number(i.value); if (b) out[a][b] = val; else out[a] = val; });
     $('saveC').disabled = true;
     try { await api('', { action: 'settings', value: out }); closeM(); toast('Running costs saved'); load(); }
@@ -283,7 +288,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261116083847';
+  const BUILD = '20261116090701';
   let newer = false;
   async function check(){
     try {
