@@ -50,13 +50,14 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .tr{padding:10px 0;border-bottom:1px solid var(--line)} .tr:last-child{border-bottom:0}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 @media(max-width:520px){.row{grid-template-columns:1fr}}
+.seg2{display:flex;gap:6px;flex-wrap:wrap}.seg2 button{flex:1;min-width:150px;background:var(--panel2,#3B3C3C);border:1px solid var(--line,#474949);color:inherit;font:inherit;font-weight:700;padding:10px;border-radius:10px;cursor:pointer}.seg2 button.on{background:var(--accent,#EED107);color:#262727;border-color:var(--accent,#EED107)}
 </style>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div class="m">Loading…</div></div>
-<script src="auth.js?v=20261105154936"></script>
-<script src="activity.js?v=20261105154936"></script>
+<script src="auth.js?v=20261116100108"></script>
+<script src="activity.js?v=20261116100108"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/webprod';
 const WEB_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/web';   // same data as the Products to add tab
@@ -66,11 +67,13 @@ const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return
 let token = store.get('tsd_me_token'), D = null, pick = null, hits = [], msg = null, busy = false, qseq = 0, timer, poll;
 let imgs = [], sheets = [];            // File objects chosen but not yet uploaded: imgs = [{file, url}], sheets = [{file}]
 let form = {price:'', weight:'', ship:'', info:'', notes:''};
+// 16 Nov: 'new' = whole new listing (Claude writes it), 'var' = add this product as a new option on an existing listing
+let mode = 'new', L = null, lhits = [], lq = '', vopt = {}, vexist = '', vattr = 'Option', vimg = null, lseq = 0, ltimer;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const gbp = v => v == null ? '–' : '£' + (+v).toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2});
 function showLogin(m){ document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = m || ''; }
 async function api(body, q){
-  const r = await fetch(API + (q ? '?q=' + encodeURIComponent(q) : ''), body ? {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  const r = await fetch(API + (q ? (q.startsWith('?') ? q : '?q=' + encodeURIComponent(q)) : ''), body ? {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
   if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
   const j = await r.json().catch(() => ({}));
   if (body && !j.ok) throw new Error(j.error || "Couldn't do that");
@@ -153,9 +156,62 @@ async function submit(){
 }
 async function retry(id){ try { await api({action:'retry', id}); await refresh(); } catch(x){ alert(x.message); } }
 
+// ---------- add to an existing listing (16 Nov) ----------
+function guessListingQuery(){ return pick ? (pick.sku.split(/[\/\-_.]/)[0] || pick.sku) : ''; }
+function lsearch(v){ lq = v; clearTimeout(ltimer); ltimer = setTimeout(async () => { const my = ++lseq; if (v.trim().length < 2) { lhits = []; return paintL(); }
+  try { const j = await api(null, '?listing=' + encodeURIComponent(v.trim())); if (my === lseq) { lhits = j.listings || []; paintL(); } } catch(e){} }, 250); }
+function paintL(){ const h = document.getElementById('lhits'); if (h) h.innerHTML = lhits.map((x, i) => `<button class="hit" onclick="pickListing(${x.id})"><b>${esc(x.name)}</b><small>${x.type === 'variable' ? 'Has options' : 'Single product, no options yet'}${x.status !== 'publish' ? ' · ' + esc(x.status) : ''}${x.sku ? ' · ' + esc(x.sku) : ''}</small></button>`).join('') || '<div class="m" style="margin-top:8px">No listings found</div>'; }
+// words in the Cin7 name that aren't in the listing name, e.g. "1m Unit"
+function guessOption(){ if (!pick || !L) return ''; const have = new Set(L.name.toLowerCase().split(/\W+/)); const left = pick.name.split(/\s+/).filter(w => !have.has(w.toLowerCase().replace(/\W+/g, ''))); const d = left.findIndex(w => /\d/.test(w)); return (d > 0 ? left.slice(d) : left).join(' ').slice(0, 40); }
+async function pickListing(id){
+  try { L = (await api(null, '?listing_id=' + id)).listing; } catch(x){ return alert(x.message); }
+  const va = L.attributes.filter(a => a.variation); vopt = {};
+  if (L.type === 'simple') { vattr = 'Option'; vopt[vattr] = guessOption(); vexist = ''; }
+  else { for (const a of va) vopt[a.name] = va.length === 1 ? guessOption() : ''; }
+  const sib = L.variations[L.variations.length - 1];
+  if (!form.ship && (sib ? sib.shipping_class : L.shipping_class)) form.ship = sib ? sib.shipping_class : L.shipping_class;
+  render();
+}
+function keepV(){ document.querySelectorAll('[data-vo]').forEach(e => vopt[e.dataset.vo] = e.value); const x = document.getElementById('v_exist'); if (x) vexist = x.value; const an = document.getElementById('v_attr'); if (an) { const v = vopt[vattr]; delete vopt[vattr]; vattr = an.value || 'Option'; vopt[vattr] = v; } }
+async function addVar(){
+  keep(); keepV();
+  if (!pick || !L) return;
+  if (!(parseFloat(form.price) > 0)) return alert('Enter the web price (ex VAT)');
+  busy = true; msg = {ok:true, t:'Adding it to the listing…'}; render();
+  try {
+    let image = null; if (vimg) image = (await upload([{file: vimg.file, name: vimg.name}]))[0];
+    const r = await api({action:'add_variation', product_id: pick.product_id, parent_id: L.id, options: vopt, attr_name: vattr, existing_option: vexist, price: form.price, weight_kg: form.weight, shipping_class: form.ship, image});
+    msg = {ok:true, t:`${pick.sku} added to “${L.name}”${r.converted ? ' (the listing now has options; the existing product is “' + vexist + '”)' : ''}. It's hidden on the website until ${D.me && D.me.admin ? 'you press Put it live below' : 'an admin puts it live'}.`};
+    pick = null; hits = []; L = null; lhits = []; vimg = null; vopt = {}; mode = 'new'; form = {price:'', weight:'', ship:'', info:'', notes:''};
+  } catch(x){ if (x.message === 'login') return; msg = {ok:false, t:x.message}; }
+  busy = false; await refresh();
+}
+async function makeLive(id){ if (!confirm('Show this option on the website now?')) return; try { await api({action:'make_live', id}); await refresh(); } catch(x){ alert(x.message); } }
+async function addVimg(list){ const f = [...list].find(x => x.type.startsWith('image/')); if (!f) return; const blob = await shrink(f); vimg = {file: blob, name: f.name.replace(/\.[^.]+$/, '') + '.jpg', url: URL.createObjectURL(blob)}; render(); }
+function varForm(ship){
+  if (!L) return `<div class="card"><div class="k">2 · Which listing?</div><div class="m">Search the website listing to add ${esc(pick.sku)} to (name, or the SKU of one of its options).</div>
+    <input id="lq" type="search" placeholder="e.g. DuraElite, or DE100" autocomplete="off" value="${esc(lq)}" oninput="lsearch(this.value)"><div id="lhits"></div></div>`;
+  const va = L.attributes.filter(a => a.variation);
+  const cur = L.type === 'simple' ? `<div class="m">This listing is a single product with no options yet${L.sku ? ' (' + esc(L.sku) + ' at ' + gbp(L.price) + ')' : ''}. It'll be turned into one with options: the current product stays live as the first option.</div>`
+    : `<div class="m">Current options:</div>${L.variations.map(v => `<div class="file"><span><b>${esc(Object.values(v.options).join(' / '))}</b> <span class="m">${esc(v.sku || 'no SKU')} · ${v.price ? gbp(v.price) : '–'}${v.status !== 'publish' ? ' · ' + esc(v.status) : ''}</span></span></div>`).join('')}`;
+  const inputs = L.type === 'simple'
+    ? `<div class="row"><div><div class="m">Option name (what customers choose by)</div><input id="v_attr" value="${esc(vattr)}" placeholder="Size"></div><div><div class="m">What's the current product called?</div><input id="v_exist" value="${esc(vexist)}" placeholder="e.g. 30m Roll"></div></div>
+       <div class="m">New option for ${esc(pick.sku)}</div><input data-vo="${esc(vattr)}" value="${esc(vopt[vattr] || '')}" placeholder="e.g. 1m Unit">`
+    : va.map(a => `<div class="m">${esc(a.name)} for ${esc(pick.sku)}</div><input data-vo="${esc(a.name)}" value="${esc(vopt[a.name] || '')}" placeholder="${esc((a.options || []).slice(0, 3).join(', '))}" list="dl_${esc(a.name).replace(/\W/g, '')}"><datalist id="dl_${esc(a.name).replace(/\W/g, '')}">${(a.options || []).map(o => `<option value="${esc(o)}">`).join('')}</datalist>`).join('');
+  return `<div class="card"><div class="k">2 · Adding to</div><b>${esc(L.name)}</b>${L.permalink ? ` <a class="m" href="${esc(L.permalink)}" target="_blank" rel="noopener">view</a>` : ''}
+      <div style="margin-top:6px">${cur}</div><button class="btn sm alt" style="margin-top:8px" onclick="L=null;render()">Pick a different listing</button></div>
+    <div class="card"><div class="k">3 · The new option</div>${inputs}
+      <div class="row" style="margin-top:8px"><div><div class="m">Web price, ex VAT (£)</div><input id="f_price" type="number" step="0.01" inputmode="decimal" value="${esc(form.price)}" oninput="keep();document.getElementById('mg').textContent=marginTxt()"><div class="m" id="mg" style="margin-top:4px">${marginTxt()}</div></div>
+      <div><div class="m">Weight (kg) of this option</div><input id="f_weight" type="number" step="0.01" inputmode="decimal" value="${esc(form.weight)}"></div></div>
+      <div class="k">Shipping class</div><select id="f_ship"><option value="">None / set it later</option>${ship.map(s => `<option value="${esc(s.slug)}" ${form.ship === s.slug ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>
+      <div class="k">Photo for this option (optional: leave it and it uses the listing's)</div><input type="file" accept="image/*" onchange="addVimg(this.files);this.value=''">
+      ${vimg ? `<div class="thumbs"><div class="thumb"><img src="${vimg.url}"><button onclick="vimg=null;render()">×</button></div></div>` : ''}
+      <button class="btn full" ${busy ? 'disabled' : ''} onclick="addVar()">${busy ? 'Working…' : 'Add to listing (hidden until it\'s put live)'}</button></div>`;
+}
 function chip(d){
   if (d.status === 'queued') return '<span class="tag t-q">Waiting for Claude</span>';
   if (d.status === 'working') return '<span class="tag t-w">Claude is writing it</span>';
+  if (d.kind === 'variation') return d.status === 'live' ? '<span class="tag t-ok">Live option</span>' : d.status === 'failed' ? '<span class="tag t-bad">Failed</span>' : '<span class="tag t-w">Hidden option on website</span>';
   if (d.status === 'draft_created') return '<span class="tag t-ok">Draft on website</span>';
   return '<span class="tag t-bad">Failed</span>';
 }
@@ -163,7 +219,8 @@ function listHtml(){
   const L = D.drafts || [];
   return L.length ? L.map(d => `<div class="tr"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><b>${esc(d.sku)}</b> <span class="m">${esc(d.name)}</span></div>${chip(d)}</div>
     <div class="m">${new Date(d.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ${esc(d.created_by_name || '')} · ${(d.images || []).length} photo${(d.images || []).length === 1 ? '' : 's'}${(d.datasheets || []).length ? ' · ' + d.datasheets.length + ' datasheet' + (d.datasheets.length === 1 ? '' : 's') : ''}</div>
-    ${d.status === 'draft_created' && d.woo_edit_url ? `<a class="btn sm" style="display:inline-block;margin-top:6px;text-decoration:none" href="${esc(d.woo_edit_url)}" target="_blank" rel="noopener">Open draft to check &amp; publish</a>` : ''}
+    ${d.kind === 'variation' ? `<div class="m">Added to <b>${esc(d.parent_name || '')}</b> as “${esc(d.option_value || '')}” at ${gbp(d.price)}${d.notes ? ' · ' + esc(d.notes) : ''}</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${d.woo_edit_url ? `<a class="btn sm alt" style="text-decoration:none" href="${esc(d.woo_edit_url)}" target="_blank" rel="noopener">Open listing</a>` : ''}${d.status === 'draft_created' && D.me && D.me.admin ? `<button class="btn sm" onclick="makeLive(${d.id})">Put it live</button>` : ''}</div>` : ''}
+    ${d.kind !== 'variation' && d.status === 'draft_created' && d.woo_edit_url ? `<a class="btn sm" style="display:inline-block;margin-top:6px;text-decoration:none" href="${esc(d.woo_edit_url)}" target="_blank" rel="noopener">Open draft to check &amp; publish</a>` : ''}
     ${d.status === 'failed' ? `<div style="color:var(--bad);margin-top:4px">${esc(d.error || '')}</div><button class="btn sm alt" style="margin-top:6px" onclick="retry(${d.id})">Try again</button>` : ''}</div>`).join('') : '<div class="m">Nothing requested yet.</div>';
 }
 function paintList(){ const e = document.getElementById('list'); if (e) e.innerHTML = listHtml(); }
@@ -171,6 +228,7 @@ function render(){
   const a = document.getElementById('app'); a.style.display = 'block';
   const q = document.getElementById('q'), keepQ = q && document.activeElement === q ? q.value : null;
   if (document.getElementById('f_price')) keep();
+  if (document.querySelector('[data-vo]')) keepV();
   const ship = (D.ship_classes || []);
   a.innerHTML = `<a class="back" href="website.html">← Website</a><div class="title">New web product</div>
     <div class="sub">Pick it from Cin7, add photos, datasheets and any notes. Claude writes the listing and SEO and creates a <b>draft</b> on the website. You check it and press publish.</div>
@@ -180,7 +238,10 @@ function render(){
       <button class="btn sm alt" style="margin-top:8px" onclick="pick=null;hits=[];render()">Pick a different product</button>`
     : `<input id="q" type="search" placeholder="SKU or name" autocomplete="off" oninput="search(this.value)"><div id="hits">${hits.map(hitHtml).join('')}</div>`}</div>
     ${pick ? '' : recHtml()}
-    ${pick ? `<div class="card"><div class="k">2 · Price and shipping</div>
+    ${pick ? `<div class="card"><div class="k">Where does it go?</div><div class="seg2"><button class="${mode === 'new' ? 'on' : ''}" onclick="keep();mode='new';render()">New listing</button><button class="${mode === 'var' ? 'on' : ''}" onclick="keep();mode='var';if(!L&&!lq){lq=guessListingQuery();setTimeout(()=>lsearch(lq),0)}render()">Add to an existing listing</button></div>
+      <div class="m" style="margin-top:6px">${mode === 'new' ? 'Claude writes a whole new listing and SEO, created as a draft.' : 'Add it as another size or colour on a listing that\'s already on the website, e.g. a 1m option on the 30m roll listing.'}</div></div>` : ''}
+    ${pick && mode === 'var' ? varForm(ship) : ''}
+    ${pick && mode === 'new' ? `<div class="card"><div class="k">2 · Price and shipping</div>
       <div class="row"><div><div class="m">Web price, ex VAT (£)</div><input id="f_price" type="number" step="0.01" inputmode="decimal" value="${esc(form.price)}" oninput="keep();document.getElementById('mg').textContent=marginTxt()"><div class="m" id="mg" style="margin-top:4px">${marginTxt()}</div></div>
       <div><div class="m">Weight (kg, optional)</div><input id="f_weight" type="number" step="0.01" inputmode="decimal" value="${esc(form.weight)}"></div></div>
       <div class="k">Shipping class (optional)</div><select id="f_ship"><option value="">None / set it later</option>${ship.map(s => `<option value="${esc(s.slug)}" ${form.ship === s.slug ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>
@@ -195,12 +256,13 @@ function render(){
       <button class="btn full" ${busy ? 'disabled' : ''} onclick="submit()">${busy ? 'Working…' : 'Send to Claude → create draft'}</button></div>` : ''}
     <div class="card"><div class="k">Recent requests</div><div id="list">${listHtml()}</div></div>`;
   if (keepQ !== null) { const e = document.getElementById('q'); if (e) { e.value = keepQ; e.focus(); } }
+  if (mode === 'var' && !L && lhits.length) paintL();
 }
 if (token) refresh(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; refresh(); });
 </script>
 <script>
-(function(){ const BUILD = '20261105154936'; let newer = false;
+(function(){ const BUILD = '20261116100108'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !imgs.length && !sheets.length && !pick && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();
