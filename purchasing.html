@@ -78,6 +78,14 @@ input[type=date]{color-scheme:dark}
 .card{background:var(--panel2);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px;border-left:6px solid var(--accent)}
 .no{font-family:var(--num);font-size:28px;letter-spacing:1px;line-height:1}
 .empty{color:var(--muted);font-size:14px;padding:8px 2px}
+.tchart{width:100%;height:auto;display:block}.tchart text{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.tlegend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:4px 0 8px}.tlegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.tcat{background:var(--panel2);border-radius:10px;padding:10px 12px}.tcat .n{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tsegs{display:flex;gap:6px;flex-wrap:wrap}.tsegs button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;cursor:pointer}.tsegs button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.up{color:var(--good)}.dn{color:var(--bad)}
+.tfind{position:relative;max-width:520px}.tfind .res{position:absolute;left:0;right:0;top:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;z-index:20;max-height:320px;overflow:auto}
+.tfind .res div{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line)}.tfind .res div:hover{background:var(--line)}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 @media (max-width:1100px){.grid2{grid-template-columns:minmax(0,1fr)}}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
@@ -132,8 +140,8 @@ a.solink{color:inherit;text-decoration:underline dotted;cursor:pointer}a.solink:
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading purchasing…</div></div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261111161150"></script>
-<script src="activity.js?v=20261111161150"></script>
+<script src="auth.js?v=20261117153728"></script>
+<script src="activity.js?v=20261117153728"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/purchasing';
 const ME_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/me';
@@ -153,6 +161,9 @@ let M = null, S = {}, H = {}, me = null, C = null, claimShowDone = false, OV = n
 const openSup = new Set();
 const edits = {};   // supplier_id -> {pid: qty or null(excluded)}
 let timer;
+// 17 Nov: Trends tab (product sales trend graphs for Toby)
+const TAPI = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/trends';
+let TR = {}, TP = null, trLoc = store.get('tsd_tr_loc') || 'all', trList = 'rising', trFind = [], trBusy = false;
 
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const gbp = (v, dp=0) => v == null ? '–' : '£' + Number(v).toLocaleString('en-GB',{minimumFractionDigits:dp,maximumFractionDigits:dp});
@@ -216,6 +227,7 @@ async function refresh(full){
     if (tab === 'suppliers') await loadSup(full);
     if (tab === 'health') await loadHealth(full);
     if (tab === 'overdue') await loadOv(full);
+    if (tab === 'trends' && (!TR[trLoc] || full)) loadTrends(full);
     render();
   } catch(x) {
     if (x.message === 'login') return;
@@ -233,12 +245,119 @@ async function setTab(t){
   if (t === 'suppliers' && !S[loc]) { render(); try { await loadSup(); } catch(x){ toast(x.message); } }
   if (t === 'overdue' && !OV) { render(); try { await loadOv(); } catch(x){ toast(x.message); } }
   if (t === 'health' && !H[loc]) { render(); try { await loadHealth(); } catch(x){ toast(x.message); } }
+  if (t === 'trends' && !TR[trLoc]) { render(); await loadTrends(); }
   render(); window.scrollTo(0,0);
 }
 async function setLoc(l){
   loc = l; store.set('tsd_purch_loc', l); render();
   try { if (tab === 'suppliers') await loadSup(); if (tab === 'health') await loadHealth(); } catch(x){ toast(x.message); }
   render();
+}
+
+
+// ---------- trends (17 Nov, Denver for Toby) ----------
+async function tapi(qs){
+  const r = await fetch(TAPI + qs, {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({})); if (j.error) throw new Error(j.error); return j;
+}
+async function loadTrends(force){
+  if (TR[trLoc] && !force) return;
+  try { TR[trLoc] = await tapi('?view=overview&loc=' + encodeURIComponent(trLoc)); } catch(x){ if (x.message !== 'login') toast(x.message); }
+  render();
+}
+async function setTrLoc(l){ trLoc = l; store.set('tsd_tr_loc', l); render(); await loadTrends(); }
+function setTrList(l){ trList = l; render(); }
+let trFindT = null;
+function trSearch(v){
+  clearTimeout(trFindT);
+  trFindT = setTimeout(async () => {
+    const box = document.getElementById('trres'); if (!box) return;
+    if (v.trim().length < 2) { box.innerHTML = ''; box.style.display = 'none'; return; }
+    try { trFind = (await tapi('?find=' + encodeURIComponent(v.trim()))).results || []; } catch(x){ return; }
+    box.style.display = trFind.length ? 'block' : 'none';
+    box.innerHTML = trFind.map((p, i) => `<div onclick="openTrend(trFind[${i}].sku)"><b>${esc(p.sku)}</b> · ${esc(p.name)}<div class="sub">${esc(p.category || '')}</div></div>`).join('');
+  }, 250);
+}
+async function openTrend(sku){
+  trBusy = true; TP = { loading: sku }; render();
+  try { TP = await tapi('?sku=' + encodeURIComponent(sku)); } catch(x){ TP = null; if (x.message !== 'login') toast(x.message); }
+  trBusy = false; render();
+  const el = document.getElementById('trprod'); if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+const wkLbl = d => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+const moLbl = d => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', {month:'short'}) + (d.slice(5,7) === '01' || d.slice(5,7) === '07' ? ' ' + d.slice(2,4) : '');
+const nf = n => Number(n || 0).toLocaleString('en-GB', {maximumFractionDigits: 1});
+const kf = n => n >= 1000 ? '£' + (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : '£' + Math.round(n);
+// stacked bar chart: rows [{label, parts:[{v, c, faded}]}]
+function svgBars(rows, opts = {}){
+  const W = 900, H = opts.h || 220, L = 44, B = 24, T = 10, n = rows.length || 1;
+  const max = Math.max(1, ...rows.map(r => r.parts.reduce((a, p) => a + (p.v || 0), 0)));
+  const step = Math.pow(10, Math.floor(Math.log10(max))), nice = Math.ceil(max / step) * step, ticks = [0, nice / 2, nice];
+  const bw = (W - L - 6) / n, y = v => T + (H - T - B) * (1 - v / nice);
+  let g = ticks.map(t => `<line x1="${L}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${y(t) + 4}" text-anchor="end">${opts.money ? kf(t) : nf(t)}</text>`).join('');
+  const every = Math.max(1, Math.ceil(n / (opts.labels || 10)));
+  rows.forEach((r, i) => {
+    let base = 0; const x = L + i * bw + bw * 0.15, w = bw * 0.7;
+    r.parts.forEach(p => { if (!p.v) return; const h = (H - T - B) * (p.v / nice); g += `<rect x="${x}" y="${y(base) - h}" width="${w}" height="${h}" rx="2" fill="${p.c}" opacity="${r.faded ? .45 : 1}"><title>${esc(r.tip || r.label)}</title></rect>`; base += p.v; });
+    if (i % every === 0 || i === n - 1) g += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle">${esc(r.label)}</text>`;
+  });
+  return `<svg class="tchart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="max-height:${H + 20}px">${g}</svg>`;
+}
+function spark(vals, c){
+  const W = 220, H = 44, max = Math.max(1, ...vals), n = Math.max(1, vals.length - 1);
+  const pts = vals.map((v, i) => `${(i / n * W).toFixed(1)},${(H - 3 - (H - 6) * v / max).toFixed(1)}`).join(' ');
+  return `<svg class="tchart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:44px"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+const chg = (a, b) => b > 0 ? Math.round((a - b) / b * 100) : (a > 0 ? null : 0);
+function renderTrends(){
+  const D = TR[trLoc];
+  const locs = [['all', 'Both branches'], ['Bromham', 'Bromham'], ['Wootton Bassett', 'Wootton Bassett']];
+  const head = `<div class="sec"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+      <div class="tfind" style="flex:1;min-width:260px"><input id="trq" placeholder="Look up a product: name or code" autocomplete="off" oninput="trSearch(this.value)" style="width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px"><div class="res" id="trres" style="display:none"></div></div>
+      <div class="tsegs">${locs.map(([v, t]) => `<button class="${trLoc === v ? 'on' : ''}" onclick="setTrLoc('${v}')">${t}</button>`).join('')}</div></div>
+    <div class="sub" style="margin-top:6px">Sales from Cin7 orders (from 7 Jul 2026), ex VAT. Monthly charts also show last year from Sage (company-wide). This week is shown faded because it isn't finished.</div></div>`;
+  const prod = TP ? (TP.loading ? `<div class="sec" id="trprod"><div class="empty">Loading ${esc(TP.loading)}…</div></div>` : productTrend(TP)) : '';
+  if (!D) return head + prod + '<div class="sec"><div class="empty">Loading trends…</div></div>';
+  const tw = D.this_week, tot = D.totals || [];
+  const totChart = svgBars(tot.map(t => ({ label: wkLbl(t.w), tip: `w/c ${wkLbl(t.w)}: £${Math.round(t.r).toLocaleString('en-GB')} · ${t.skus} products`, faded: t.w === tw, parts: [{ v: t.r, c: 'var(--accent)' }] })), { money: true, h: 180 });
+  const done = tot.filter(t => t.w !== tw), l4 = done.slice(-4).reduce((a, t) => a + t.r, 0), p4 = done.slice(-8, -4).reduce((a, t) => a + t.r, 0), c4 = chg(l4, p4);
+  const cats = (D.categories || []).map(c => { const v = c.weeks.filter(w => w.w !== tw).map(w => w.r); const a = v.slice(-4).reduce((x, y) => x + y, 0), b = v.slice(-8, -4).reduce((x, y) => x + y, 0), cc = chg(a, b);
+    return `<div class="tcat"><div class="n" title="${esc(c.cat)}">${esc(c.cat)}</div>${spark(v, 'var(--blue)')}<div class="sub">Last 4 wks ${kf(a)} ${cc == null ? '' : `<b class="${cc >= 0 ? 'up' : 'dn'}">${cc >= 0 ? '▲' : '▼'} ${Math.abs(cc)}%</b>`}</div></div>`; }).join('');
+  const L = D[trList] || [];
+  const tbl = L.length ? `<table><tr><th>Product</th><th>Supplier</th><th class="r">Last 4 wks</th><th class="r">4 wks before</th><th class="r">Change</th><th class="r">Available</th><th class="r">On order</th></tr>
+    ${L.map(r => { const c = chg(r.now_r, r.prev_r), oneoff = (trList === 'falling' ? r.prev_n : r.now_n) <= 2;
+      return `<tr class="cl" style="cursor:pointer" onclick="openTrend(${esc(JSON.stringify(r.sku))})"><td><b>${esc(r.sku)}</b> ${esc(r.name)}${oneoff ? `<div class="sub">⚠ ${trList === 'falling' ? r.prev_n : r.now_n} order line${(trList === 'falling' ? r.prev_n : r.now_n) === 1 ? '' : 's'}: probably a one-off big order</div>` : ''}</td><td class="sub">${esc(r.supplier || '')}</td>
+        <td class="r">${nf(r.now_q)}<div class="sub">${kf(r.now_r)} · ${r.now_n} lines</div></td><td class="r">${nf(r.prev_q)}<div class="sub">${kf(r.prev_r)} · ${r.prev_n} lines</div></td>
+        <td class="r">${c == null ? '<b class="up">new</b>' : `<b class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '+' : ''}${c}%</b>`}</td><td class="r">${r.avail == null ? '–' : nf(r.avail)}</td><td class="r">${r.on_order ? nf(r.on_order) : '–'}</td></tr>`; }).join('')}</table>` : '<div class="empty">Nothing here.</div>';
+  return head + prod + `
+    <div class="sec"><h2>Weekly sales <span class="h">${trLoc === 'all' ? 'both branches' : esc(trLoc)} · last 4 full weeks ${kf(l4)}${c4 == null ? '' : ` <b class="${c4 >= 0 ? 'up' : 'dn'}">${c4 >= 0 ? '▲' : '▼'} ${Math.abs(c4)}%</b> on the 4 before`}</span></h2>${totChart}</div>
+    <div class="sec"><h2>Top categories <span class="h">weekly sales, last 8 weeks' biggest</span></h2><div class="tgrid">${cats || '<div class="empty">No data</div>'}</div></div>
+    <div class="sec"><h2>Products <span class="h">last 4 full weeks vs the 4 before · tap one for its graph</span></h2>
+      <div class="tsegs" style="margin-bottom:10px">${[['rising', '▲ Rising'], ['falling', '▼ Falling'], ['top', 'Top sellers']].map(([v, t]) => `<button class="${trList === v ? 'on' : ''}" onclick="setTrList('${v}')">${t}</button>`).join('')}</div>
+      <div style="overflow:auto">${tbl}</div></div>`;
+}
+function productTrend(P){
+  const p = P.product, wks = P.weeks || [], mos = P.months || [], tw = (TR[trLoc] || {}).this_week || (wks.length ? wks[wks.length - 1].w : '');
+  const wChart = svgBars(wks.map(w => ({ label: wkLbl(w.w), tip: `w/c ${wkLbl(w.w)}: Bromham ${nf(w.bromham)}, Wootton Bassett ${nf(w.wb)} (${w.lines} lines, £${Math.round(w.rev)})`, faded: w.w === wks[wks.length - 1].w,
+    parts: [{ v: +w.bromham, c: 'var(--accent)' }, { v: +w.wb, c: 'var(--blue)' }] })), { h: 200 });
+  const mChart = svgBars(mos.map(m => ({ label: moLbl(m.m), tip: `${moLbl(m.m)}: ${nf(m.sage ?? m.cin7)} ${m.sage != null ? '(Sage)' : '(Cin7)'}`, faded: m === mos[mos.length - 1],
+    parts: [{ v: m.sage != null ? +m.sage : 0, c: '#8A8F8F' }, { v: m.cin7 != null ? +m.cin7 : 0, c: 'var(--accent)' }] })), { h: 200, labels: 17 });
+  const done = wks.slice(0, -1), avg8 = done.slice(-8).reduce((a, w) => a + (+w.bromham) + (+w.wb), 0) / Math.max(1, Math.min(8, done.length));
+  const st = P.stock || {}, avail = Object.values(st).reduce((a, s) => a + (+s.available || 0), 0), ord = Object.values(st).reduce((a, s) => a + (+s.on_order || 0), 0);
+  const cover = avg8 > 0 ? avail / avg8 : null;
+  // same months last year vs this year (Jul..now)
+  const yoy = mos.filter(m => m.cin7 != null && m.m !== '2026-07-01' && m !== mos[mos.length - 1]).map(m => { const ly = mos.find(x => x.m === (Number(m.m.slice(0, 4)) - 1) + m.m.slice(4)); return { m: m.m, now: +m.cin7, ly: ly && ly.sage != null ? +ly.sage : null }; });
+  return `<div class="sec" id="trprod"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><h2 style="margin:0">${esc(p.sku)} <span class="h">${esc(p.name)} · ${esc(p.category || '')} · ${esc(p.supplier || 'no supplier')}</span></h2><button class="btn" onclick="TP=null;render()">Close</button></div>
+    <div class="tiles" style="margin-top:10px">
+      <div class="tile" style="cursor:default"><div class="k">Average a week</div><div class="v">${nf(avg8)}</div><div class="h">last 8 full weeks, both branches</div></div>
+      <div class="tile" style="cursor:default"><div class="k">Available now</div><div class="v">${nf(avail)}</div><div class="h">${Object.entries(st).map(([l, s]) => `${l === 'Wootton Bassett' ? 'WB' : l} ${nf(s.available)}`).join(' · ') || 'no stock record'}</div></div>
+      <div class="tile" style="cursor:default"><div class="k">Weeks of cover</div><div class="v ${cover != null && cover < 3 ? 'dn' : ''}">${cover == null ? '–' : nf(cover)}</div><div class="h">${ord ? nf(ord) + ' on order' : 'nothing on order'}</div></div>
+    </div>
+    <div class="tlegend"><span><i style="background:var(--accent)"></i>Bromham</span><span><i style="background:var(--blue)"></i>Wootton Bassett</span><span>Units sold per week</span></div>${wChart}
+    <div class="tlegend" style="margin-top:14px"><span><i style="background:#8A8F8F"></i>Sage (Jul 25 – Jun 26)</span><span><i style="background:var(--accent)"></i>Cin7 (Jul 26 on; July starts on the 7th)</span><span>Units sold per month</span></div>${mChart}
+    ${yoy.length ? `<div class="sub" style="margin-top:6px">Vs same month last year: ${yoy.map(y => `${moLbl(y.m)} ${nf(y.now)}${y.ly != null ? ` vs ${nf(y.ly)} ${y.ly > 0 ? `<b class="${y.now >= y.ly ? 'up' : 'dn'}">(${y.now >= y.ly ? '+' : ''}${Math.round((y.now - y.ly) / y.ly * 100)}%)</b>` : ''}` : ''}`).join(' · ')}</div>` : ''}
+    ${(P.customers || []).length ? `<div class="k" style="margin-top:14px;font-weight:700">Who's buying it (last 90 days)</div><table><tr><th>Customer</th><th class="r">Units</th><th class="r">Last bought</th></tr>${P.customers.map(c => `<tr><td>${esc(c.customer)}</td><td class="r">${nf(c.qty)}</td><td class="r">${wkLbl(c.last)}</td></tr>`).join('')}</table>` : ''}</div>`;
 }
 
 // ---------- render ----------
@@ -251,6 +370,7 @@ function render(){
     ['backorders','Backorders', s.bo_due, s.bo_new > 0 || s.bo_in_stock > 0 || s.bo_no_po > 0],
     ['suppliers','Supplier Orders', null],
     ['health','Stock Health', null],
+    ['trends','Trends', null],
     ['pos','Open POs', s.po_open, s.po_overdue > 0],
     ['overdue','Overdue POs', s.po_overdue, s.po_overdue > 0],
     ['claims','Supplier Claims', C ? C.filter(c => c.status === 'open' || c.status === 'chasing').length : null, C ? C.some(c => c.status === 'open') : false],
@@ -266,6 +386,7 @@ function render(){
   else if (tab === 'health') body = renderHealth();
   else if (tab === 'claims') body = renderClaims();
   else if (tab === 'overdue') body = renderOverdue();
+  else if (tab === 'trends') body = renderTrends();
   else body = renderPos();
   const newCount = newBos().length;
   document.title = (newCount ? `(${newCount}) ` : '') + (SVC() ? 'Backorders' : 'Purchasing') + ' · TSD';
@@ -681,7 +802,7 @@ TSDAuth.mount(t => { token = t; start(); });
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261111161150';
+  const BUILD = '20261117153728';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
