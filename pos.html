@@ -53,6 +53,9 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .qty{display:flex;align-items:center;gap:4px}.qty button{width:40px;height:42px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:20px;font-weight:700;cursor:pointer}.qty input{width:64px;text-align:center;padding:9px 4px}
 .ln .lt{font-weight:800;font-size:17px;text-align:right;min-width:84px}
 .x{background:transparent;border:0;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px}
+.crow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.crow:last-child{border:0}.crow .m{flex:1;min-width:0}.crow .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.mbox{max-width:720px!important;max-height:90vh;overflow:auto}
+.btn.red{background:#E5484D;border-color:#E5484D;color:#fff}
 .warn{background:rgba(255,179,71,.13);border:1px solid var(--amber);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:14px}
 .warn .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .bad{background:rgba(255,122,107,.14);border:1px solid var(--bad);border-radius:8px;padding:8px 10px;margin:8px 0}
@@ -99,8 +102,8 @@ table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:
 <div id="login"><div id="lerr"></div></div>
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261116145952"></script>
-<script src="html5-qrcode.min.js?v=20261116145952"></script>
+<script src="auth.js?v=20261117152943"></script>
+<script src="html5-qrcode.min.js?v=20261117152943"></script>
 <script>
 // Trade counter POS (13 Nov). Counter PCs keep a paired key (tsd_pos_dev); everyone else uses their own Bob login.
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/pos';
@@ -122,6 +125,7 @@ async function api(qs, body){
   const j = await r.json().catch(() => ({}));
   if (r.status === 401) { if (DEV) offline(j.error); else { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); } throw new Error('login'); }
   if (r.status === 409 && j.short) { const e = new Error(j.error); e.short = j.short; throw e; }
+  if (r.status === 409 && j.over_limit) { const e = new Error(j.error); e.overLimit = j.over_limit; throw e; }
   if (j.error || (body && j.ok === false)) throw new Error(j.error || "Couldn't do that");
   return j;
 }
@@ -166,11 +170,11 @@ function shell(){
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="pill" id="chg">Serving: ${esc(SERVED.name)} <span style="color:var(--accent)">⇄ Change</span></button>
       <span class="pill">Stock from <select id="loc">${BOOT.locations.map(l => `<option ${l === S.loc ? 'selected' : ''}>${l}</option>`).join('')}</select></span>
-      <div class="tabs"><button id="t1" class="${TAB === 'sale' ? 'on' : ''}">New sale</button><button id="t2" class="${TAB === 'list' ? 'on' : ''}">Counter sales</button></div>
+      <div class="tabs"><button id="t1" class="${TAB === 'sale' ? 'on' : ''}">New sale</button><button id="t2" class="${TAB === 'list' ? 'on' : ''}">Sales &amp; collections</button></div>
       ${!counter && BOOT.me && BOOT.me.admin ? '<button class="pill" id="setup">⚙ Counter PCs</button>' : ''}
     </div></header><div id="body"></div><div id="bar"></div>`;
   $('chg').onclick = e => { e.preventDefault(); SERVED = null; askName(); };   // the basket stays as it is (13 Nov: personal logins too, for taking over an order)
-  $('loc').onchange = e => { S.loc = e.target.value; if (!counter) S.printer = S.loc === 'Wootton Bassett' ? 'wbcounter' : 'here'; S.lines.forEach(l => l.stock && (l.avail = l.stock[S.loc].available)); drawBasket(); };
+  $('loc').onchange = e => { S.loc = e.target.value; if (!counter) S.printer = S.loc === 'Wootton Bassett' ? 'wbcounter' : 'here'; S.lines.forEach(l => l.stock && (l.avail = l.stock[S.loc].available)); if (TAB === 'list') shell(); else drawBasket(); };
   $('t1').onclick = () => { TAB = 'sale'; shell(); }; $('t2').onclick = () => { TAB = 'list'; shell(); };
   if ($('setup')) $('setup').onclick = setup;
   if (TAB === 'sale') saleScreen(); else listScreen();
@@ -346,13 +350,23 @@ function authorise(){
   DONE = { pre: true, total_ex: net, total_inc: r2(net + vat), cust: S.cust ? S.cust.name : (S.cash.name || 'Cash sale'), account: !!S.cust, paid: null, finished: null, snap: S };
   chargeScreen();
 }
-async function placeSale(method){
+async function placeSale(method, override){
   const T = DONE.snap;
   const body = { action: 'create', paid: method, served: SERVED.email, location: T.loc, customer_id: T.cust ? T.cust.id : null, cash_name: T.cash.name, cash_phone: T.cash.phone,
     reference: T.ref, contact: T.cust ? T.cust.contact : '', phone: T.cust ? T.cust.phone : '', email: T.cust ? T.cust.email : '', printer: T.printer,
     accept_short: T.lines.every(l => l.avail == null || l.qty <= l.avail || l.ack),
-    warnings: Object.values(T.warn), lines: T.lines.map(l => ({ product_id: l.product_id, sku: l.sku, name: l.name, qty: l.qty, price: l.price, discount: l.discount })) };
-  const j = await api('', body);   // copies are decided by the server: 2 for card/cash, 1 (with signature box) on account
+    warnings: Object.values(T.warn), lines: T.lines.map(l => ({ product_id: l.product_id, sku: l.sku, name: l.name, qty: l.qty, price: l.price, discount: l.discount })), override_limit: !!override };
+  let j;
+  try { j = await api('', body); }
+  catch(x){
+    // 17 Nov (Denver): over the credit limit is a warning only. Recommend checking with Accounts; red button to go ahead anyway.
+    if (!x.overLimit || override) throw x;
+    const o = x.overLimit;
+    const go = await modal('Over their credit limit', `<b>${esc(o.customer)}</b> would owe <b>${gbp(o.balance)}</b> with this order, against a credit limit of <b>${gbp(o.limit)}</b>.<br><br>We recommend checking with Accounts before going ahead.${method !== 'account' ? `<br><br>As they're paying by ${method} now, this order itself won't add to what they owe once the payment's matched.` : ''}`,
+      [{ t: 'Go back', v: false }, { t: 'Continue anyway', v: true, cls: 'red' }]);
+    if (!go) throw new Error('Not authorised: over credit limit. Nothing went into Cin7.');
+    return placeSale(method, true);
+  }   // copies are decided by the server: 2 for card/cash, 1 (with signature box) on account
   Object.assign(DONE, { ...j, pre: false, lines: j.lines, paid: method, copies: j.copies || (j.printed_to ? 1 : 0) });
   S = fresh(); showM = false;
   if (j.printed_to === 'here') printHere(j.id, 'order').catch(x => toast(x.message));
@@ -481,7 +495,9 @@ function listScreen(){
       <div><div class="k">Search</div><input id="lq" placeholder="Name, phone, order no., reference, who served, or an amount (45 or 40-50)"></div>
       <div><div class="k">From</div><input id="lf" type="date" value="${t}"></div><div><div class="k">To</div><input id="lt" type="date" value="${t}"></div>
       <div><div class="k">Branch</div><select id="ll"><option value="${esc(S.loc)}">${esc(S.loc)}</option><option value="">Both</option></select></div>
-      <button class="btn" id="lgo">Search</button></div></div><div class="card" id="lres"><div class="sub">Loading…</div></div>`;
+      <button class="btn" id="lgo">Search</button></div></div><div class="card" id="lres"><div class="sub">Loading…</div></div>
+    <div class="card"><div class="k" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>Collections waiting at ${esc(S.loc)} (from Cin7)</span><input id="cq" placeholder="Find a collection" style="max-width:260px"></div><div id="cres"><div class="sub">Loading…</div></div></div>
+    <div class="card"><div class="k">Return or credit against any order</div><div style="display:flex;gap:8px"><input id="crn" placeholder="Order number, e.g. SO-10500" style="text-transform:uppercase"><button class="btn" id="crgo">Open</button></div></div>`;
   if (window.matchMedia('(max-width:900px)').matches) $('flt').style.gridTemplateColumns = '1fr 1fr';
   const go = async () => {
     const qs = new URLSearchParams({ sales: '1', q: $('lq').value.trim(), from: $('lf').value, to: $('lt').value, loc: $('ll').value });
@@ -491,19 +507,147 @@ function listScreen(){
       $('lres').innerHTML = rows.length ? `<div class="sub" style="margin-bottom:6px">${rows.length} sale${rows.length === 1 ? '' : 's'} · ${gbp(sum)} inc VAT</div><div style="overflow:auto"><table class="lt"><tr><th>When</th><th>Order</th><th>Customer</th><th class="r">Total</th><th>Paid</th><th>Collected</th><th>Served by</th></tr>
         ${rows.map((r, i) => `<tr class="cl" data-i="${i}"><td>${dmy(r.created_at)} ${tm(r.created_at)}</td><td><b>${esc(r.order_number)}</b></td><td>${esc(r.cash_name ? r.cash_name + ' (cash)' : r.customer)}${r.reference ? `<div class="sub">${esc(r.reference)}</div>` : ''}</td>
           <td class="r"><b>${gbp(r.total_inc)}</b></td><td>${r.paid_by ? `<span class="st g">${{ card: 'Card', cash: 'Cash', account: 'Account' }[r.paid_by]}</span>` : '<span class="st a">Not set</span>'}</td>
-          <td>${r.collection === 'all' ? '<span class="st g">Collected</span>' : r.collection === 'part' ? '<span class="st a">Part</span>' : '<span class="st b">Open</span>'}</td><td>${esc(r.served_name)}</td></tr>`).join('')}</table></div>` : '<div class="sub">No counter sales match.</div>';
+          <td>${r.voided_at ? '<span class="st">Cancelled</span>' : r.collection === 'all' ? '<span class="st g">Collected</span>' : r.collection === 'part' ? '<span class="st a">Part</span>' : '<span class="st b">Open</span>'}</td><td>${esc(r.served_name)}</td></tr>`).join('')}</table></div>` : '<div class="sub">No counter sales match.</div>';
       $('lres').querySelectorAll('[data-i]').forEach(tr => tr.onclick = () => openSale(rows[+tr.dataset.i]));
     } catch(x){ if (x.message !== 'login') $('lres').innerHTML = `<div class="bad">${esc(x.message)}</div>`; }
   };
   $('lgo').onclick = go; $('lq').onkeydown = e => { if (e.key === 'Enter') go(); };
-  go();
+  $('crgo').onclick = () => { const n = $('crn').value.trim().toUpperCase(); if (n) creditNote({ number: /^SO-/.test(n) ? n : 'SO-' + n }); };
+  $('crn').onkeydown = e => { if (e.key === 'Enter') $('crgo').click(); };
+  go(); collections();
+}
+
+// ---------- 17 Nov (Denver): Cin7 collections waiting at this branch, same list as the warehouse Collections screen ----------
+const CREDIT_TXT = { hold: 'Account ON HOLD in Cin7', stop: 'Office has flagged this account to stop', over: 'Account is over its credit limit', late: 'Account has invoices more than 60 days late' };
+async function collections(){
+  const box = $('cres'); if (!box) return;
+  let data;
+  try { data = await api('?collections=1&loc=' + encodeURIComponent(S.loc)); } catch(x){ if (x.message !== 'login') box.innerHTML = `<div class="bad">${esc(x.message)}</div>`; return; }
+  const all = data.orders || [], credit = data.credit || {};
+  const draw = () => {
+    const q = ($('cq') ? $('cq').value : '').trim().toLowerCase();
+    const rows = all.filter(o => !q || [o.no, o.customer, o.phone, o.contact, ...(o.lines || []).map(l => l.sku + ' ' + l.name)].join(' ').toLowerCase().includes(q));
+    const ready = rows.filter(o => o.section !== 5), wait = rows.filter(o => o.section === 5);
+    const row = o => { const f = credit[o.customer], lines = o.lines || [];
+      const full = !o.backorder || o.stock_in === 'all', part = o.backorder && (lines.some(l => (+l.qty || 0) > (+l.bo || 0)) || o.stock_in === 'some' || o.stock_in === 'all');
+      return `<div class="crow"><div class="m"><b>${esc(o.no)}</b> · ${esc(o.customer)} <span class="sub">· ${o.age === 0 ? 'today' : o.age + ' day' + (o.age === 1 ? '' : 's')}${o.phone ? ' · ' + esc(o.phone) : ''}</span>
+        ${f && CREDIT_TXT[f.flag] ? `<div class="warn" style="margin-top:4px">⚠ ${CREDIT_TXT[f.flag]}. Check with Accounts before it goes.</div>` : ''}
+        ${o.part_shipped ? '<div class="sub">Part collected already</div>' : ''}${o.stock_issue ? '<div class="sub" style="color:var(--bad)">Flagged: can\'t find stock</div>' : ''}
+        <div class="sub">${lines.slice(0, 4).map(l => `${qf(l.qty)}× ${esc(l.name)}${+l.bo ? ` <span style="color:var(--amber)">(${qf(l.bo)} on backorder)</span>` : ''}`).join('<br>')}${lines.length > 4 ? `<br>+ ${lines.length - 4} more` : ''}</div>
+        ${o.notes ? `<div class="sub">“${esc(o.notes)}”</div>` : ''}</div>
+        <div class="acts">${o.section !== 5 && full && !o.stock_issue ? `<button class="btn sm y" data-call="${o.id}">✓ Collected</button>` : ''}${part && !o.stock_issue ? `<button class="btn sm" data-cpart="${o.id}">Part collected</button>` : ''}</div></div>`; };
+    box.innerHTML = rows.length ? `${ready.length ? `<div class="sub" style="margin:2px 0 4px"><b>Ready to collect (${ready.length})</b></div>${ready.map(row).join('')}` : ''}
+      ${wait.length ? `<div class="sub" style="margin:12px 0 4px"><b>Waiting on stock (${wait.length})</b></div>${wait.map(row).join('')}` : ''}` : `<div class="sub">${all.length ? 'No collections match.' : 'No collections waiting.'}</div>`;
+    box.querySelectorAll('[data-call]').forEach(b => b.onclick = () => collectOrder(all.find(o => o.id === b.dataset.call), 'all'));
+    box.querySelectorAll('[data-cpart]').forEach(b => b.onclick = () => collectOrder(all.find(o => o.id === b.dataset.cpart), 'part'));
+  };
+  if ($('cq')) $('cq').oninput = draw;
+  draw();
+}
+async function collectOrder(o, mode){
+  let pick = [];
+  if (mode === 'part') {
+    const m = document.createElement('div'); m.className = 'modal';
+    m.innerHTML = `<div class="box mbox"><h3>${esc(o.no)}: what's going?</h3><div class="sub">Tick what the customer is taking now. Bob checks Cin7 has it on the shelf first.</div>
+      ${(o.lines || []).map((l, i) => `<div style="display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><input type="checkbox" data-pk="${i}" style="width:24px;height:24px"><div style="flex:1">${esc(l.name)}<div class="sub">${esc(l.sku)} · ${qf(l.qty)} ordered${+l.sent ? ', ' + qf(l.sent) + ' gone' : ''}</div></div><input data-pq="${i}" value="${qf(Math.max(0, (+l.qty || 0) - (+l.sent || 0)))}" inputmode="decimal" style="width:80px"></div>`).join('')}
+      <div class="acts"><button class="btn" id="px">Cancel</button><button class="btn y" id="pgo">Confirm what's gone</button></div></div>`;
+    document.body.appendChild(m);
+    pick = await new Promise(res => { $('px').onclick = () => { m.remove(); res(null); };
+      $('pgo').onclick = () => { const p = (o.lines || []).map((l, i) => ({ pid: l.pid, on: m.querySelector(`[data-pk="${i}"]`).checked, qty: Number(m.querySelector(`[data-pq="${i}"]`).value) || 0 })).filter(x => x.on && x.qty > 0).map(x => ({ pid: x.pid, qty: x.qty }));
+        if (!p.length) return toast("Tick what's gone"); m.remove(); res(p); }; });
+    if (!pick) return;
+  } else {
+    const ok = await modal(`${esc(o.no)} collected?`, `<b>${esc(o.customer)}</b> is taking everything on this order. It'll be picked, packed and shipped in Cin7.`, [{ t: 'Cancel', v: false }, { t: '✓ All collected', v: true, cls: 'y' }]);
+    if (!ok) return;
+  }
+  toast('Updating Cin7…');
+  try { await api('', { action: 'collect_order', sale_id: o.id, mode, pick, served: SERVED.email }); toast(`${o.no} marked as ${mode === 'all' ? 'collected' : 'part collected'}`); collections(); }
+  catch(x){ if (x.message !== 'login') modal("Couldn't mark that as collected", esc(x.message) + '<br><br>Try again, or sort it on the Collections screen.', [{ t: 'OK', v: true }]); }
 }
 function openSale(r){
   DONE = { id: r.id, number: r.order_number, total_inc: r.total_inc, cust: r.cash_name || r.customer, printed_to: null, paid: r.paid_by, finished: r.collection === 'open' ? null : r.collection,
     lines: (r.lines || []).map(l => ({ pid: l.pid, sku: l.sku, name: l.name, qty: l.qty })) };
   chargeScreen();
   const ov = $('ov'); const close = document.createElement('button'); close.className = 'btn'; close.textContent = '← Back to the list'; close.style.marginBottom = '10px';
-  close.onclick = () => { ov.remove(); DONE = null; TAB = 'list'; shell(); }; ov.prepend(close);
+  close.onclick = () => { ov.remove(); DONE = null; TAB = 'list'; shell(); };
+  // 17 Nov (Denver), POS phase 2: change a sale that hasn't been collected, or credit/return one that has
+  const bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;max-width:760px;margin:0 auto 10px';
+  bar.appendChild(close);
+  if (r.voided_at) { const t = document.createElement('span'); t.className = 'pill'; t.style.cursor = 'default'; t.textContent = `Cancelled${r.voided_by ? ' by ' + r.voided_by : ''}`; bar.appendChild(t); }
+  else if (!r.collection || r.collection === 'open') { const e = document.createElement('button'); e.className = 'btn'; e.textContent = '✎ Edit this sale'; e.onclick = () => editSale(r); bar.appendChild(e); }
+  else if (r.collection === 'all') { const c = document.createElement('button'); c.className = 'btn'; c.textContent = '↩ Return / credit note'; c.onclick = () => creditNote({ id: r.id }); bar.appendChild(c); }
+  ov.prepend(bar);
+}
+// Edit = cancel the Cin7 order, then put the same basket back (same customer, prices and discounts) to change and authorise again
+async function editSale(r){
+  const ok = await modal(`Edit ${esc(r.order_number)}?`, `To change a sale, ${esc(r.order_number)} is cancelled in Cin7 and the basket comes back exactly as it was, so you can change it and authorise again (it gets a new order number). Bin any printed copies.${r.paid_by === 'card' ? '<br><br><b>If the card was charged</b>, refund it on the card machine or charge the difference.' : ''}`,
+    [{ t: 'Keep it as it is', v: false }, { t: 'Cancel and edit', v: true, cls: 'y' }]);
+  if (!ok) return;
+  try { await api('', { action: 'undo', id: r.id, served: SERVED.email }); } catch(x){ if (x.message !== 'login') modal("Couldn't open it for editing", esc(x.message), [{ t: 'OK', v: true }]); return; }
+  const ov = $('ov'); if (ov) ov.remove(); DONE = null;
+  S = fresh(); S.loc = r.location || S.loc; S.ref = r.reference || ''; S.cash = { name: r.cash_name || '', phone: r.cash_phone || '' };
+  S.warn._edit = `Replaces ${r.order_number} (cancelled to change it)`;
+  if (r.customer_id && r.customer_id !== BOOT.cash_id) { try { S.cust = (await api('?customer=' + r.customer_id)).customer; } catch(x){ toast(x.message); } }
+  S.lines = (r.lines || []).map(l => ({ sku: l.sku, name: l.name, image: null, qty: Number(l.qty) || 1, price: Number(l.price) || 0, list: Number(l.price) || 0, discount: Number(l.discount) || 0, edited: true, cost: null, stock: null, avail: null, ack: false, loading: true }));
+  TAB = 'sale'; shell(); toast(`${r.order_number} cancelled. Change the basket and authorise again.`);
+  S.lines.forEach(l => refresh(l));
+}
+
+// ---------- 17 Nov (Denver), POS phase 2: credit notes ----------
+// Pick what's coming back, whether it goes back on the shelf, a restocking charge (15% suggested), how it's refunded, a reason,
+// and the PIN of whoever is serving. Bob raises the invoice first if Accounts haven't yet, then the credit note in Cin7 (it syncs to Xero).
+async function creditNote(ref){
+  let c;
+  try { c = await api(ref.id ? '?credit=' + ref.id : '?credit_no=' + encodeURIComponent(ref.number)); } catch(x){ if (x.message !== 'login') toast(x.message); return; }
+  const lines = c.lines.filter(l => l.left > 0);
+  const m = document.createElement('div'); m.className = 'modal';
+  const head = `<h3>Return / credit note: ${esc(c.number || '')}</h3><div class="sub">${esc(c.customer)} · ${esc(c.location)}${c.date ? ' · bought ' + dmy(c.date) + (c.days != null ? ` (${c.days} day${c.days === 1 ? '' : 's'} ago)` : '') : ''}</div>
+    ${c.credits.length ? `<div class="sub" style="margin-top:4px">Already credited: ${c.credits.map(x => `${esc(x.number || 'credit')} ${gbp(x.total)}`).join(', ')}</div>` : ''}`;
+  const stop = c.voided ? 'That order was cancelled in Cin7.' : c.ship !== 'SHIPPED' ? (c.ship === 'PARTIALLY SHIPPED' ? 'Only part of this order has been collected. Do this credit note in Cin7 for now.' : "Nothing on this order has gone yet, so there's nothing to credit. Open the sale and use Edit instead.") : !lines.length ? 'Everything on this order has already been credited.' : '';
+  if (stop) { m.innerHTML = `<div class="box mbox">${head}<div class="bad" style="margin-top:10px">${esc(stop)}</div><div class="acts"><button class="btn" id="cx">Close</button></div></div>`; document.body.appendChild(m); $('cx').onclick = () => m.remove(); return; }
+  const late = c.days != null && c.days > 14;
+  let refund = c.customer === 'Cash Sale' ? '' : 'account';
+  m.innerHTML = `<div class="box mbox">${head}
+    ${late ? `<div class="warn" style="margin-top:10px"><b>Over 14 days.</b> This was bought ${c.days} days ago, outside the 14-day returns window. Only take it back if a manager is happy to.</div>` : ''}
+    <div class="k" style="margin-top:12px">What's coming back?</div>
+    ${lines.map((l, i) => `<div style="display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);flex-wrap:wrap"><input type="checkbox" data-ck="${i}" style="width:24px;height:24px">
+      <div style="flex:1;min-width:180px">${esc(l.name)}<div class="sub">${esc(l.sku)} · ${gbp(l.price)} ex VAT${l.discount ? ` less ${qf(l.discount)}%` : ''} · ${qf(l.left)} can be credited${l.credited ? ` (${qf(l.credited)} already)` : ''}</div></div>
+      <input data-cq="${i}" value="${qf(l.left)}" inputmode="decimal" style="width:76px" title="Quantity coming back">
+      <label class="sub" style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-rs="${i}" checked style="width:20px;height:20px"> Back on the shelf</label></div>`).join('')}
+    <div class="g2" style="margin-top:12px"><div><div class="k">Restocking charge %</div><input id="cpct" value="15" inputmode="decimal"><div class="sub">15% suggested for goods going back into stock. 0 if it was faulty or our mistake.</div></div>
+      <div><div class="k">Reason</div><select id="crs"><option value="">Pick a reason</option><option>Ordered too much</option><option>Changed their mind</option><option>Wrong item ordered</option><option>Faulty / damaged</option><option>Our mistake</option><option>Other</option></select><input id="crs2" placeholder="Anything else to note" style="margin-top:6px"></div></div>
+    <div class="k" style="margin-top:12px">How is it refunded?</div>
+    <div class="seg" id="crf">${[['card', 'Back to card'], ['cash', 'Cash'], ['account', 'Credit on account']].map(([v, t]) => `<button data-rf="${v}" class="${refund === v ? 'on' : ''}" ${v === 'account' && c.customer === 'Cash Sale' ? 'disabled' : ''}>${t}</button>`).join('')}</div>
+    <div class="tot" id="ctot" style="margin-top:12px"></div>
+    <div class="g2" style="margin-top:10px;align-items:end"><div><div class="k">${esc(SERVED.name)}'s PIN</div><input id="cpin" type="password" inputmode="numeric" autocomplete="off" maxlength="10"></div><div class="sub">The credit note goes into Cin7 and on to Xero. Refund card or cash on the till as usual.</div></div>
+    <div id="cerr"></div>
+    <div class="acts"><button class="btn" id="cx">Cancel</button><button class="btn y" id="cgo">Raise credit note</button></div></div>`;
+  document.body.appendChild(m);
+  const pick = () => lines.map((l, i) => ({ l, on: m.querySelector(`[data-ck="${i}"]`).checked, qty: Math.min(l.left, Math.max(0, Number(m.querySelector(`[data-cq="${i}"]`).value) || 0)), restock: m.querySelector(`[data-rs="${i}"]`).checked })).filter(x => x.on && x.qty > 0);
+  const pct = () => Math.min(50, Math.max(0, Number($('cpct').value) || 0));
+  const totals = () => { const net = r2(pick().reduce((t, x) => t + x.qty * x.l.price * (1 - pct() / 100) * (1 - x.l.discount / 100), 0));
+    $('ctot').innerHTML = `<div><span>Credit ex VAT${pct() ? ` (after ${qf(pct())}% restocking)` : ''}</span><span>${gbp(net)}</span></div><div><span>VAT</span><span>${gbp(r2(net * 0.2))}</span></div><div class="gt"><span>To refund</span><span>${gbp(r2(net * 1.2))}</span></div>`; };
+  m.querySelectorAll('input').forEach(i => i.addEventListener('input', totals)); m.querySelectorAll('input[type=checkbox]').forEach(i => i.addEventListener('change', totals));
+  m.querySelectorAll('[data-rf]').forEach(b => b.onclick = () => { refund = b.dataset.rf; m.querySelectorAll('[data-rf]').forEach(x => x.classList.toggle('on', x === b)); });
+  totals();
+  $('cx').onclick = () => m.remove();
+  $('cgo').onclick = async () => {
+    const p = pick(), reason = [$('crs').value, $('crs2').value.trim()].filter(Boolean).join(': ');
+    const err = t => { $('cerr').innerHTML = `<div class="bad">${esc(t)}</div>`; };
+    if (!p.length) return err("Tick what's coming back");
+    if (!$('crs').value) return err('Pick a reason');
+    if (!refund) return err("Pick how it's refunded");
+    if (!$('cpin').value) return err('Enter your PIN');
+    $('cgo').disabled = true; $('cgo').textContent = 'Raising it in Cin7…'; $('cerr').innerHTML = '';
+    try {
+      const j = await api('', { action: 'credit', id: ref.id || null, number: ref.id ? null : c.number, lines: p.map(x => ({ sku: x.l.sku, qty: x.qty, restock: x.restock })), restocking_pct: pct(), reason, refund, served: SERVED.email, pin: $('cpin').value });
+      m.querySelector('.box').innerHTML = `<h3>Credit note raised${j.number ? ': ' + esc(j.number) : ''}</h3><div style="font-size:18px;margin:8px 0"><b>${gbp(j.total_inc)}</b> inc VAT · ${esc(j.refund)}</div>
+        ${j.restock_wanted && !j.restocked ? '<div class="warn">Cin7 didn\'t take the "back on the shelf" part, so the stock hasn\'t gone back in. Ask the office to do a stock adjustment.</div>' : j.restocked ? '<div class="sub">The ticked items are back in stock.</div>' : ''}
+        ${refund === 'card' ? '<div class="sub" style="margin-top:6px">Now refund the card on the card machine.</div>' : refund === 'cash' ? '<div class="sub" style="margin-top:6px">Give the cash back from the till.</div>' : ''}
+        <div class="acts"><button class="btn y" id="cx2">Done</button></div>`;
+      $('cx2').onclick = () => m.remove();
+    } catch(x){ $('cgo').disabled = false; $('cgo').textContent = 'Raise credit note'; if (x.message !== 'login') err(x.message); }
+  };
 }
 
 // ---------- admin: pair this PC as a counter ----------
@@ -530,7 +674,7 @@ else { if (token) start(); else showLogin(); TSDAuth.mount(t => { token = t; sta
 </script>
 <script>
 (function(){   // pick up a new version by itself, but never in the middle of a sale
-  const BUILD = '20261116145952';
+  const BUILD = '20261117152943';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || DONE || (S && (S.lines.length || S.cust)); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
