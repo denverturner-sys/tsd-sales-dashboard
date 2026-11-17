@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="manifest" href="manifest-rewards.json">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Trade Rewards · TSD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Trade Rewards (17 Nov 2026): the scheme's progress in one place. Beta tracker, every trade account with its tier, launch checklist. */
+:root{
+  --bg:#262727; --panel:#323333; --panel2:#3B3C3C; --line:#474949; --ink:#FFFFFF; --muted:#B9BCBC;
+  --accent:#EED107; --good:#7DDB98; --bad:#FF7A6B; --blue:#8EC5FF;
+  --bronze:#D9A066; --silver:#C9D1D9; --gold:#EED107;
+  --num:'Bebas Neue','DIN Condensed','Arial Narrow',Arial,sans-serif;
+  --body:Barlow,'Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px}
+button,input,select,textarea{font-family:inherit;font-size:15px}
+.wrap{padding:16px 20px 28px;max-width:1200px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.title{font-family:var(--num);font-size:36px;letter-spacing:1px;line-height:1}
+.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.hr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:var(--panel2);color:var(--muted)}
+.pill.ok{background:rgba(125,219,152,.15);color:var(--good)} .pill.warn{background:rgba(255,122,107,.15);color:var(--bad)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.card{background:var(--panel);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--num);font-size:40px;line-height:1;margin-top:6px;letter-spacing:.5px}
+.small{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.35}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:12px}
+.grid .card{margin:0}
+.cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px}
+.cols>*{min-width:0}
+@media (max-width:860px){.cols{grid-template-columns:1fr}}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.seg button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:700;cursor:pointer}
+.seg button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.seg.tabs button{border-radius:10px;padding:9px 16px}
+input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+textarea{width:100%;min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+.btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.del{color:var(--bad);border-color:rgba(255,122,107,.5)}
+.btn:disabled{opacity:.5;cursor:default}
+.tier{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:2px 7px;color:#262727;letter-spacing:.4px}
+.tier.Bronze{background:var(--bronze)} .tier.Silver{background:var(--silver)} .tier.Gold{background:var(--gold)}
+.bar{height:10px;border-radius:6px;background:var(--panel2);overflow:hidden;display:flex}
+.bar span{display:block;height:100%}
+.funnel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:10px}
+.funnel div{background:var(--panel2);border-radius:10px;padding:10px;text-align:center}
+.funnel b{display:block;font-family:var(--num);font-size:30px;line-height:1}
+.funnel span{font-size:12px;color:var(--muted)}
+@media (max-width:600px){.funnel{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.ms{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)} .ms:last-child{border-bottom:0}
+.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;color:#262727;font-weight:900;font-size:16px;line-height:1;padding:0}
+.tick.on{background:var(--good);border-color:var(--good)}
+.tick:disabled{cursor:default}
+.mt{flex:1;min-width:0;font-weight:600;line-height:1.35}
+.ms.done .mt{color:var(--muted);text-decoration:line-through}
+.mm{font-size:12px;color:var(--muted);margin-top:3px;font-weight:400;text-decoration:none;display:flex;gap:10px;flex-wrap:wrap}
+.mm .late{color:var(--bad);font-weight:700} .mm .soon{color:var(--accent);font-weight:700}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.bc{background:var(--panel2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid transparent}
+.bc.declined{opacity:.55}
+.bn{font-weight:700;font-size:16px;line-height:1.25}
+.bm{font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.bs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.bs div{background:var(--panel);border-radius:8px;padding:7px 8px}
+.bs b{display:block;font-size:15px} .bs span{font-size:11px;color:var(--muted)}
+.bnote{font-size:13px;color:#ddd;white-space:pre-wrap;line-height:1.4}
+.bact{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.bact select{padding:6px 8px;font-size:13px}
+.sh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+.sh h2{margin:0;font-size:17px}
+.tw{overflow-x:auto;border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:860px}
+th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+th.r,td.r{text-align:right}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.03)}
+td .s{font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);padding:12px 0}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.tools input[type=search]{flex:1 1 220px;min-width:0}
+.add{display:grid;grid-template-columns:minmax(0,2fr) 160px minmax(0,1.4fr) auto;gap:8px;align-items:start}
+@media (max-width:760px){.add{grid-template-columns:1fr}}
+.sug{position:relative}
+.sug ul{position:absolute;left:0;right:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:var(--panel2);border:1px solid var(--line);border-radius:10px;z-index:20;max-height:300px;overflow:auto}
+.sug li{padding:8px 10px;border-radius:7px;cursor:pointer;font-size:14px}
+.sug li:hover,.sug li.on{background:var(--panel)}
+.sug li .s{font-size:12px;color:var(--muted)}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.note{font-size:13px;color:var(--muted);line-height:1.45}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+#mbox{background:var(--panel);border-radius:14px;padding:20px;width:100%;max-width:560px;display:flex;flex-direction:column;gap:10px;max-height:92vh;overflow:auto}
+#mbox .row{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:10px;display:none;z-index:60}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+#msg{padding:40px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="login"><div id="lerr"></div></div>
+<div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
+<div id="modal"><div id="mbox"></div></div>
+<div id="toast"></div>
+<script src="auth.js?v=20261117103413"></script>
+<script src="activity.js?v=20261117103413"></script>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/rewards';
+const mem = {};
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k] = v; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
+let token = store.get('tsd_me_token'), D = null, A = null, timer;
+let tab = store.get('tr_tab') || 'overview', who = 'all', af = 'all', aq = '', asort = 'web', ashow = 100;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const gbp = (n, d = 0) => '£' + Number(n || 0).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+const day = d => d ? new Date(String(d).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
+const STAGES = [['shortlist','Picked'],['contacted','Spoken to'],['agreed','Said yes'],['added','Switched on'],['feedback','Feedback done'],['declined','Not for them']];
+const SNAME = Object.fromEntries(STAGES);
+const tierTag = t => t ? `<span class="tier ${t}">${t.toUpperCase()}</span>` : '<span class="s">—</span>';
+function toast(t){ const e = document.getElementById('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(e._t); e._t = setTimeout(() => e.style.display = 'none', 3200); }
+function showLogin(msg){ clearInterval(timer); document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
+function start(){ document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block'; refresh(); clearInterval(timer);
+  timer = setInterval(() => { if (!document.activeElement?.matches('input,textarea,select') && document.getElementById('modal').style.display !== 'flex') refresh(); }, 180000); }
+async function api(body, q){
+  const r = await fetch(API + (q || ''), body ? {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({}));
+  if (body && !j.ok) throw new Error(j.error || "Couldn't save");
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+async function refresh(){
+  try { D = await api(); if (tab === 'accounts' || A) A = (await api(null, '?view=accounts')).accounts; render(); }
+  catch(x){ if (x.message !== 'login' && !D) document.getElementById('app').innerHTML = `<div id="msg">${esc(x.message)}</div>`; }
+}
+async function loadAccounts(){ if (!A) { A = (await api(null, '?view=accounts')).accounts; } return A; }
+function modal(html){ const m = document.getElementById('modal'); document.getElementById('mbox').innerHTML = html; m.style.display = 'flex'; m.onclick = e => { if (e.target === m) closeModal(); }; }
+function closeModal(){ document.getElementById('modal').style.display = 'none'; }
+
+function siteBadge(){
+  const s = D.site;
+  if (!s) return '<span class="pill">Checking website…</span>';
+  if (s.state === 'active') return `<span class="pill ok"><span class="dot"></span>Plugin live on website · v${esc(s.version)}</span>`;
+  if (s.state === 'inactive') return `<span class="pill warn"><span class="dot"></span>Plugin installed but switched off</span>`;
+  if (s.state === 'missing') return `<span class="pill warn"><span class="dot"></span>Plugin not on the live site</span>`;
+  return `<span class="pill">Couldn't check the website</span>`;
+}
+
+function render(){
+  const h = D.headline;
+  const daysLeft = Math.ceil((new Date(h.beta_deadline + 'T17:00:00') - new Date()) / 864e5);
+  const tabs = [['overview','Overview'],['beta',`Beta tracker (${h.beta_in})`],['accounts','Trade accounts'],['plan','Launch checklist']];
+  document.getElementById('app').innerHTML = `
+  <header>
+    <div><div class="title">Trade Rewards</div>
+      <div class="sub">Beta: ${h.beta_in} of ${h.beta_target} customers picked · names due ${day(h.beta_deadline)}${daysLeft > 0 ? ` (${daysLeft} day${daysLeft === 1 ? '' : 's'} left)` : ''}</div></div>
+    <div class="hr">${siteBadge()}${D.me.is_admin ? '<button class="btn sm" id="rf">Refresh from website</button>' : ''}</div>
+  </header>
+  <div class="seg tabs">${tabs.map(([k, n]) => `<button data-tab="${k}" class="${tab === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+  <div id="body"></div>`;
+  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = async () => { tab = b.dataset.tab; store.set('tr_tab', tab); if (tab === 'accounts') { try { await loadAccounts(); } catch(x){ toast(x.message); } } render(); });
+  const rf = document.getElementById('rf');
+  if (rf) rf.onclick = async () => { rf.disabled = true; rf.textContent = 'Checking… (up to a minute)'; try { const r = await api({ action: 'refresh' }); toast(r.error ? 'Plugin checked, accounts: ' + r.error : `Done: ${r.accounts} trade accounts`); A = null; await refresh(); } catch(x){ toast(x.message); rf.disabled = false; } };
+  const body = document.getElementById('body');
+  if (tab === 'overview') renderOverview(body);
+  else if (tab === 'beta') renderBeta(body);
+  else if (tab === 'accounts') renderAccounts(body);
+  else renderPlan(body);
+}
+
+function chart(){
+  const M = D.monthly; if (!M.length) return '';
+  const W = 640, H = 220, pl = 46, pb = 26, pt = 12, max = Math.max(...M.map(m => +m.spend), 1);
+  const step = Math.pow(10, Math.floor(Math.log10(max))) * (max / Math.pow(10, Math.floor(Math.log10(max))) > 5 ? 2 : 1);
+  const top = Math.ceil(max / step) * step, bw = (W - pl - 8) / M.length;
+  const y = v => pt + (H - pt - pb) * (1 - v / top);
+  let g = '';
+  for (let v = 0; v <= top; v += step) g += `<line x1="${pl}" x2="${W - 4}" y1="${y(v)}" y2="${y(v)}" stroke="#474949" stroke-width="1"/><text x="${pl - 6}" y="${y(v) + 4}" font-size="11" fill="#B9BCBC" text-anchor="end">${v >= 1000 ? '£' + (v / 1000) + 'k' : '£' + v}</text>`;
+  M.forEach((m, i) => {
+    const x = pl + i * bw + bw * .18, w = bw * .64, lbl = new Date(m.mon + 'T12:00:00').toLocaleDateString('en-GB', { month: 'short' });
+    g += `<rect x="${x}" y="${y(+m.spend)}" width="${w}" height="${y(0) - y(+m.spend)}" rx="3" fill="#8EC5FF"><title>${lbl}: ${gbp(m.spend)} from ${m.orders} orders (${m.customers} accounts)</title></rect>`;
+    if (+m.beta_spend > 0) g += `<rect x="${x}" y="${y(+m.beta_spend)}" width="${w}" height="${y(0) - y(+m.beta_spend)}" rx="3" fill="#EED107"><title>Beta customers: ${gbp(m.beta_spend)}</title></rect>`;
+    g += `<text x="${x + w / 2}" y="${H - 8}" font-size="11" fill="#B9BCBC" text-anchor="middle">${lbl}</text>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Trade account web sales by month">${g}</svg>
+    <div class="legend"><span><i style="background:#8EC5FF"></i>All trade accounts</span><span><i style="background:#EED107"></i>Beta customers (once switched on)</span></div>`;
+}
+
+function renderOverview(el){
+  const h = D.headline, t = h.activeTiers, act = Math.max(h.active12, 1);
+  const cnt = k => D.beta.filter(b => b.stage === k).length;
+  const next = D.milestones.filter(m => !m.done).slice(0, 4);
+  const pct = Math.min(100, Math.round(h.beta_in / h.beta_target * 100));
+  el.innerHTML = `
+  <div class="grid">
+    <div class="card"><div class="k">Trade accounts on the website</div><div class="big">${h.accounts}</div><div class="small">${h.active12} ordered online in the last 12 months</div></div>
+    <div class="card"><div class="k">Trade web sales, 12 months</div><div class="big">${gbp(h.spend12)}</div><div class="small">Goods ex VAT, phone orders keyed in by staff left out</div></div>
+    <div class="card"><div class="k">Where they'd start</div>
+      <div class="bar" style="margin-top:12px"><span style="width:${t.Bronze / act * 100}%;background:var(--bronze)"></span><span style="width:${t.Silver / act * 100}%;background:var(--silver)"></span><span style="width:${t.Gold / act * 100}%;background:var(--gold)"></span></div>
+      <div class="small" style="margin-top:8px">${tierTag('Bronze')} ${t.Bronze} &nbsp; ${tierTag('Silver')} ${t.Silver} &nbsp; ${tierTag('Gold')} ${t.Gold}</div>
+      <div class="small">Of the ${h.active12} who ordered online</div></div>
+    <div class="card"><div class="k">Phone & counter, not online</div><div class="big">${h.phoneNotWeb}</div><div class="small">Trade accounts ordering through us since July with no web order in 12 months. The people we want to move online.</div></div>
+  </div>
+  <div class="cols">
+    <div>
+      <div class="card"><div class="sh"><h2>Beta progress</h2><span class="small">${h.beta_in} of ${h.beta_target} picked</span></div>
+        <div class="bar"><span style="width:${pct}%;background:var(--accent)"></span></div>
+        <div class="funnel">${STAGES.slice(0, 5).map(([k, n]) => `<div><b>${cnt(k)}</b><span>${n}</span></div>`).join('')}</div>
+        <div class="small" style="margin-top:10px">${h.beta_ordered} have ordered online since being switched on · ${h.beta_feedback} feedback calls done</div>
+      </div>
+      <div class="card"><div class="sh"><h2>Trade account web sales by month</h2></div>${chart()}
+        <div class="note" style="margin-top:8px">This is the before picture. Once beta customers are switched on, their orders show in yellow so we can see whether the scheme moves anything.</div></div>
+    </div>
+    <div>
+      <div class="card"><div class="sh"><h2>Next up</h2><button class="btn sm" data-go="plan">Full checklist</button></div>
+        ${next.length ? next.map(msRow).join('') : '<div class="empty">Everything ticked off.</div>'}</div>
+      <div class="card"><div class="k">Still to come</div>
+        <div class="note" style="margin-top:6px">Credit earned, spent and expiring per customer lives inside the plugin on the website. Bob can't read it yet. A small update to the plugin would let it share those figures here.</div></div>
+    </div>
+  </div>`;
+  el.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { tab = b.dataset.go; store.set('tr_tab', tab); render(); });
+  wireMs(el);
+}
+
+function msRow(m){
+  const today = new Date().toISOString().slice(0, 10);
+  const due = m.due ? (m.due < today && !m.done ? `<span class="late">was due ${day(m.due)}</span>` : (Math.abs(new Date(m.due) - new Date()) < 7 * 864e5 && !m.done ? `<span class="soon">due ${day(m.due)}</span>` : `due ${m.due_label || day(m.due)}`)) : (m.due_label ? `due ${esc(m.due_label)}` : '');
+  return `<div class="ms ${m.done ? 'done' : ''}"><button class="tick ${m.done ? 'on' : ''}" data-ms="${m.id}" ${D.me.is_admin ? '' : 'disabled'} aria-label="${m.done ? 'Mark not done' : 'Mark done'}">${m.done ? '✓' : ''}</button>
+    <div class="mt">${esc(m.title)}<div class="mm">${due ? `<span>${due}</span>` : ''}${m.owner ? `<span>${esc(m.owner)}</span>` : ''}${m.done && m.done_at ? `<span>done ${day(m.done_at)}</span>` : ''}</div></div>
+    ${D.me.is_admin && tab === 'plan' ? `<button class="btn sm del" data-msrm="${m.id}">Remove</button>` : ''}</div>`;
+}
+function wireMs(el){
+  el.querySelectorAll('[data-ms]').forEach(b => b.onclick = async () => { b.disabled = true; try { await api({ action: 'ms_toggle', id: +b.dataset.ms }); await refresh(); } catch(x){ toast(x.message); b.disabled = false; } });
+  el.querySelectorAll('[data-msrm]').forEach(b => b.onclick = async () => {
+    if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = 'Sure?'; return; }
+    try { await api({ action: 'ms_remove', id: +b.dataset.msrm }); await refresh(); } catch(x){ toast(x.message); }
+  });
+}
+
+function renderPlan(el){
+  el.innerHTML = `<div class="card"><div class="sh"><h2>Launch checklist</h2><span class="small">${D.milestones.filter(m => m.done).length} of ${D.milestones.length} done</span></div>
+    ${D.milestones.map(msRow).join('')}
+    ${D.me.is_admin ? `<div class="add" style="margin-top:14px;grid-template-columns:minmax(0,2fr) 140px 140px auto">
+      <input id="mt" placeholder="Add a step"><input id="md" placeholder="When (e.g. January)"><input id="mo" placeholder="Who"><button class="btn y" id="ma">Add</button></div>` : ''}
+  </div>`;
+  wireMs(el);
+  const ma = document.getElementById('ma');
+  if (ma) ma.onclick = async () => {
+    ma.disabled = true;
+    const v = document.getElementById('md').value.trim();
+    try { await api({ action: 'ms_add', title: document.getElementById('mt').value, due: /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null, due_label: /^\d{4}-\d{2}-\d{2}$/.test(v) ? null : v, owner: document.getElementById('mo').value }); toast('Added'); await refresh(); }
+    catch(x){ toast(x.message); ma.disabled = false; }
+  };
+}
+
+function betaCard(b){
+  const opts = STAGES.map(([k, n]) => `<option value="${k}" ${b.stage === k ? 'selected' : ''}>${n}</option>`).join('');
+  const s = b.since;
+  return `<div class="bc ${b.stage}">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+      <div style="min-width:0"><div class="bn">${esc(b.company || b.name)}</div>
+        <div class="bm">${b.company && b.name !== b.company ? `<span>${esc(b.name)}</span>` : ''}${b.phone ? `<span>${esc(b.phone)}</span>` : ''}${b.city ? `<span>${esc(b.city)}</span>` : ''}</div></div>
+      ${b.customer_id ? tierTag(b.tier) : '<span class="pill warn">No web account</span>'}</div>
+    <div class="bs">
+      <div><b>${gbp(b.web_spend_12m)}</b><span>web, 12 months (${b.web_orders_12m})</span></div>
+      <div><b>${gbp(b.phone_spend_jul)}</b><span>phone/counter since Jul (${b.phone_orders_jul})</span></div>
+      <div><b>${s ? `${s.orders} · ${gbp(s.spend)}` : '—'}</b><span>${s ? 'web since switched on' : 'not switched on yet'}</span></div>
+    </div>
+    ${b.start_tier ? `<div class="small">Starts on ${tierTag(b.start_tier)} (set "Never below ${b.start_tier}" on their profile)</div>` : ''}
+    ${b.notes ? `<div class="bnote">${esc(b.notes)}</div>` : ''}
+    ${b.feedback ? `<div class="bnote"><b>Feedback:</b> ${esc(b.feedback)}</div>` : ''}
+    <div class="bact"><select data-stage="${b.id}" aria-label="Stage">${opts}</select>
+      <button class="btn sm" data-edit="${b.id}">Notes &amp; feedback</button>
+      <span class="small" style="margin:0 0 0 auto">${esc(b.recruited_by || '')}</span></div>
+  </div>`;
+}
+
+function renderBeta(el){
+  const recs = [...new Set(D.beta.map(b => b.recruited_by).filter(Boolean))];
+  const list = D.beta.filter(b => who === 'all' || b.recruited_by === who);
+  const groups = STAGES.map(([k, n]) => [k, n, list.filter(b => b.stage === k)]).filter(g => g[2].length);
+  el.innerHTML = `
+  <div class="card"><div class="sh"><h2>Add a beta customer</h2><span class="small">Look up a web trade account, or type a name if they haven't got one yet</span></div>
+    <div class="add">
+      <div class="sug"><input id="bq" placeholder="Company, name, email or phone" autocomplete="off" style="width:100%"><ul id="bl" style="display:none"></ul></div>
+      <select id="br" aria-label="Picked by">${['Ashley', 'Martin', 'Denver'].concat(D.staff.filter(n => !/^(Ashley|Martin|Denver)/.test(n))).map(n => `<option ${D.me.name.startsWith(n) ? 'selected' : ''}>${esc(n.split(' ')[0])}</option>`).join('')}</select>
+      <input id="bn" placeholder="Why them? (optional)">
+      <button class="btn y" id="ba">Add</button>
+    </div>
+    <div class="small" id="bpick" style="margin-top:6px"></div>
+  </div>
+  <div class="seg"><button data-who="all" class="${who === 'all' ? 'on' : ''}">Everyone (${D.beta.length})</button>${recs.map(r => `<button data-who="${esc(r)}" class="${who === r ? 'on' : ''}">${esc(r)} (${D.beta.filter(b => b.recruited_by === r).length})</button>`).join('')}</div>
+  ${groups.length ? groups.map(([k, n, g]) => `<div class="sh"><h2>${n} <span class="small">(${g.length})</span></h2>${k === 'agreed' ? '<span class="small">Next: tick them in WooCommerce › Trade Rewards, then move to "Switched on"</span>' : ''}</div><div class="bgrid" style="margin-bottom:16px">${g.map(betaCard).join('')}</div>`).join('')
+    : '<div class="card empty">Nobody on the beta list yet. Ashley and Martin\'s names are due by 28 Nov.</div>'}
+  <div class="note">Stages: Picked → Spoken to → Said yes → Switched on (ticked as a beta customer in WooCommerce) → Feedback done. "Web since switched on" counts their website orders from the day they're moved to Switched on.</div>`;
+  el.querySelectorAll('[data-who]').forEach(b => b.onclick = () => { who = b.dataset.who; render(); });
+  el.querySelectorAll('[data-stage]').forEach(s => s.onchange = async () => {
+    s.disabled = true;
+    try { await api({ action: 'beta_update', id: +s.dataset.stage, stage: s.value }); toast('Moved to ' + SNAME[s.value]); await refresh(); } catch(x){ toast(x.message); s.disabled = false; }
+  });
+  el.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editBeta(D.beta.find(x => x.id === +b.dataset.edit)));
+  wireAdd();
+}
+
+async function wireAdd(){
+  const q = document.getElementById('bq'), ul = document.getElementById('bl'), pick = document.getElementById('bpick');
+  let chosen = null;
+  try { await loadAccounts(); } catch(x){ pick.textContent = x.message; }
+  const show = () => {
+    const t = q.value.trim().toLowerCase();
+    chosen = null; pick.textContent = t ? 'Not picked from the list: they\'ll be added as "no web account yet"' : '';
+    if (t.length < 2 || !A) { ul.style.display = 'none'; return; }
+    const hits = A.filter(a => [a.company, a.contact, a.email, a.phone, a.postcode].some(v => v && String(v).toLowerCase().includes(t))).slice(0, 8);
+    ul.innerHTML = hits.map(a => `<li data-id="${a.id}">${esc(a.company || a.contact || a.email)} ${a.beta_stage ? '· <b>already on beta</b>' : ''}<div class="s">${esc([a.contact, a.email, a.city].filter(Boolean).join(' · '))} · ${a.tier} · ${gbp(a.web_spend_12m)} web</div></li>`).join('');
+    ul.style.display = hits.length ? 'block' : 'none';
+    ul.querySelectorAll('li').forEach(li => li.onmousedown = e => { e.preventDefault(); const a = A.find(x => x.id === +li.dataset.id); chosen = a; q.value = a.company || a.contact || a.email; ul.style.display = 'none'; pick.textContent = `Picked: ${a.email} · ${a.tier}`; });
+  };
+  q.oninput = show; q.onblur = () => setTimeout(() => ul.style.display = 'none', 150);
+  document.getElementById('ba').onclick = async () => {
+    const b = document.getElementById('ba'), name = q.value.trim();
+    if (!chosen && !name) { toast('Type a name or pick an account'); return; }
+    const email = null;
+    b.disabled = true;
+    try { await api({ action: 'beta_add', customer_id: chosen?.id || null, name, email, recruited_by: document.getElementById('br').value, notes: document.getElementById('bn').value }); toast('Added to the beta list'); A = null; await refresh(); }
+    catch(x){ toast(x.message); b.disabled = false; }
+  };
+}
+
+function editBeta(b){
+  modal(`<h3 style="margin:0">${esc(b.company || b.name)}</h3>
+    <div><label class="l">Notes</label><textarea id="en">${esc(b.notes || '')}</textarea></div>
+    <div><label class="l">Feedback from the call</label><textarea id="ef" placeholder="What they liked, what confused them, would it make them order online more?">${esc(b.feedback || '')}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><label class="l">Picked by</label><input id="er" value="${esc(b.recruited_by || '')}"></div>
+      <div><label class="l">Start them on</label><select id="et"><option value="">Their earned tier</option><option ${b.start_tier === 'Silver' ? 'selected' : ''}>Silver</option><option ${b.start_tier === 'Gold' ? 'selected' : ''}>Gold</option></select></div>
+    </div>
+    ${b.customer_id ? '' : `<div><label class="l">Got a web trade account now? Link it</label><div class="sug"><input id="el" placeholder="Search trade accounts" autocomplete="off" style="width:100%"><ul id="ell" style="display:none"></ul></div></div>`}
+    <div class="row"><button class="btn del" id="ed">Remove from beta</button><span style="flex:1"></span><button class="btn" id="ex">Cancel</button><button class="btn y" id="es">Save</button></div>`);
+  let link = null;
+  const el = document.getElementById('el');
+  if (el) { const ul = document.getElementById('ell'); el.oninput = () => { const t = el.value.trim().toLowerCase(); if (t.length < 2 || !A) { ul.style.display = 'none'; return; }
+    const hits = A.filter(a => [a.company, a.contact, a.email].some(v => v && String(v).toLowerCase().includes(t))).slice(0, 6);
+    ul.innerHTML = hits.map(a => `<li data-id="${a.id}">${esc(a.company || a.contact)}<div class="s">${esc(a.email)}</div></li>`).join(''); ul.style.display = hits.length ? 'block' : 'none';
+    ul.querySelectorAll('li').forEach(li => li.onmousedown = e => { e.preventDefault(); link = +li.dataset.id; el.value = li.textContent; ul.style.display = 'none'; }); }; }
+  document.getElementById('ex').onclick = closeModal;
+  document.getElementById('es').onclick = async () => {
+    try { await api({ action: 'beta_update', id: b.id, notes: document.getElementById('en').value, feedback: document.getElementById('ef').value, recruited_by: document.getElementById('er').value, start_tier: document.getElementById('et').value, customer_id: link || undefined }); closeModal(); toast('Saved'); A = null; await refresh(); }
+    catch(x){ toast(x.message); }
+  };
+  const d = document.getElementById('ed');
+  d.onclick = async () => { if (d.dataset.sure !== '1') { d.dataset.sure = '1'; d.textContent = 'Sure?'; return; } try { await api({ action: 'beta_remove', id: b.id }); closeModal(); toast('Removed'); A = null; await refresh(); } catch(x){ toast(x.message); } };
+}
+
+function renderAccounts(el){
+  if (!A) { el.innerHTML = '<div id="msg">Loading accounts…</div>'; return; }
+  const F = [['all','All'],['web','Ordered online'],['phone','Phone/counter only'],['Silver','Silver'],['Gold','Gold'],['quiet','Gone quiet'],['notbeta','Not on beta']];
+  const today = Date.now();
+  const test = a => af === 'all' ? true : af === 'web' ? a.web_orders_12m > 0 : af === 'phone' ? (a.phone_orders_jul > 0 && a.web_orders_12m === 0)
+    : af === 'quiet' ? (a.last_web && today - new Date(a.last_web) > 90 * 864e5 && a.web_orders_12m > 0) : af === 'notbeta' ? !a.beta_stage : a.tier === af;
+  const t = aq.trim().toLowerCase();
+  let rows = A.filter(test).filter(a => !t || [a.company, a.contact, a.email, a.phone, a.city, a.postcode].some(v => v && String(v).toLowerCase().includes(t)));
+  const S = { web: (x, y) => y.web_spend_12m - x.web_spend_12m, phone: (x, y) => y.phone_spend_jul - x.phone_spend_jul, name: (x, y) => String(x.company || x.contact || '').localeCompare(String(y.company || y.contact || '')),
+    last: (x, y) => String(y.last_web || '').localeCompare(String(x.last_web || '')), orders: (x, y) => y.web_orders_12m - x.web_orders_12m };
+  rows.sort(S[asort] || S.web);
+  const cnt = k => A.filter(a => { const o = af; af = k; const r = test(a); af = o; return r; }).length;
+  el.innerHTML = `
+  <div class="tools"><input type="search" id="aq" placeholder="Search company, name, email, phone, postcode" value="${esc(aq)}"><button class="btn" id="csv">Download list</button></div>
+  <div class="seg">${F.map(([k, n]) => `<button data-af="${k}" class="${af === k ? 'on' : ''}">${n} (${cnt(k)})</button>`).join('')}</div>
+  <div class="card" style="padding:6px 8px"><div class="tw"><table>
+    <thead><tr><th data-s="name">Account</th><th>Tier</th><th class="r" data-s="orders">Web orders 12m</th><th class="r" data-s="web">Web spend 12m</th><th data-s="last">Last web order</th><th class="r" data-s="phone">Phone/counter since Jul</th><th>Beta</th></tr></thead>
+    <tbody>${rows.slice(0, ashow).map(a => `<tr>
+      <td><b>${esc(a.company || a.contact || a.email)}</b><div class="s">${esc([a.company ? a.contact : null, a.phone, a.city].filter(Boolean).join(' · '))}</div><div class="s">${esc(a.email || '')}</div></td>
+      <td>${tierTag(a.tier)}</td><td class="r">${a.web_orders_12m || '—'}</td><td class="r">${a.web_spend_12m ? gbp(a.web_spend_12m) : '—'}</td>
+      <td>${day(a.last_web)}</td><td class="r">${a.phone_spend_jul ? `${gbp(a.phone_spend_jul)}<div class="s">${a.phone_orders_jul} orders</div>` : '—'}</td>
+      <td>${a.beta_stage ? `<span class="pill">${SNAME[a.beta_stage]}${a.beta_by ? ' · ' + esc(a.beta_by) : ''}</span>` : `<button class="btn sm" data-addb="${a.id}">+ Beta</button>`}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">No accounts match.</td></tr>'}</tbody></table></div>
+    ${rows.length > ashow ? `<div style="text-align:center;padding:10px"><button class="btn" id="more">Show more (${rows.length - ashow} left)</button></div>` : ''}
+  </div>
+  <div class="note">Tier is what they'd be on today under the scheme's rules: Silver at £750 and 3 web orders in 12 months, Gold at £2,000 and 5 (goods ex VAT). Phone/counter spend is from Cin7 since 7 July, matched on email or account name, so some accounts won't match.</div>`;
+  const q = document.getElementById('aq');
+  q.oninput = () => { aq = q.value; ashow = 100; const p = q.selectionStart; renderAccounts(el); const n = document.getElementById('aq'); n.focus(); n.setSelectionRange(p, p); };
+  el.querySelectorAll('[data-af]').forEach(b => b.onclick = () => { af = b.dataset.af; ashow = 100; renderAccounts(el); });
+  el.querySelectorAll('[data-s]').forEach(th => th.onclick = () => { asort = th.dataset.s; renderAccounts(el); });
+  const m = document.getElementById('more'); if (m) m.onclick = () => { ashow += 200; renderAccounts(el); };
+  el.querySelectorAll('[data-addb]').forEach(b => b.onclick = async () => {
+    const a = A.find(x => x.id === +b.dataset.addb);
+    modal(`<h3 style="margin:0">Add ${esc(a.company || a.contact)} to the beta</h3>
+      <div><label class="l">Picked by</label><select id="pr">${['Ashley', 'Martin', 'Denver'].map(n => `<option ${D.me.name.startsWith(n) ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      <div><label class="l">Why them? (optional)</label><input id="pn" style="width:100%"></div>
+      <div class="row"><button class="btn" id="px">Cancel</button><button class="btn y" id="ps">Add</button></div>`);
+    document.getElementById('px').onclick = closeModal;
+    document.getElementById('ps').onclick = async () => { try { await api({ action: 'beta_add', customer_id: a.id, recruited_by: document.getElementById('pr').value, notes: document.getElementById('pn').value }); closeModal(); toast('Added to the beta list'); A = null; await refresh(); } catch(x){ toast(x.message); } };
+  });
+  document.getElementById('csv').onclick = () => {
+    const head = ['Company','Contact','Email','Phone','City','Postcode','Tier','Web orders 12m','Web spend 12m (ex VAT)','Last web order','Phone/counter orders since Jul','Phone/counter spend since Jul','Beta stage','Picked by'];
+    const q2 = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const out = [head.join(',')].concat(rows.map(a => [a.company, a.contact, a.email, a.phone, a.city, a.postcode, a.tier, a.web_orders_12m, a.web_spend_12m, a.last_web, a.phone_orders_jul, a.phone_spend_jul, a.beta_stage ? SNAME[a.beta_stage] : '', a.beta_by].map(q2).join(',')));
+    const url = URL.createObjectURL(new Blob([out.join('\r\n')], { type: 'text/csv' }));
+    const l = document.createElement('a'); l.href = url; l.download = 'Trade Rewards accounts ' + new Date().toISOString().slice(0, 10) + '.csv'; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+}
+
+if (token) start(); else showLogin();
+TSDAuth.mount(t => { token = t; start(); });
+</script>
+<script>
+(function(){
+  const BUILD = '20261117103413';
+  const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
+  let newer = false;
+  async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
+  setInterval(check, 120000);
+})();
+</script>
+</body>
+</html>
