@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="manifest" href="manifest-adsmgr.json">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ads manager · TSD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#262727;--panel:#323333;--panel2:#3B3C3C;--line:#474949;--ink:#FFF;--muted:#B9BCBC;--accent:#EED107;--good:#7DDB98;--warn:#F5B94A;--bad:#FF7A6B;--num:'Bebas Neue','DIN Condensed','Arial Narrow',Arial,sans-serif;--body:Barlow,'Segoe UI',Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+.wrap{padding:18px 20px 40px;max-width:1300px;margin:0 auto}
+h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height:1}
+.sub{color:var(--muted);font-size:14px}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tabs button{background:none;border:1px solid transparent;color:var(--muted);font:inherit;font-weight:700;padding:7px 14px;border-radius:999px;cursor:pointer}
+.tabs button.on{background:var(--accent);color:#262727}
+.tabs button .cnt{background:var(--bad);color:#fff;border-radius:9px;font-size:11px;padding:1px 6px;margin-left:5px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--muted);font:inherit;font-weight:700;padding:6px 14px;cursor:pointer}
+.seg button.on{background:var(--panel2);color:var(--ink)}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:inherit;font-weight:600;padding:7px 13px;border-radius:10px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.sm{padding:4px 10px;font-size:13px;border-radius:8px}.btn.g{border-color:var(--good);color:var(--good)}.btn.r{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+input,select,textarea{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;padding:7px 10px;border-radius:10px;color-scheme:dark}
+.banner{border-radius:12px;padding:10px 14px;margin:10px 0;font-size:15px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner.lock{background:rgba(125,219,152,.08);border:1px solid var(--good)}
+.banner.live{background:rgba(255,122,107,.1);border:1px solid var(--bad)}
+.banner.learn{background:rgba(238,209,7,.08);border:1px solid var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:14px 0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tile .k{color:var(--muted);font-size:14px;font-weight:600}
+.tile .n{font-family:var(--num);font-size:44px;line-height:1.05;margin-top:2px}
+.tile .s{color:var(--muted);font-size:13px}
+.prog{height:8px;background:var(--panel2);border-radius:9px;margin-top:8px;position:relative;overflow:hidden}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:9px}
+.prog b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-family:var(--num);font-size:28px;letter-spacing:.5px;margin:0 0 4px;font-weight:400}
+.rhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin-bottom:6px}
+.hrow{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.hrow:last-child{border-bottom:0}
+.dot{width:14px;height:14px;border-radius:50%;margin-top:4px}
+.dot.good{background:var(--good)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+.hrow .nm{font-weight:700}.hrow .nw{font-size:14px}.hrow .fx{color:var(--muted);font-size:13px;margin-top:2px}
+.pill{display:inline-block;padding:2px 9px;border-radius:9px;background:var(--panel2);font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.pill.y{background:rgba(238,209,7,.15);color:var(--accent)}.pill.g{background:rgba(125,219,152,.15);color:var(--good)}.pill.r{background:rgba(255,122,107,.15);color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:right;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child,th.l,td.l{text-align:left}
+td.l{white-space:normal}
+.scroll{overflow-x:auto}
+.muted{color:var(--muted)}.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.flag{color:var(--warn);font-size:12px;font-weight:700}
+.chart{width:100%;display:block}
+.empty{color:var(--muted);padding:20px 0;text-align:center}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}.cols>*{min-width:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.chip.on{border-color:var(--accent);color:var(--accent)}
+.chg{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;background:var(--panel2)}
+.chg .what{flex:1;min-width:240px}.chg .what b{font-size:15px}.chg .meta{color:var(--muted);font-size:12px;margin-top:3px}
+.chg .acts{display:flex;gap:6px;flex-wrap:wrap}
+.guide h3{font-family:var(--num);font-size:24px;font-weight:400;letter-spacing:.5px;margin:18px 0 6px}
+.guide p,.guide li{font-size:15px;line-height:1.5}.guide dt{font-weight:700;margin-top:10px}.guide dd{margin:2px 0 0;color:var(--muted)}
+.step{display:grid;grid-template-columns:34px 1fr;gap:10px;margin:8px 0}.step .n{font-family:var(--num);font-size:26px;color:var(--accent);line-height:1}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-start;justify-content:center;padding:30px 12px;overflow:auto;z-index:50}
+#modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:560px;width:100%}
+.frow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.frow label{font-size:15px}.frow .h{color:var(--muted);font-size:12px;display:block}
+.frow input,.frow select{width:150px;text-align:right}
+.switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:700}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#262727;font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:60}
+@media (max-width:640px){.hm{display:none}.wrap{padding:14px 12px 30px}.tile .n{font-size:34px}.cols{grid-template-columns:1fr}h1{font-size:34px}}
+</style>
+</head>
+<body>
+<div id="login"><div id="lerr"></div></div>
+<div class="wrap" id="app" style="display:none">
+  <h1>ADS MANAGER</h1>
+  <div class="sub">Google Ads at a glance: what we spend, whether the tracking can be trusted, and the changes waiting for a yes.</div>
+  <div class="tabs" id="tabs">
+    <button data-t="overview">Overview</button><button data-t="campaigns">Campaigns</button><button data-t="terms">Search terms</button>
+    <button data-t="products">Products</button><button data-t="changes">Changes</button><button data-t="settings">Settings</button><button data-t="guide">How to use</button>
+  </div>
+  <div id="out"><div class="empty">Loading…</div></div>
+</div>
+<div id="modal"><div class="box" id="mbox"></div></div>
+<div id="toast"></div>
+<script src="auth.js?v=20261116211322"></script>
+<script src="activity.js?v=20261116211322"></script>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/adsmgr';
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+let token = store.get('tsd_me_token');
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const N = v => Number(v) || 0;
+const gbp = (v, dp = 0) => (N(v) < 0 ? '−£' : '£') + Math.abs(N(v)).toLocaleString('en-GB', {minimumFractionDigits: dp, maximumFractionDigits: dp});
+const int = v => Math.round(N(v)).toLocaleString('en-GB');
+const dshort = s => new Date(String(s).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+const dt = s => s ? new Date(s).toLocaleString('en-GB', {timeZone:'Europe/London', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : '–';
+const toast = m => { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 2600); };
+const CH = { PERFORMANCE_MAX: 'PMax', SHOPPING: 'Shopping', SEARCH: 'Search', DISPLAY: 'Display', VIDEO: 'Video', DEMAND_GEN: 'Demand Gen' };
+const TYPE_TEXT = { add_negative: 'Block search', pause_campaign: 'Pause campaign', enable_campaign: 'Switch campaign on', set_budget: 'Change budget',
+  pause_adgroup: 'Pause ad group', enable_adgroup: 'Switch ad group on', pause_keyword: 'Pause keyword', enable_keyword: 'Switch keyword on', add_keyword: 'Add keyword' };
+const MERCHANTS = /(travis|selco|brewers|jewson|wickes|screwfix|toolstation|topps|b&q|bss|city plumbing|howdens|mkm|huws|buildbase|trade account|account sign|application)/i;
+const BRAND = /(tiling|tile|tiles) ?supplies ?direct|\btsd\b/i;
+
+let tab = (location.hash || '').slice(1) || store.get('ads_tab') || 'overview';
+let days = Number(store.get('ads_days')) || 30;
+let OV = null, CHG = null;
+const tf = { terms: { q: '', noconv: false, chip: '' }, products: { q: '', noconv: false }, campaigns: { small: false } };
+
+async function api(qs, body){
+  const r = await fetch(API + (qs || ''), body ? {method:'POST', headers:{Authorization:'Bearer ' + token, 'Content-Type':'application/json'}, body: JSON.stringify(body)}
+    : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('Please log in again'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error) throw new Error(j.error || 'Something went wrong');
+  return j;
+}
+function showLogin(msg){ $('app').style.display = 'none'; $('login').style.display = 'flex'; if (msg) $('lerr').textContent = msg; }
+function start(){ $('login').style.display = 'none'; $('app').style.display = 'block'; go(tab); }
+function go(t){
+  tab = t; store.set('ads_tab', t); history.replaceState(null, '', '#' + t);
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  ({ overview, campaigns, terms, products, changes, settings, guide })[t]();
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => go(b.dataset.t));
+const loading = () => { $('out').innerHTML = '<div class="empty">Loading…</div>'; };
+const fail = x => { $('out').innerHTML = `<div class="card bad">${esc(x.message)}</div>`; };
+const rangeSeg = () => `<div class="seg" id="rng">${[7, 30, 90].map(d => `<button data-d="${d}" class="${d === days ? 'on' : ''}">${d} days</button>`).join('')}</div>`;
+const wireRange = fn => document.querySelectorAll('#rng button').forEach(b => b.onclick = () => { days = Number(b.dataset.d); store.set('ads_days', days); fn(); });
+function lockBanner(s){
+  return s && s.paused === false
+    ? `<div class="banner live"><span class="pill r">LIVE</span><span>Kill switch is <b>off</b>: approved changes are made in Google Ads on the script's next run.</span></div>`
+    : `<div class="banner lock"><span class="pill g">READ-ONLY</span><span>Kill switch is <b>on</b>: Bob watches and suggests, nothing in Google Ads changes. Approved changes wait here.</span></div>`;
+}
+const trustAds = () => OV && (OV.health || []).find(h => h.key === 'value')?.state === 'good';
+const trustGa = () => OV && (OV.health || []).find(h => h.key === 'ga4')?.state === 'good';
+
+// ---------------------------------------------------------------- overview
+async function overview(){
+  loading();
+  try { OV = await api('?view=overview&days=' + days); } catch(x){ return fail(x); }
+  const o = OV, w = o.window, m = o.month, cap = N(o.cap);
+  const yday = (o.series || []).at(-1) || {};
+  const cpc = w.clicks ? w.cost / w.clicks : 0;
+  const gp = o.ga && !o.ga.error ? o.ga : null;
+  const pend = N((o.changes || {}).proposed);
+  const pctCap = cap ? Math.min(100, 100 * m.cost / cap) : 0, pctDay = 100 * m.days_done / m.days_in;
+  $('out').innerHTML = `
+    ${lockBanner(o.settings)}
+    ${o.learning ? `<div class="banner learn"><span class="pill y">RELEARNING</span><span>Tracking was fixed on ${dshort(o.learning.fixed_on)}. Google needs about 3 weeks to relearn: hold bidding and budget changes until <b>${dshort(o.learning.until)}</b> (day ${o.learning.day} of 21).</span></div>` : ''}
+    ${pend ? `<div class="banner learn"><b>${pend} change${pend === 1 ? '' : 's'}</b> waiting for a decision. <button class="btn sm y" id="toChg">Review</button></div>` : ''}
+    <div class="card"><div class="rhead"><h2>Can we trust the numbers?</h2><span class="sub">Last 7 complete days · checked every time this page opens</span></div>
+      ${(o.health || []).map(h => `<div class="hrow"><div class="dot ${h.state}"></div><div><div class="nm">${esc(h.name)}</div><div class="nw">${esc(h.now)}</div>${h.state !== 'good' ? `<div class="fx">${esc(h.fix)}</div>` : ''}</div></div>`).join('')}
+    </div>
+    <div class="bar"><b>Last</b> ${rangeSeg()}<span class="sub">${dshort(o.from)} to ${dshort(o.to)} · complete days only</span></div>
+    <div class="tiles">
+      <div class="tile"><div class="k">Spent this month</div><div class="n">${gbp(m.cost)}</div><div class="s">of the ${gbp(cap)} cap · heading for ${gbp(o.projected)}</div>
+        <div class="prog"><i style="width:${pctCap}%;${o.projected > cap ? 'background:var(--bad)' : ''}"></i><b style="left:${pctDay}%"></b></div><div class="s" style="margin-top:4px">Line = how far through the month we are</div></div>
+      <div class="tile"><div class="k">Yesterday</div><div class="n">${gbp(yday.cost)}</div><div class="s">${int(yday.clicks)} clicks · daily budgets total ${gbp(o.daily_budget_total, 2)}</div></div>
+      <div class="tile"><div class="k">Spend, last ${days} days</div><div class="n">${gbp(w.cost)}</div><div class="s">${int(w.clicks)} clicks at ${gbp(cpc, 2)} each</div></div>
+      <div class="tile"><div class="k">Real web orders (Bob)</div><div class="n">${int(o.web.orders)}</div><div class="s">${gbp(o.web.rev)} ex VAT · ${gbp(o.web.gp)} gross profit · all channels</div></div>
+      <div class="tile"><div class="k">Sales from ads (GA4)</div><div class="n">${gp ? int(gp.paid_purchases) : '–'}</div><div class="s">${gp ? gbp(gp.paid_revenue) + ' inc VAT, last click' : esc(o.ga_error || 'GA4 unavailable')}${gp && !trustGa() ? ' <span class="flag">· GA4 double counts, real figure lower</span>' : ''}</div></div>
+      <div class="tile"><div class="k">Conversions Google sees</div><div class="n">${N(w.conv).toFixed(0)}</div><div class="s">worth ${gbp(w.val)} to Google${!trustAds() ? ' <span class="flag">· values wrong until Matt\'s fix</span>' : ''}</div></div>
+    </div>
+    <div class="card"><div class="rhead"><h2>Daily spend vs web orders</h2><span class="sub">Last 90 days · bars = ad spend, line = all web orders in Bob</span></div>${chart(o.series || [])}</div>
+    <div class="cols">
+      <div class="card"><h2>Where web visitors come from</h2><div class="sub">GA4, last ${days} days${!trustGa() ? ' · purchases double counted for now, compare between rows not with Bob' : ''}</div>
+        ${gp ? `<div class="scroll"><table><tr><th>Channel</th><th>Visits</th><th>Purchases</th><th>Revenue</th><th class="hm">Share of revenue</th></tr>
+        ${(gp.channels || []).map(c => `<tr><td>${esc(c.sessionDefaultChannelGroup)}${['Paid Search','Paid Shopping','Cross-network'].includes(c.sessionDefaultChannelGroup) ? ' <span class="pill y">ads</span>' : ''}</td><td>${int(c.sessions)}</td><td>${int(c.ecommercePurchases)}</td><td>${gbp(c.purchaseRevenue)}</td><td class="hm">${gp.revenue ? Math.round(100 * c.purchaseRevenue / gp.revenue) : 0}%</td></tr>`).join('')}</table></div>` : `<div class="empty">${esc(o.ga_error || 'GA4 unavailable')}</div>`}
+      </div>
+      <div class="card"><h2>What Google gets for the money</h2><div class="sub">Last ${days} days</div>
+        <table>
+          <tr><td class="l">Ad spend</td><td>${gbp(w.cost)}</td></tr>
+          <tr><td class="l">Revenue from ads (GA4, last click)</td><td>${gp ? gbp(gp.paid_revenue) : '–'}</td></tr>
+          <tr><td class="l">Return on ad spend (GA4)</td><td>${gp && w.cost ? (gp.paid_revenue / w.cost).toFixed(1) + '×' : '–'}${!trustGa() ? ' <span class="flag">overstated</span>' : ''}</td></tr>
+          <tr><td class="l">Return Google thinks it gets</td><td>${w.cost ? (w.val / w.cost).toFixed(1) + '×' : '–'}${!trustAds() ? ' <span class="flag">understated</span>' : ''}</td></tr>
+        </table>
+        <div class="sub" style="margin-top:8px">Once both checks above are green, the two "return" lines should meet in the middle. That's the number to manage to.</div>
+      </div>
+    </div>
+    <div class="sub">Daily figures loaded ${dt(o.last_daily_load)} · full snapshot ${dt(o.last_snapshot)}</div>`;
+  wireRange(overview);
+  if ($('toChg')) $('toChg').onclick = () => go('changes');
+}
+function chart(s){
+  if (!s.length) return '<div class="empty">No data yet</div>';
+  const W = 1000, H = 230, L = 46, R = 46, T = 14, B = 26, iw = W - L - R, ih = H - T - B;
+  const maxC = Math.max(10, ...s.map(r => N(r.cost))), maxO = Math.max(5, ...s.map(r => N(r.orders)));
+  const bw = iw / s.length, x = i => L + i * bw, yc = v => T + ih - ih * v / maxC, yo = v => T + ih - ih * v / maxO;
+  const line = s.map((r, i) => `${i ? 'L' : 'M'}${(x(i) + bw / 2).toFixed(1)} ${yo(N(r.orders)).toFixed(1)}`).join('');
+  const ticks = [0, .5, 1].map(f => `<line x1="${L}" x2="${W - R}" y1="${T + ih - ih * f}" y2="${T + ih - ih * f}" stroke="#474949"/><text x="${L - 6}" y="${T + ih - ih * f + 4}" fill="#B9BCBC" font-size="11" text-anchor="end">£${Math.round(maxC * f)}</text><text x="${W - R + 6}" y="${T + ih - ih * f + 4}" fill="#B9BCBC" font-size="11">${Math.round(maxO * f)}</text>`).join('');
+  const months = s.map((r, i) => r.date.slice(8) === '01' ? `<text x="${x(i)}" y="${H - 6}" fill="#B9BCBC" font-size="11">${dshort(r.date)}</text><line x1="${x(i)}" x2="${x(i)}" y1="${T}" y2="${T + ih}" stroke="#474949" stroke-dasharray="3 3"/>` : '').join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily ad spend and web orders">${ticks}${months}
+    ${s.map((r, i) => `<rect x="${(x(i) + 1).toFixed(1)}" y="${yc(N(r.cost)).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${(T + ih - yc(N(r.cost))).toFixed(1)}" fill="#EED107" opacity=".85"><title>${dshort(r.date)}: ${gbp(r.cost, 2)} spend, ${r.orders} web orders</title></rect>`).join('')}
+    <path d="${line}" fill="none" stroke="#7DDB98" stroke-width="2"/>
+    <text x="${L}" y="11" fill="#EED107" font-size="11">Ad spend (£, left)</text><text x="${W - R}" y="11" fill="#7DDB98" font-size="11" text-anchor="end">Web orders (right)</text></svg>`;
+}
+
+// ---------------------------------------------------------------- campaigns
+async function campaigns(){
+  loading();
+  let d; try { d = await api('?view=campaigns&days=' + days); } catch(x){ return fail(x); }
+  const rows = d.rows || [], total = rows.reduce((t, r) => t + N(r.cost), 0);
+  const big = rows.filter(r => N(r.cost) >= 10 || r.channel !== 'SHOPPING'), small = rows.filter(r => !big.includes(r));
+  const smallCost = small.reduce((t, r) => t + N(r.cost), 0);
+  const tr = r => {
+    const trend = N(r.cost_prev7) ? (N(r.cost7) - N(r.cost_prev7)) / N(r.cost_prev7) : 0;
+    const troas = r.bid && r.bid.troas ? Math.round(r.bid.troas * 100) + '%' : '';
+    return `<tr><td class="l"><b>${esc(r.name)}</b><br><span class="pill">${esc(CH[r.channel] || r.channel || '')}</span> ${r.status === 'ENABLED' ? '' : `<span class="pill r">${esc((r.status || '').toLowerCase())}</span>`} ${r.primary_status && r.primary_status !== 'ELIGIBLE' ? `<span class="pill">${esc(String(r.primary_status).toLowerCase().replace(/_/g, ' '))}</span>` : ''}</td>
+      <td>${r.budget != null ? gbp(r.budget, 2) : '–'}</td><td><b>${gbp(r.cost)}</b><br><span class="muted">${total ? Math.round(100 * r.cost / total) : 0}%</span></td>
+      <td class="hm">${gbp(r.cost7)}<br><span class="${trend > .15 ? 'warn' : trend < -.15 ? 'muted' : 'muted'}">${N(r.cost_prev7) ? (trend >= 0 ? '+' : '') + Math.round(trend * 100) + '%' : ''}</span></td>
+      <td>${int(r.clicks)}<br><span class="muted">${r.clicks ? gbp(r.cost / r.clicks, 2) : ''}</span></td>
+      <td>${N(r.conv).toFixed(1)}<br><span class="muted">${r.conv ? gbp(r.cost / r.conv, 2) + ' each' : ''}</span></td>
+      <td>${r.ga ? int(r.ga.ecommercePurchases) : '–'}<br><span class="muted">${r.ga ? gbp(r.ga.purchaseRevenue) : ''}</span></td>
+      <td class="l hm">${esc((r.bid && r.bid.strategy || '').toLowerCase().replace(/_/g, ' '))}${troas ? `<br><span class="muted">target ${troas}</span>` : ''}</td>
+      <td><button class="btn sm" data-sug="${esc(r.name)}">Suggest…</button></td></tr>`;
+  };
+  $('out').innerHTML = `${lockBanner(OV && OV.settings)}
+    <div class="bar"><b>Last</b> ${rangeSeg()}<span class="sub">${dshort(d.from)} to ${dshort(d.to)} · ${rows.length} campaigns · ${gbp(total)}</span></div>
+    ${!trustAds() ? '<div class="banner learn"><span class="flag">Note:</span> Google\'s conversion values are wrong until Matt\'s fix, so judge campaigns on GA4 purchases and spend for now, not "cost per conversion".</div>' : ''}
+    <div class="card"><div class="scroll"><table>
+      <tr><th>Campaign</th><th>Budget/day</th><th>Spend</th><th class="hm">Last 7 days</th><th>Clicks · CPC</th><th>Google conv.</th><th>GA4 sales</th><th class="hm l">Bidding</th><th></th></tr>
+      ${big.map(tr).join('')}
+      ${small.length ? `<tr><td class="l" colspan="9"><button class="btn sm" id="tglSmall">${tf.campaigns.small ? 'Hide' : 'Show'} ${small.length} small Shopping campaigns (${gbp(smallCost)} between them)</button></td></tr>` : ''}
+      ${tf.campaigns.small ? small.map(tr).join('') : ''}
+    </table></div></div>
+    <div class="sub">GA4 sales are last-click and currently double counted. "Target" is the return on spend Google is told to aim for (300% = £3 back per £1).</div>`;
+  wireRange(campaigns);
+  if ($('tglSmall')) $('tglSmall').onclick = () => { tf.campaigns.small = !tf.campaigns.small; campaigns(); };
+  document.querySelectorAll('[data-sug]').forEach(b => b.onclick = () => suggestCampaign(rows.find(r => r.name === b.dataset.sug)));
+}
+function suggestCampaign(r){
+  const step = N(OV && OV.settings && OV.settings.max_budget_step) || 0.2;
+  modal(`<h2 style="font-family:var(--num);font-weight:400;margin:0">Suggest a change</h2><div class="sub" style="margin-bottom:8px">${esc(r.name)}</div>
+    <div class="frow"><label>What</label><select id="mType">${r.status === 'ENABLED' ? '<option value="set_budget">Change daily budget</option><option value="pause_campaign">Pause it</option>' : '<option value="enable_campaign">Switch it back on</option>'}</select></div>
+    <div class="frow" id="mAmtRow"><label>New daily budget<span class="h">Now ${gbp(r.budget, 2)} · up to ${Math.round(step * 100)}% either way per change</span></label><input id="mAmt" type="number" step="0.01" value="${N(r.budget).toFixed(2)}"></div>
+    <div style="margin-top:10px"><label class="sub">Why (so whoever approves it knows)</label><textarea id="mWhy" rows="3" style="width:100%"></textarea></div>
+    <div class="bar"><button class="btn y" id="mGo">Add to the list</button><button class="btn" id="mX">Cancel</button><span class="bad" id="mErr"></span></div>`);
+  const sync = () => $('mAmtRow').style.display = $('mType').value === 'set_budget' ? '' : 'none'; sync(); $('mType').onchange = sync;
+  $('mGo').onclick = async () => {
+    try { await api('', { action: 'propose', type: $('mType').value, params: { campaign: r.name, amount: N($('mAmt').value) }, reason: $('mWhy').value }); closeModal(); toast('Added to Changes'); }
+    catch(x){ $('mErr').textContent = x.message; }
+  };
+}
+
+// ---------------------------------------------------------------- search terms
+let TERMS = null;
+async function terms(){
+  loading();
+  try { TERMS = await api('?view=terms'); } catch(x){ return fail(x); }
+  drawTerms();
+}
+function drawTerms(){
+  const d = TERMS, f = tf.terms;
+  const neg = new Set((d.negatives || []).map(n => n.campaign + '|' + n.text));
+  const pend = new Map((d.pending || []).map(p => [p.params.campaign + '|' + String(p.params.text).toLowerCase(), p.status]));
+  let rows = d.rows || [];
+  if (f.q) rows = rows.filter(r => (r.term + ' ' + r.campaign).toLowerCase().includes(f.q.toLowerCase()));
+  if (f.noconv) rows = rows.filter(r => !N(r.conv));
+  if (f.chip === 'merchant') rows = rows.filter(r => MERCHANTS.test(r.term));
+  if (f.chip === 'brand') rows = rows.filter(r => BRAND.test(r.term));
+  const shown = rows.slice(0, 300);
+  $('out').innerHTML = `
+    <div class="tiles">
+      <div class="tile"><div class="k">Spend on searches we can see</div><div class="n">${gbp(d.totals.cost)}</div><div class="s">${int(d.totals.terms)} different searches · ${esc((d.period || '').toLowerCase().replace(/_/g, ' '))}</div></div>
+      <div class="tile"><div class="k">Of which no conversion</div><div class="n">${gbp(d.totals.no_conv_cost)}</div><div class="s">Mostly one-off clicks, look for repeats</div></div>
+    </div>
+    <div class="sub">Performance Max doesn't tell us its searches, so this covers Search and Shopping only. "Block" adds an exact-match negative keyword so we stop paying for that search.</div>
+    <div class="bar"><input id="tq" placeholder="Search terms…" value="${esc(f.q)}" style="flex:1;min-width:200px">
+      <div class="chips"><button class="chip ${f.noconv ? 'on' : ''}" id="cNo">No conversions</button><button class="chip ${f.chip === 'merchant' ? 'on' : ''}" data-chip="merchant">Other merchants / trade accounts</button><button class="chip ${f.chip === 'brand' ? 'on' : ''}" data-chip="brand">Our own name</button></div></div>
+    <div class="card"><div class="scroll"><table><tr><th>Search</th><th class="l hm">Campaign</th><th>Spend</th><th>Clicks</th><th>Conv.</th><th></th></tr>
+      ${shown.map(r => { const k = r.campaign + '|' + r.term.toLowerCase(), st = neg.has(k) ? 'blocked' : pend.get(k);
+        return `<tr><td class="l">${esc(r.term)}</td><td class="l hm muted">${esc(r.campaign)}</td><td>${gbp(r.cost, 2)}</td><td>${int(r.clicks)}</td><td>${N(r.conv) ? N(r.conv).toFixed(1) : '<span class="muted">0</span>'}</td>
+        <td>${st ? `<span class="pill ${st === 'blocked' || st === 'applied' ? 'g' : 'y'}">${esc(st)}</span>` : `<button class="btn sm" data-blk="${esc(k)}">Block</button>`}</td></tr>`; }).join('') || '<tr><td colspan="6" class="empty">Nothing matches</td></tr>'}
+    </table></div>${rows.length > shown.length ? `<div class="sub">Showing the top 300 of ${rows.length}. Search to narrow it down.</div>` : ''}</div>`;
+  $('tq').oninput = e => { f.q = e.target.value; clearTimeout(drawTerms.t); drawTerms.t = setTimeout(() => { drawTerms(); const i = $('tq'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
+  $('cNo').onclick = () => { f.noconv = !f.noconv; drawTerms(); };
+  document.querySelectorAll('[data-chip]').forEach(b => b.onclick = () => { f.chip = f.chip === b.dataset.chip ? '' : b.dataset.chip; drawTerms(); });
+  document.querySelectorAll('[data-blk]').forEach(b => b.onclick = () => { const [campaign, ...t] = b.dataset.blk.split('|'); blockTerm(campaign, t.join('|')); });
+}
+function blockTerm(campaign, text){
+  modal(`<h2 style="font-family:var(--num);font-weight:400;margin:0">Block this search</h2><div class="sub">"${esc(text)}" in ${esc(campaign)}</div>
+    <div class="frow"><label>How<span class="h">Exact = only this search. Phrase = any search containing these words.</span></label><select id="mMatch"><option value="EXACT">Exact</option><option value="PHRASE">Phrase</option></select></div>
+    <div style="margin-top:10px"><label class="sub">Why</label><textarea id="mWhy" rows="2" style="width:100%">${MERCHANTS.test(text) ? 'Looking for another merchant or their trade account, not us' : ''}</textarea></div>
+    <div class="bar"><button class="btn y" id="mGo">Add to the list</button><button class="btn" id="mX">Cancel</button><span class="bad" id="mErr"></span></div>`);
+  $('mGo').onclick = async () => {
+    try { await api('', { action: 'propose', type: 'add_negative', params: { campaign, text, match: $('mMatch').value }, reason: $('mWhy').value }); closeModal(); toast('Added to Changes'); TERMS.pending.push({ params: { campaign, text }, status: 'proposed' }); drawTerms(); }
+    catch(x){ $('mErr').textContent = x.message; }
+  };
+}
+
+// ---------------------------------------------------------------- products
+let PRODS = null;
+async function products(){
+  loading();
+  try { PRODS = await api('?view=products'); } catch(x){ return fail(x); }
+  drawProducts();
+}
+function drawProducts(){
+  const d = PRODS, f = tf.products;
+  let rows = d.rows || [];
+  if (f.q) rows = rows.filter(r => (r.title || '').toLowerCase().includes(f.q.toLowerCase()));
+  if (f.noconv) rows = rows.filter(r => !N(r.conv));
+  $('out').innerHTML = `
+    <div class="tiles">
+      <div class="tile"><div class="k">Spend on Shopping products</div><div class="n">${gbp(d.totals.cost)}</div><div class="s">${int(d.totals.products)} products shown · ${esc((d.period || '').toLowerCase().replace(/_/g, ' '))}</div></div>
+      <div class="tile"><div class="k">Products with spend but no sale</div><div class="n">${gbp(d.totals.no_conv_cost)}</div><div class="s">Spread thinly; worth acting on repeat offenders only</div></div>
+    </div>
+    <div class="sub">To stop advertising a product, exclude it in the product feed or Merchant Center. Bob can't do that yet.</div>
+    <div class="bar"><input id="pq" placeholder="Search products…" value="${esc(f.q)}" style="flex:1;min-width:200px"><button class="chip ${f.noconv ? 'on' : ''}" id="pNo">No conversions</button></div>
+    <div class="card"><div class="scroll"><table><tr><th>Product</th><th>Spend</th><th>Clicks</th><th class="hm">Impressions</th><th>Conv.</th></tr>
+      ${rows.slice(0, 300).map(r => `<tr><td class="l">${esc(r.title)}</td><td>${gbp(r.cost, 2)}</td><td>${int(r.clicks)}</td><td class="hm">${int(r.impr)}</td><td>${N(r.conv) ? N(r.conv).toFixed(1) : '<span class="muted">0</span>'}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Nothing matches</td></tr>'}
+    </table></div></div>`;
+  $('pq').oninput = e => { f.q = e.target.value; clearTimeout(drawProducts.t); drawProducts.t = setTimeout(() => { drawProducts(); const i = $('pq'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
+  $('pNo').onclick = () => { f.noconv = !f.noconv; drawProducts(); };
+}
+
+// ---------------------------------------------------------------- changes
+async function changes(){
+  loading();
+  try { CHG = await api('?view=changes'); } catch(x){ return fail(x); }
+  const c = CHG.changes || [];
+  const desc = x => { const p = x.params || {};
+    if (x.type === 'add_negative') return `Block <b>"${esc(p.text)}"</b> (${esc((p.match || 'EXACT').toLowerCase())}) in ${esc(p.campaign)}`;
+    if (x.type === 'set_budget') return `Budget for <b>${esc(p.campaign)}</b>: ${p.from != null ? gbp(p.from, 2) + ' → ' : ''}<b>${gbp(p.amount, 2)}</b> a day`;
+    return `${esc(TYPE_TEXT[x.type] || x.type)}: <b>${esc(p.campaign)}</b>${p.adgroup ? ' › ' + esc(p.adgroup) : ''}${p.text ? ' › ' + esc(p.text) : ''}`; };
+  const group = (title, st, acts, note) => { const list = c.filter(x => st.includes(x.status)); if (!list.length) return '';
+    return `<div class="card"><div class="rhead"><h2>${title} <span class="pill">${list.length}</span></h2>${note ? `<span class="sub">${note}</span>` : ''}</div>
+      ${list.map(x => `<div class="chg"><div class="what"><b>${desc(x)}</b>${x.reason ? `<div class="sub">${esc(x.reason)}</div>` : ''}
+        <div class="meta">#${x.id} · suggested by ${esc(x.created_by)} ${dt(x.created_at)}${x.decided_by ? ` · ${esc(x.status)} by ${esc(x.decided_by)} ${dt(x.decided_at)}` : ''}${x.applied_at ? ` · done ${dt(x.applied_at)}` : ''}${x.result && x.result.error ? ` · <span class="bad">${esc(x.result.error)}</span>` : ''}</div></div>
+        <div class="acts">${acts(x)}</div></div>`).join('')}</div>`; };
+  const paused = CHG.settings && CHG.settings.paused !== false;
+  $('out').innerHTML = `${lockBanner(CHG.settings)}
+    <div class="sub" style="margin-bottom:10px">How it works: anyone with this screen suggests a change, someone approves it, and the Google Ads script makes it on its next run, but only while the kill switch is off. Nothing here can delete anything.</div>
+    ${group('Waiting for a decision', ['proposed'], x => `<button class="btn sm g" data-dec="approved" data-id="${x.id}">Approve</button><button class="btn sm" data-dec="held" data-id="${x.id}">Hold</button><button class="btn sm r" data-dec="rejected" data-id="${x.id}">Reject</button>`)}
+    ${group('Approved', ['approved'], x => `<button class="btn sm" data-dec="proposed" data-id="${x.id}">Take back</button>`, paused ? 'Kill switch is on, so these wait until it\'s turned off' : 'Made on the script\'s next run')}
+    ${group('On hold', ['held'], x => `<button class="btn sm g" data-dec="approved" data-id="${x.id}">Approve</button><button class="btn sm r" data-dec="rejected" data-id="${x.id}">Reject</button>`)}
+    ${group('Done', ['applied'], x => `<button class="btn sm" data-undo="${x.id}">Undo</button>`)}
+    ${group('Failed', ['failed'], x => '')}
+    ${group('Rejected', ['rejected', 'undone'], x => `<button class="btn sm" data-dec="proposed" data-id="${x.id}">Reconsider</button>`)}
+    ${!c.length ? '<div class="card empty">No changes yet. Suggest them from Campaigns or Search terms.</div>' : ''}
+    <div class="card"><h2>Script runs</h2><div class="scroll"><table><tr><th>When</th><th class="l">What</th><th class="l">Detail</th></tr>
+      ${(CHG.runs || []).map(r => `<tr><td>${dt(r.at)}</td><td class="l">${esc(r.action)}${r.preview ? ' <span class="pill">preview</span>' : ''}</td><td class="l muted">${esc(JSON.stringify(r.detail || {}).slice(0, 140))}</td></tr>`).join('')}</table></div></div>`;
+  document.querySelectorAll('[data-dec]').forEach(b => b.onclick = async () => { try { await api('', { action: 'decide', id: Number(b.dataset.id), decision: b.dataset.dec }); changes(); } catch(x){ toast(x.message); } });
+  document.querySelectorAll('[data-undo]').forEach(b => b.onclick = async () => { try { await api('', { action: 'undo', id: Number(b.dataset.undo) }); toast('Undo added to the list'); changes(); } catch(x){ toast(x.message); } });
+}
+
+// ---------------------------------------------------------------- settings
+async function settings(){
+  loading();
+  if (!CHG) { try { CHG = await api('?view=changes'); } catch(x){ return fail(x); } }
+  if (!OV) { try { OV = await api('?view=overview&days=' + days); } catch(x){ return fail(x); } }
+  const s = OV.settings, meta = OV.settings_meta || {}, admin = OV.admin, dis = admin ? '' : 'disabled';
+  const by = k => meta[k] && meta[k].by ? `<span class="h">Set by ${esc(meta[k].by)} ${dt(meta[k].at)}</span>` : '';
+  $('out').innerHTML = `${lockBanner(s)}
+    <div class="card"><h2>Kill switch</h2>
+      <div class="frow"><label>Let Bob make approved changes in Google Ads<span class="h">Off = read-only. Turn on only once tracking is green and you've approved changes you're happy with.</span>${by('paused')}</label>
+        <button class="btn ${s.paused === false ? 'r' : 'g'}" id="ks" ${dis}>${s.paused === false ? 'Switch to read-only' : 'Allow changes'}</button></div></div>
+    <div class="card"><h2>Guardrails</h2><div class="sub">The script checks these too, so a mistake here can't blow the budget.</div>
+      <div class="frow"><label>Monthly cap (£)<span class="h">Etienne's limit. Shown on Overview, warns if the month is heading over.</span>${by('monthly_cap')}</label><input id="sCap" type="number" value="${N(s.monthly_cap)}" ${dis}></div>
+      <div class="frow"><label>Most total daily budget (£)<span class="h">The script refuses any change that takes all daily budgets over this</span>${by('max_daily_total')}</label><input id="sDay" type="number" value="${N(s.max_daily_total)}" ${dis}></div>
+      <div class="frow"><label>Biggest single budget change (%)<span class="h">Google relearns after big jumps. 20% a week is a safe pace</span>${by('max_budget_step')}</label><input id="sStep" type="number" value="${Math.round(N(s.max_budget_step) * 100)}" ${dis}></div>
+      <div class="frow"><label>Most changes per run<span class="h">Up to 25</span>${by('max_changes_per_run')}</label><input id="sMax" type="number" value="${N(s.max_changes_per_run)}" ${dis}></div>
+      <div class="frow"><label>Tracking fixed on<span class="h">Set the day Matt's fix goes live. Starts the 3-week "hold bidding changes" countdown on Overview</span>${by('tracking_fixed_on')}</label><input id="sFix" type="date" value="${s.tracking_fixed_on || ''}" ${dis}></div>
+      ${admin ? '<div class="bar"><button class="btn y" id="sSave">Save guardrails</button></div>' : '<div class="sub">Only an admin can change these.</div>'}</div>`;
+  if (!admin) return;
+  $('ks').onclick = async () => {
+    const turningOn = s.paused !== false;
+    const ok = await confirmBox(turningOn ? 'Allow Bob to make changes?' : 'Back to read-only?', turningOn
+      ? `Approved changes (${(CHG.changes || []).filter(x => x.status === 'approved').length} right now) will be made in Google Ads on the script's next run. ${!trustAds() ? '<br><br><b class="bad">Tracking isn\'t green yet.</b> Changes to bids or budgets now are guesswork.' : ''}`
+      : 'Nothing will change in Google Ads until it\'s switched back on. Approved changes stay in the list.');
+    if (!ok) return;
+    try { await api('', { action: 'settings', value: { paused: !turningOn } }); OV = null; toast(turningOn ? 'Changes allowed' : 'Read-only'); settings(); } catch(x){ toast(x.message); }
+  };
+  $('sSave').onclick = async () => {
+    try { await api('', { action: 'settings', value: { monthly_cap: N($('sCap').value), max_daily_total: N($('sDay').value), max_budget_step: N($('sStep').value) / 100, max_changes_per_run: N($('sMax').value), tracking_fixed_on: $('sFix').value || null } });
+      OV = null; toast('Saved'); settings(); } catch(x){ toast(x.message); }
+  };
+}
+
+// ---------------------------------------------------------------- guide
+function guide(){
+  $('out').innerHTML = `<div class="card guide">
+    <h2>How to use the Ads manager</h2>
+    <p>Google Ads spends about £60 a day, up to £1,800 a month. This screen shows whether that money is working, and lets us change things carefully, with a second pair of eyes and a record of everything.</p>
+    <h3>The weekly routine (20 minutes, Monday morning)</h3>
+    <div class="step"><div class="n">1</div><div><b>Overview: check the four lights.</b> All green means the numbers can be trusted. Anything red: read the line under it before changing anything.</div></div>
+    <div class="step"><div class="n">2</div><div><b>Overview: check the month.</b> Is spend heading over the cap? Did web orders dip when spend dropped (or not)?</div></div>
+    <div class="step"><div class="n">3</div><div><b>Search terms: tick "No conversions".</b> Block searches that are clearly not us (other merchants, jobs, DIY "how to", things we don't sell). Don't block one-off searches that just happened not to buy.</div></div>
+    <div class="step"><div class="n">4</div><div><b>Campaigns: look at the big four.</b> Is any campaign spending much more or less than last week? Suggest at most one budget change a week, never more than 20%.</div></div>
+    <div class="step"><div class="n">5</div><div><b>Changes: approve or reject.</b> Read the reason. If you're not sure, Hold it and ask.</div></div>
+    <h3>Rules of thumb</h3>
+    <ul>
+      <li><b>Patience beats fiddling.</b> Google's bidding needs 2–3 weeks to settle after any big change. Changing things every few days means it never learns.</li>
+      <li><b>One change at a time</b> per campaign, so you can tell what worked.</li>
+      <li><b>Judge on real orders</b>, not clicks. Lots of clicks with no sales is worse than few clicks with sales.</li>
+      <li><b>Small numbers lie.</b> A product with 3 clicks and no sale tells you nothing yet. Wait for 20–30 clicks.</li>
+      <li><b>Never above the cap.</b> If the month is heading over, trim the biggest budget slightly rather than pausing things.</li>
+    </ul>
+    <h3>Words you'll see</h3>
+    <dl>
+      <dt>Impression / click / CPC</dt><dd>An ad shown / someone clicking it / what we paid for that click.</dd>
+      <dt>Conversion</dt><dd>Something we told Google counts as a win: mainly a web purchase, also a trade account sign-up.</dd>
+      <dt>ROAS (return on ad spend)</dt><dd>Revenue ÷ ad spend. 10× means £10 of sales for every £1 spent.</dd>
+      <dt>Target ROAS</dt><dd>The return we tell Google to aim for. Set it too high and Google barely spends; too low and it spends freely on poor sales.</dd>
+      <dt>Performance Max (PMax)</dt><dd>Google's all-in-one campaign: Search, Shopping, YouTube, Gmail. Powerful, but it doesn't show which searches it bought.</dd>
+      <dt>Shopping</dt><dd>The product listings with a photo and price. Driven by our product feed from the website.</dd>
+      <dt>Negative keyword ("Block")</dt><dd>A search we never want to pay for. Exact blocks only that search; phrase blocks anything containing the words.</dd>
+      <dt>Smart bidding / learning period</dt><dd>Google setting bids automatically from the conversion data it gets. After a big change it "relearns" for a couple of weeks.</dd>
+      <dt>GA4</dt><dd>Google Analytics: what visitors do on the website and where they came from. A second opinion to Google Ads' own figures.</dd>
+      <dt>Kill switch</dt><dd>When on, Bob only watches. Approved changes wait until an admin turns it off.</dd>
+    </dl>
+    <h3>Where the numbers come from</h3>
+    <p class="muted">Spend, clicks and conversions: two scripts in Google Ads that send Bob the figures every day. Real web orders: Cin7, via Bob. GA4: read directly. Search terms and products cover the last 30 days and refresh daily.</p>
+  </div>`;
+}
+
+// ---------------------------------------------------------------- bits
+function modal(html){ $('mbox').innerHTML = html; $('modal').style.display = 'flex'; if ($('mX')) $('mX').onclick = closeModal; }
+function closeModal(){ $('modal').style.display = 'none'; }
+function confirmBox(title, html){ return new Promise(res => { modal(`<h2 style="font-family:var(--num);font-weight:400;margin:0 0 8px">${esc(title)}</h2><div>${html}</div><div class="bar"><button class="btn y" id="cOk">Yes</button><button class="btn" id="cNo2">Cancel</button></div>`);
+  $('cOk').onclick = () => { closeModal(); res(true); }; $('cNo2').onclick = () => { closeModal(); res(false); }; }); }
+$('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+
+if (token) start(); else showLogin();
+TSDAuth.mount(t => { token = t; start(); });
+</script>
+<script>
+(function(){
+  const BUILD = '20261116211322';
+  let newer = false;
+  async function check(){
+    try {
+      if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
+      if (newer) location.reload();
+    } catch(e){}
+  }
+  setInterval(check, 120000);
+})();
+</script>
+</body>
+</html>
