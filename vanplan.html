@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="manifest" href="manifest-vanplan.json">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Van planning · TSD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#262727;--panel:#323333;--panel2:#3B3C3C;--line:#474949;--ink:#FFF;--muted:#B9BCBC;--accent:#EED107;--good:#7DDB98;--bad:#FF7A6B;--blue:#8AB4FF;--num:'Bebas Neue','DIN Condensed','Arial Narrow',Arial,sans-serif;--body:Barlow,'Segoe UI',Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+.wrap{padding:16px 18px 30px;max-width:1600px;margin:0 auto}
+h1{font-family:var(--num);font-size:40px;letter-spacing:1px;margin:0;line-height:1}
+h2{font-family:var(--num);font-size:24px;letter-spacing:.5px;margin:0;font-weight:400}
+.sub{color:var(--muted);font-size:13px}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:inherit;font-weight:600;padding:7px 12px;border-radius:10px;cursor:pointer;transition:transform .08s ease,border-color .15s}
+.btn:hover{border-color:var(--muted)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.5;cursor:default}
+.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.g{background:#1f3b2a;border-color:#2E9E6A;color:var(--good)}
+input,select{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;padding:6px 9px;border-radius:9px;color-scheme:dark}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted)}
+.chip b{color:var(--ink)}
+.grid{display:grid;grid-template-columns:minmax(380px,1fr) minmax(0,1.25fr);gap:14px;align-items:start}
+#map{height:calc(100vh - 150px);min-height:520px;border-radius:14px;border:1px solid var(--line);position:sticky;top:10px}
+.col{display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 150px);overflow:auto;padding-right:4px}
+.run{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;border-left:6px solid var(--c)}
+.run .hd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.run .hd h2{flex:1;min-width:120px}
+.nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0}
+.num{background:var(--panel2);border-radius:10px;padding:6px 8px}
+.num .k{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.num .v{font-family:var(--num);font-size:24px;line-height:1.05}
+.num.bad .v{color:var(--bad)}.num.good .v{color:var(--good)}
+.money{font-size:13px;color:var(--muted);line-height:1.5}.money b{color:var(--ink)}
+.stops{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.stop{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:start;background:var(--panel2);border-radius:10px;padding:7px 9px}
+.stop .i{width:22px;height:22px;border-radius:50%;background:var(--c);color:#111;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.stop .t{font-weight:700}.stop .m{color:var(--muted);font-size:12px}
+.stop select{font-size:12px;padding:3px 6px}
+.flag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin:2px 4px 0 0}
+.f-warn{background:#4a3f0b;color:#FFE77A}.f-bad{background:#4a1418;color:#FFC2C4}.f-cour{background:#1d2b45;color:var(--blue)}.f-ok{background:#1b3a28;color:var(--good)}
+.note{font-size:12px;color:#ffe9a8;margin-top:2px}
+.pool{background:var(--panel);border:1px dashed var(--line);border-radius:14px;padding:12px}
+.empty{color:var(--muted);padding:10px 0}
+.booked{font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-start;justify-content:center;padding:40px 12px;overflow:auto;z-index:2000}
+#modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:10px}
+#modal h3{margin:0;font-family:var(--num);font-size:28px;font-weight:400}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#262727;font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:2100}
+.leaflet-popup-content{font-family:var(--body);font-size:13px}
+.pin{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #111;display:flex;align-items:center;justify-content:center}
+.pin span{transform:rotate(45deg);font-weight:700;font-size:11px;color:#111}
+details summary{cursor:pointer}
+@media (max-width:1000px){.grid{grid-template-columns:1fr}#map{position:relative;height:420px}.col{max-height:none}}
+</style>
+</head>
+<body>
+<div id="login"><div id="lerr"></div></div>
+<div class="wrap" id="app" style="display:none">
+  <div class="bar" style="margin-top:0">
+    <div style="flex:1;min-width:260px"><h1>VAN PLANNING</h1><div class="sub">Plan the runs, check the money, then book them into Track-POD. Suggested runs are a starting point: move drops between runs to suit.</div></div>
+    <label class="sub">Run day <input type="date" id="day"></label>
+    <button class="btn y" id="suggest">✨ Suggest runs</button>
+    <button class="btn" id="reload">↻</button>
+  </div>
+  <div class="bar" id="chips"></div>
+  <div class="grid">
+    <div class="col" id="left"><div class="empty">Loading…</div></div>
+    <div id="map"></div>
+  </div>
+</div>
+<div id="modal"><div class="box" id="mbox"></div></div>
+<div id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="auth.js?v=20261118182011"></script>
+<script src="activity.js?v=20261118182011"></script>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/vanplan';
+const WH = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse';
+const mem = {};
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
+let token = store.get('tsd_me_token');
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const N = v => Number(v) || 0;
+const gbp = v => (N(v) < 0 ? '−£' : '£') + Math.round(Math.abs(N(v))).toLocaleString('en-GB');
+const toast = m => { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 3500); };
+const dshort = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'}) : '';
+const COLORS = ['#EED107', '#7DDB98', '#8AB4FF', '#FF9F6B', '#D69BFF', '#5FD3D3'];
+
+// ---- assumptions (shown on screen) ----
+const MPH = 32, STOP_MIN = 15, ROAD = 1.25, DAY_MIN = 600;   // average speed incl. A-roads/motorway, minutes per drop, straight line -> road, a full working day
+const CONGESTION = /^(EC\d|WC\d|E1W?|N1|NW1|SE1|SE11|SW1[A-Z]?|SW3|SW5|SW7|SW10|W1[A-Z]?|W2|W8|W11|W14)$/;   // central London (rough), adds the London extra
+// rough courier cost for the same order, to flag drops that might be cheaper by courier
+const courierCost = w => w <= 0 ? 12 : w <= 30 ? 12 : w <= 100 ? 12 * Math.ceil(w / 25) : 55;
+const SITE_WORDS = /(no hgv|no lorr|access|restrict|before \d|after \d|by \d|call|phone|ring|tail ?lift|forklift|narrow|parking|gate|site closes|timed|booking|booked slot)/i;
+
+let D = null, day = null, runs = [], map, layer;
+
+async function api(body){
+  const r = await fetch(API, body ? {method:'POST', headers:{Authorization:'Bearer ' + token, 'Content-Type':'application/json'}, body: JSON.stringify(body)} : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('Please log in again'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error && j.ok !== false) throw new Error(j.error || 'Something went wrong');
+  return j;
+}
+function showLogin(msg){ $('app').style.display = 'none'; $('login').style.display = 'flex'; if (msg) $('lerr').textContent = msg; }
+function start(){ $('login').style.display = 'none'; $('app').style.display = 'block'; initMap(); load(); }
+
+function nextWorkingDay(){ const d = new Date(); do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6); return d.toLocaleDateString('en-CA'); }
+function save(){ store.set('vp_runs_' + day, JSON.stringify(runs.map(r => ({ ...r, google: r.google ? { ...r.google, line: null } : null })))); }
+function restore(){ try { const r = JSON.parse(store.get('vp_runs_' + day) || '[]'); const ids = new Set((D.orders || []).map(o => o.id)); runs = r.map(x => ({ ...x, stops: x.stops.filter(id => ids.has(id)), google: null })); } catch(e){ runs = []; } }
+
+async function load(){
+  try {
+    D = await api();
+    if (!day) { day = nextWorkingDay(); $('day').value = day; }
+    restore(); render();
+  } catch(e){ $('left').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+
+// ---- maths ----
+const R = 3958.8, rad = x => x * Math.PI / 180;
+function hav(a, b){ const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng); const h = Math.sin(dLat/2)**2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng/2)**2; return 2 * R * Math.asin(Math.sqrt(h)); }
+const byId = id => (D.orders || []).find(o => o.id === id);
+const located = o => o && o.lat != null && o.lng != null;
+function nnOrder(ids){   // nearest-neighbour tour from the depot
+  const left = ids.map(byId).filter(located), out = []; let cur = D.depot;
+  while (left.length) { let bi = 0, bd = 1e9; left.forEach((o, i) => { const d = hav(cur, o); if (d < bd) { bd = d; bi = i; } }); cur = left.splice(bi, 1)[0]; out.push(cur.id); }
+  return out.concat(ids.filter(id => !located(byId(id))));
+}
+function tourMiles(ids){ const pts = ids.map(byId).filter(located); if (!pts.length) return 0; let m = 0, cur = D.depot; for (const p of pts) { m += hav(cur, p); cur = p; } return (m + hav(cur, D.depot)) * ROAD; }
+function outcode(pc){ return String(pc || '').trim().toUpperCase().split(' ')[0]; }
+function costs(){ return D.costs || { driver_default: 153, fuel_per_mile: 0.3, vans: {}, extras: { LDN: 18 }, van_days_per_month: 21.7, drivers: {} }; }
+function runNumbers(r){
+  const os = r.stops.map(byId).filter(Boolean);
+  const est = !r.google;
+  const miles = r.google ? r.google.miles : tourMiles(r.stops);
+  const minutes = (r.google ? r.google.minutes : miles / MPH * 60) + os.length * STOP_MIN;
+  const kg = os.reduce((a, o) => a + N(o.weight), 0);
+  const van = (D.vans || []).find(v => v.reg === r.van) || (D.vans || [])[0] || { kg: 1300 };
+  const C = costs();
+  const dayRate = N((C.drivers || {})[r.driver]) || N(C.driver_default) || 153;
+  const driver = dayRate * (minutes > DAY_MIN * 0.55 ? 1 : 0.5);
+  const vanDay = N((C.vans || {})[r.van] ?? Object.values(C.vans || {})[0]) / (N(C.van_days_per_month) || 21.7);
+  const fuel = miles * (N(C.fuel_per_mile) || 0.3);
+  const london = os.some(o => CONGESTION.test(outcode(o.postcode))) ? N((C.extras || {}).LDN) : 0;
+  const cost = driver + vanDay + fuel + london;
+  const delivery = os.reduce((a, o) => a + N(o.delivery), 0);
+  const margin = os.reduce((a, o) => a + N(o.goods) - N(o.cost), 0);
+  return { os, est, miles, minutes, kg, cap: van.kg || 1300, driver, vanDay, fuel, london, cost, delivery, margin, profit: delivery + margin - cost };
+}
+// each drop's extra miles on this run, and whether a courier would be cheaper for it
+function detour(r, id){
+  if (r.stops.length < 2) return null;
+  const without = tourMiles(nnOrder(r.stops.filter(x => x !== id)));
+  const extra = Math.max(0, tourMiles(nnOrder(r.stops)) - without);
+  const C = costs();
+  const pounds = extra * (N(C.fuel_per_mile) || 0.3) + (extra / MPH * 60 + STOP_MIN) / 60 * ((N(C.driver_default) || 153) / 10);
+  return { miles: extra, pounds };
+}
+
+// ---- suggestion: sweep round Bromham by direction, fill each van to weight / time, nearest-neighbour order ----
+function suggest(){
+  const pool = (D.orders || []).filter(o => located(o) && !(o.backorder && o.stock_in !== 'all'));
+  const ang = o => Math.atan2(o.lat - D.depot.lat, (o.lng - D.depot.lng) * Math.cos(rad(D.depot.lat)));
+  pool.sort((a, b) => ang(a) - ang(b));
+  // start the sweep at the biggest gap between drops, so one area isn't split across two runs
+  let gapAt = 0, gap = -1;
+  pool.forEach((o, i) => { const nx = pool[(i + 1) % pool.length]; let g = ang(nx) - ang(o); if (g <= 0) g += 2 * Math.PI; if (g > gap) { gap = g; gapAt = (i + 1) % pool.length; } });
+  const ordered = pool.slice(gapAt).concat(pool.slice(0, gapAt));
+  const dow = new Date(day + 'T12:00:00').getDay();
+  const drivers = (D.drivers || []).filter(d => (d.days || []).includes(dow));
+  const vans = (D.vans || []).slice(0, Math.max(1, Math.min((D.vans || []).length, drivers.length || 1)));
+  const out = []; let cur = null;
+  for (const o of ordered) {
+    if (!cur) { const v = vans[out.length]; if (!v) break; cur = { id: 'r' + Date.now() + out.length, van: v.reg, driver: (drivers[out.length] || drivers[0] || {}).name || '', stops: [], google: null }; out.push(cur); }
+    const trial = { ...cur, stops: nnOrder([...cur.stops, o.id]) };
+    const n = runNumbers(trial);
+    if (cur.stops.length && (n.kg > n.cap || n.minutes > DAY_MIN)) {
+      const v = vans[out.length]; if (!v) continue;
+      cur = { id: 'r' + Date.now() + out.length, van: v.reg, driver: (drivers[out.length] || drivers[0] || {}).name || '', stops: [o.id], google: null }; out.push(cur);
+    } else cur.stops = trial.stops;
+  }
+  runs = out; save(); render();
+  toast(out.length ? `${out.length} run${out.length === 1 ? '' : 's'} suggested. Check them, then get the Google route.` : 'Nothing to plan for that day');
+}
+
+// ---- render ----
+function flags(o, r){
+  const f = [];
+  if (o.ship_by && o.ship_by < day) f.push(`<span class="flag f-bad">Needed by ${dshort(o.ship_by)}</span>`);
+  if (o.backorder && o.stock_in !== 'all') f.push('<span class="flag f-bad">Stock not all in</span>');
+  if (!located(o)) f.push('<span class="flag f-bad">No location: check postcode</span>');
+  if (!N(o.weight)) f.push('<span class="flag f-warn">No weight in Cin7</span>');
+  if (SITE_WORDS.test(o.notes || '')) f.push('<span class="flag f-warn">⚠ Site note</span>');
+  if (D.dispatch_on && o.office && o.office.state !== 'van') f.push('<span class="flag f-warn">Not sent to van by the office</span>');
+  if (r) {
+    const dt = detour(r, o.id);
+    if (dt && N(o.weight) < 60 && dt.pounds > courierCost(N(o.weight)) + 5) f.push(`<span class="flag f-cour">Courier ≈ ${gbp(courierCost(N(o.weight)))} vs +${Math.round(dt.miles)} mi (≈${gbp(dt.pounds)})</span>`);
+  }
+  return f.join('');
+}
+function runOptions(sel){ return runs.map((r, i) => `<option value="${r.id}" ${r.id === sel ? 'selected' : ''}>Run ${String.fromCharCode(65 + i)}</option>`).join('') + `<option value="" ${!sel ? 'selected' : ''}>Not on a run</option><option value="__new">+ New run</option>`; }
+function stopRow(o, r, i){
+  return `<div class="stop" style="--c:${r ? COLORS[runs.indexOf(r) % COLORS.length] : '#888'}">
+    <span class="i">${r ? i + 1 : '·'}</span>
+    <div><div><span class="t">${esc(o.no)}</span> ${esc(o.customer)}</div>
+      <div class="m">${esc([o.town, o.postcode].filter(Boolean).join(' · '))} · ${N(o.weight) ? Math.round(N(o.weight)) + ' kg' : '? kg'} · ${N(o.delivery) ? 'delivery ' + gbp(o.delivery) : 'free delivery'}${r && r.google && r.google.legs && r.google.legs[i] ? ' · ' + r.google.legs[i].miles + ' mi, ' + r.google.legs[i].minutes + ' min' : ''}</div>
+      ${flags(o, r)}${o.notes ? `<div class="note">“${esc(o.notes)}”</div>` : ''}</div>
+    <select data-move="${o.id}">${runOptions(r ? r.id : '')}</select>
+  </div>`;
+}
+function render(){
+  if (!D) return;
+  const onRun = new Set(runs.flatMap(r => r.stops));
+  const pool = (D.orders || []).filter(o => !onRun.has(o.id));
+  const bookedDay = (D.booked || []).filter(b => b.tp_date === day);
+  const C = costs();
+  $('chips').innerHTML = `<span class="chip">To book <b>${(D.orders || []).length}</b></span>
+    <span class="chip">Already booked ${dshort(day)} <b>${bookedDay.length}</b>${bookedDay.length ? ' · ' + Math.round(bookedDay.reduce((a, b) => a + b.weight, 0)) + ' kg' : ''}</span>
+    <span class="chip">Google routes today <b>${D.google.used}/${D.google.cap}</b></span>
+    <span class="chip" title="${esc(C.basis || '')}">Costs: driver ${gbp(C.driver_default)}/day · fuel £${N(C.fuel_per_mile).toFixed(2)}/mi · London +${gbp((C.extras || {}).LDN)} (Van profit settings)</span>`;
+  $('left').innerHTML = `
+    ${runs.length ? '' : `<div class="booked">No runs planned for ${dshort(day)} yet. Press <b>✨ Suggest runs</b>, or put drops on a run with the dropdowns below.</div>`}
+    ${runs.map((r, ri) => {
+      const n = runNumbers(r), c = COLORS[ri % COLORS.length];
+      return `<div class="run" style="--c:${c}">
+        <div class="hd"><h2>Run ${String.fromCharCode(65 + ri)}</h2>
+          <select data-van="${r.id}">${(D.vans || []).map(v => `<option value="${esc(v.reg)}" ${v.reg === r.van ? 'selected' : ''}>${esc(v.reg)} · ${esc(v.name)}</option>`).join('')}</select>
+          <select data-driver="${r.id}"><option value="">Driver…</option>${(D.drivers || []).map(d => `<option ${d.name === r.driver ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select></div>
+        <div class="nums">
+          <div class="num ${n.kg > n.cap ? 'bad' : ''}"><div class="k">Weight</div><div class="v">${Math.round(n.kg).toLocaleString('en-GB')}<span style="font-size:14px"> / ${n.cap} kg</span></div></div>
+          <div class="num"><div class="k">${n.est ? 'Miles (est)' : 'Miles'}</div><div class="v">${Math.round(n.miles)}</div></div>
+          <div class="num ${n.minutes > DAY_MIN ? 'bad' : ''}"><div class="k">${n.est ? 'Time (est)' : 'Time'}</div><div class="v">${Math.floor(n.minutes / 60)}h ${String(Math.round(n.minutes % 60)).padStart(2, '0')}</div></div>
+          <div class="num ${n.profit >= 0 ? 'good' : 'bad'}"><div class="k">Run profit</div><div class="v">${gbp(n.profit)}</div></div>
+        </div>
+        <div class="money">Delivery charges <b>${gbp(n.delivery)}</b> + goods margin <b>${gbp(n.margin)}</b> − run cost <b>${gbp(n.cost)}</b> (driver ${gbp(n.driver)}, van ${gbp(n.vanDay)}, fuel ${gbp(n.fuel)}${n.london ? ', London ' + gbp(n.london) : ''})${n.est ? ' · <i>miles and time are estimates until you get the Google route</i>' : ''}</div>
+        <div class="stops">${n.os.map((o, i) => stopRow(o, r, i)).join('') || '<div class="empty">No drops on this run.</div>'}</div>
+        <div class="bar" style="margin-bottom:0">
+          <button class="btn" data-g="${r.id}" ${r.stops.length ? '' : 'disabled'}>🗺 ${r.google ? 'Re-check' : 'Get'} Google route</button>
+          <button class="btn g" data-book="${r.id}" ${r.stops.length ? '' : 'disabled'}>✓ Book run in Track-POD for ${dshort(day)}</button>
+          <button class="btn" data-del="${r.id}" title="Remove this run (the drops go back to the list)">✕</button>
+        </div>
+      </div>`; }).join('')}
+    <div class="pool"><h2>Not on a run <span class="sub">(${pool.length})</span></h2>
+      <div class="stops">${pool.map(o => stopRow(o, null, 0)).join('') || '<div class="empty">Everything is on a run.</div>'}</div></div>
+    ${bookedDay.length ? `<details class="booked"><summary>Already in Track-POD for ${dshort(day)} (${bookedDay.length}) · shown grey on the map</summary>${bookedDay.map(b => `<div>${esc(b.no)} ${esc(b.customer)} · ${esc(b.postcode)} · ${Math.round(b.weight)} kg${b.route ? ' · route ' + esc(b.route) : ''}${b.driver ? ' · ' + esc(b.driver) : ''}</div>`).join('')}</details>` : ''}
+    <div class="sub">Assumptions: ${MPH} mph average, ${STOP_MIN} min per drop, straight line × ${ROAD} for road miles until Google is asked, a full day is ${DAY_MIN / 60} hours (over ${Math.round(DAY_MIN * 0.55 / 60)}h counts a full driver day, under is half). Courier comparison is rough (£12 a parcel, £55 a pallet).</div>`;
+  wire(); drawMap();
+}
+function wire(){
+  document.querySelectorAll('[data-move]').forEach(s => s.onchange = () => {
+    const id = s.dataset.move; let to = s.value;
+    runs.forEach(r => { r.stops = r.stops.filter(x => x !== id); });
+    if (to === '__new') { const v = (D.vans || [])[runs.length % Math.max(1, (D.vans || []).length)] || {}; const nr = { id: 'r' + Date.now(), van: v.reg, driver: '', stops: [], google: null }; runs.push(nr); to = nr.id; }
+    const r = runs.find(x => x.id === to); if (r) { r.stops = nnOrder([...r.stops, id]); r.google = null; }
+    runs.forEach(x => { if (x.id !== to && x.google) x.google = null; });
+    save(); render();
+  });
+  document.querySelectorAll('[data-van]').forEach(s => s.onchange = () => { const r = runs.find(x => x.id === s.dataset.van); r.van = s.value; save(); render(); });
+  document.querySelectorAll('[data-driver]').forEach(s => s.onchange = () => { const r = runs.find(x => x.id === s.dataset.driver); r.driver = s.value; save(); render(); });
+  document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { runs = runs.filter(x => x.id !== b.dataset.del); save(); render(); });
+  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => google(b.dataset.g, b));
+  document.querySelectorAll('[data-book]').forEach(b => b.onclick = () => bookModal(b.dataset.book));
+}
+async function google(rid, btn){
+  const r = runs.find(x => x.id === rid); if (!r) return;
+  const stops = r.stops.map(byId).filter(located).map(o => ({ id: o.id, lat: o.lat, lng: o.lng }));
+  btn.disabled = true; btn.textContent = 'Asking Google…';
+  try {
+    const j = await api({ action: 'route', stops });
+    if (!j.ok) { toast(j.error || 'Google said no'); btn.disabled = false; return render(); }
+    r.stops = j.order.concat(r.stops.filter(id => !j.order.includes(id)));
+    r.google = { miles: j.miles, minutes: j.minutes, legs: j.legs, line: j.line };
+    D.google.used++; save(); render();
+  } catch(e){ toast(e.message); btn.disabled = false; }
+}
+function modal(h){ $('mbox').innerHTML = h; $('modal').style.display = 'flex'; }
+function closeModal(){ $('modal').style.display = 'none'; }
+$('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+function bookModal(rid){
+  const r = runs.find(x => x.id === rid), ri = runs.indexOf(r), n = runNumbers(r);
+  const warn = [n.kg > n.cap ? `Over the van's ${n.cap} kg.` : '', n.minutes > DAY_MIN ? 'Longer than a working day.' : '', n.os.some(o => o.backorder && o.stock_in !== 'all') ? 'Some stock isn’t all in yet (only what’s in goes on the van).' : ''].filter(Boolean).join(' ');
+  modal(`<h3>Book Run ${String.fromCharCode(65 + ri)} for ${dshort(day)}</h3>
+    <div class="sub">${n.os.length} drops · ${Math.round(n.kg)} kg · ${esc(r.van || '')}${r.driver ? ' · ' + esc(r.driver) : ''}. Each order goes into Track-POD for ${dshort(day)} in this order, ready to route. The warehouse then sees it on their van screen to pick and load.</div>
+    ${warn ? `<div style="color:var(--bad)">⚠ ${esc(warn)}</div>` : ''}
+    <ol style="margin:0;padding-left:20px">${n.os.map(o => `<li>${esc(o.no)} ${esc(o.customer)} · ${esc(o.postcode || '')}</li>`).join('')}</ol>
+    <label class="sub"><input type="checkbox" id="bful"> Also pick, pack &amp; ship them in Cin7 now (the old way). Leave unticked so the warehouse ships each one when it's loaded.</label>
+    <div id="bprog" class="sub"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="bc">Cancel</button><button class="btn g" id="bok">Book ${n.os.length} drops</button></div>`);
+  $('bc').onclick = closeModal;
+  $('bok').onclick = async () => {
+    $('bok').disabled = true; $('bc').disabled = true;
+    const fulfil = $('bful').checked; let ok = 0; const bad = [];
+    for (const [i, o] of n.os.entries()) {
+      $('bprog').textContent = `Booking ${i + 1} of ${n.os.length}: ${o.no}…`;
+      try {
+        const res = await fetch(WH, { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'tp_push', id: o.id, date: day, fulfil }) });
+        const j = await res.json().catch(() => ({}));
+        if (res.ok && j.ok !== false) ok++; else bad.push(`${o.no}: ${j.error || res.status}`);
+      } catch(e){ bad.push(`${o.no}: no connection`); }
+    }
+    $('bprog').innerHTML = `${ok} booked.${bad.length ? '<br><span style="color:var(--bad)">' + bad.map(esc).join('<br>') + '</span>' : ''}`;
+    if (!bad.length) { runs = runs.filter(x => x.id !== rid); save(); setTimeout(() => { closeModal(); load(); }, 900); toast(`Run booked: ${ok} drops in Track-POD for ${dshort(day)}`); }
+    else { $('bc').disabled = false; $('bc').textContent = 'Close'; load(); }
+  };
+}
+
+// ---- map ----
+function initMap(){
+  if (map || !window.L) return;
+  map = L.map('map', { zoomControl: true }).setView([51.45, -1.6], 8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap contributors' }).addTo(map);
+  layer = L.layerGroup().addTo(map);
+}
+const pinIcon = (c, t) => L.divIcon({ className: '', html: `<div class="pin" style="background:${c}"><span>${t}</span></div>`, iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -24] });
+function drawMap(){
+  if (!map) return; layer.clearLayers();
+  const pts = [[D.depot.lat, D.depot.lng]];
+  L.marker([D.depot.lat, D.depot.lng], { icon: pinIcon('#fff', '⌂') }).bindPopup('<b>TSD Bromham</b>').addTo(layer);
+  (D.booked || []).filter(b => b.tp_date === day && b.lat != null).forEach(b => {
+    L.circleMarker([b.lat, b.lng], { radius: 6, color: '#888', fillColor: '#666', fillOpacity: .8 }).bindPopup(`<b>${esc(b.no)}</b> ${esc(b.customer)}<br>Already booked ${dshort(b.tp_date)}`).addTo(layer);
+  });
+  const onRun = new Map(); runs.forEach((r, ri) => r.stops.forEach((id, i) => onRun.set(id, [ri, i])));
+  runs.forEach((r, ri) => {
+    const c = COLORS[ri % COLORS.length];
+    const line = r.google && r.google.line ? r.google.line : [[D.depot.lat, D.depot.lng], ...r.stops.map(byId).filter(located).map(o => [o.lat, o.lng]), [D.depot.lat, D.depot.lng]];
+    L.polyline(line, { color: c, weight: 4, opacity: .85, dashArray: r.google ? null : '6 8' }).addTo(layer);
+  });
+  (D.orders || []).filter(located).forEach(o => {
+    const at = onRun.get(o.id), c = at ? COLORS[at[0] % COLORS.length] : '#9aa0a8';
+    L.marker([o.lat, o.lng], { icon: pinIcon(c, at ? at[1] + 1 : '·') })
+      .bindPopup(`<b>${esc(o.no)}</b> ${esc(o.customer)}<br>${esc(o.postcode || '')} · ${Math.round(N(o.weight))} kg · delivery ${gbp(o.delivery)}${o.notes ? '<br><i>' + esc(o.notes) + '</i>' : ''}`).addTo(layer);
+    pts.push([o.lat, o.lng]);
+  });
+  if (!drawMap.fitted && pts.length > 1) { map.fitBounds(pts, { padding: [30, 30] }); drawMap.fitted = true; }
+}
+
+$('day').onchange = () => { day = $('day').value; drawMap.fitted = false; restore(); render(); };
+$('suggest').onclick = () => { if (runs.length && !confirm('Replace the runs you have for this day with a new suggestion?')) return; suggest(); };
+$('reload').onclick = load;
+if (token) start(); else showLogin();
+TSDAuth.mount(t => { token = t; start(); });
+</script>
+</body>
+</html>
