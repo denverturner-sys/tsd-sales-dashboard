@@ -118,8 +118,8 @@ label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
 <div class="wrap" id="app" style="display:none"><div id="msg">Loading…</div></div>
 <div id="modal"><div id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261117103413"></script>
-<script src="activity.js?v=20261117103413"></script>
+<script src="auth.js?v=20261117155930"></script>
+<script src="activity.js?v=20261117155930"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/rewards';
 const mem = {};
@@ -229,12 +229,29 @@ function renderOverview(el){
     <div>
       <div class="card"><div class="sh"><h2>Next up</h2><button class="btn sm" data-go="plan">Full checklist</button></div>
         ${next.length ? next.map(msRow).join('') : '<div class="empty">Everything ticked off.</div>'}</div>
-      <div class="card"><div class="k">Still to come</div>
-        <div class="note" style="margin-top:6px">Credit earned, spent and expiring per customer lives inside the plugin on the website. Bob can't read it yet. A small update to the plugin would let it share those figures here.</div></div>
+      ${creditCard()}
     </div>
   </div>`;
   el.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { tab = b.dataset.go; store.set('tr_tab', tab); render(); });
   wireMs(el);
+}
+
+// 17 Nov: credit figures from the plugin on the website (v0.2.2 feed)
+function creditCard(){
+  const c = D.credit || {};
+  if (!c.ok) return `<div class="card"><div class="k">Credit on the website</div><div class="note" style="margin-top:6px">Couldn't read the plugin just now${c.error ? ' (' + esc(c.error) + ')' : ''}. It'll try again in a few minutes.</div></div>`;
+  const t = c.totals, rows = (c.customers || []).slice().sort((a, b) => b.balance - a.balance || b.earned - a.earned);
+  return `<div class="card"><div class="sh"><h2>Credit on the website</h2><span class="small">plugin v${esc(c.version)} · ${c.enabled ? (c.beta_mode ? 'on, beta only' : 'on for everyone') : 'switched off'}</span></div>
+    <div class="bs" style="grid-template-columns:repeat(4,1fr)">
+      <div><b>${gbp(t.balance)}</b><span>owed to customers (${t.with_credit})</span></div>
+      <div><b>${gbp(t.earned + t.bonus + t.adjusted)}</b><span>earned${t.bonus ? ` (incl. ${gbp(t.bonus)} bonus)` : ''}</span></div>
+      <div><b>${gbp(t.spent)}</b><span>spent</span></div>
+      <div><b>${gbp(t.expired)}</b><span>expired${t.expiring ? ` · ${gbp(t.expiring)} due` : ''}</span></div></div>
+    ${rows.length ? `<table style="width:100%;margin-top:10px;font-size:14px;border-collapse:collapse"><tr class="small"><td>Customer</td><td>Tier</td><td style="text-align:right">Balance</td><td style="text-align:right">Earned</td><td style="text-align:right">Spent</td><td style="text-align:right">Expires</td></tr>
+      ${rows.slice(0, 15).map(r => `<tr style="border-top:1px solid var(--line)"><td style="padding:5px 0">${esc(r.company || r.name)}${r.in_scheme ? '' : ' <span class="small">(not in scheme)</span>'}</td><td>${tierTag(r.tier)}</td><td style="text-align:right"><b>${gbp(r.balance)}</b></td><td style="text-align:right">${gbp(r.earned + r.bonus + r.adjusted)}</td><td style="text-align:right">${gbp(r.spent)}</td>
+        <td style="text-align:right">${r.expiring && r.expires_on ? gbp(r.expiring) + ' ' + new Date(String(r.expires_on).replace(' ', 'T')).toLocaleDateString('en-GB', {day:'numeric', month:'short'}) : '–'}</td></tr>`).join('')}</table>
+      ${rows.length > 15 ? `<div class="small">+ ${rows.length - 15} more</div>` : ''}` : '<div class="empty">No one has any credit history yet.</div>'}
+    <div class="small" style="margin-top:6px">Read from the website ${c.at ? new Date(c.at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) : ''}. Refreshes every 10 minutes.</div></div>`;
 }
 
 function msRow(m){
@@ -281,6 +298,7 @@ function betaCard(b){
       <div><b>${gbp(b.phone_spend_jul)}</b><span>phone/counter since Jul (${b.phone_orders_jul})</span></div>
       <div><b>${s ? `${s.orders} · ${gbp(s.spend)}` : '—'}</b><span>${s ? 'web since switched on' : 'not switched on yet'}</span></div>
     </div>
+    ${b.credit ? `<div class="small">Credit: <b>${gbp(b.credit.balance)}</b> to spend · ${gbp(b.credit.earned + b.credit.bonus + b.credit.adjusted)} earned · ${gbp(b.credit.spent)} spent${b.credit.beta ? '' : ' · <b style="color:var(--bad)">not ticked as beta on the website</b>'}</div>` : ''}
     ${b.start_tier ? `<div class="small">Starts on ${tierTag(b.start_tier)} (set "Never below ${b.start_tier}" on their profile)</div>` : ''}
     ${b.notes ? `<div class="bnote">${esc(b.notes)}</div>` : ''}
     ${b.feedback ? `<div class="bnote"><b>Feedback:</b> ${esc(b.feedback)}</div>` : ''}
@@ -419,7 +437,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261117103413';
+  const BUILD = '20261117155930';
   const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
