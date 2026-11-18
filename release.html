@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="manifest" href="manifest-release.json">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Release queue · TSD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#262727;--panel:#323333;--panel2:#3B3C3C;--line:#474949;--ink:#FFF;--muted:#B9BCBC;--accent:#EED107;--good:#7DDB98;--bad:#FF7A6B;--blue:#8AB4FF;--num:'Bebas Neue','DIN Condensed','Arial Narrow',Arial,sans-serif;--body:Barlow,'Segoe UI',Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+.wrap{padding:18px 20px 40px;max-width:1400px;margin:0 auto}
+h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height:1}
+h2{font-family:var(--num);font-size:28px;letter-spacing:.5px;margin:22px 0 8px;font-weight:400;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 .n{background:var(--panel2);border-radius:999px;padding:0 10px;font-size:20px}
+h2 .h{font-family:var(--body);font-size:14px;color:var(--muted);letter-spacing:0}
+.sub{color:var(--muted);font-size:14px}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:inherit;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;transition:transform .08s ease,border-color .15s}
+.btn:hover{border-color:var(--muted)}.btn:active{transform:scale(.97)}
+.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.g{background:#1f3b2a;border-color:#2E9E6A;color:var(--good)}
+.btn.v{background:#1d2b45;border-color:#3d63a8;color:var(--blue)}
+.btn.r{background:#3a2020;border-color:#7a3a33;color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+input,select{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px 10px;border-radius:10px;color-scheme:dark}
+.switch{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-radius:14px;padding:12px 16px;margin:14px 0;border:1px solid var(--line);background:var(--panel)}
+.switch.on{border-color:#2E9E6A;background:#1b2e23}.switch.off{border-color:var(--accent);background:rgba(238,209,7,.07)}
+.switch .t{flex:1;min-width:260px}.switch b{font-size:17px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.tile .k{color:var(--muted);font-size:13px;font-weight:600}.tile .n{font-family:var(--num);font-size:38px;line-height:1.05}
+.tile.warn .n{color:var(--accent)}.tile.bad .n{color:var(--bad)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.bar input[type=search]{flex:1;min-width:220px}
+.list{display:flex;flex-direction:column;gap:10px}
+.row{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:28px minmax(0,1.3fr) minmax(0,1fr);gap:12px;align-items:start}
+.row.back{border-color:var(--bad);box-shadow:inset 4px 0 0 var(--bad)}
+.row.am{box-shadow:inset 4px 0 0 #E5484D}.row.next{box-shadow:inset 4px 0 0 var(--accent)}
+.row .chk{width:20px;height:20px;margin-top:4px;accent-color:var(--accent)}
+.no{font-family:var(--num);font-size:24px;letter-spacing:.5px}
+.cust{font-weight:700;font-size:17px}
+.meta{color:var(--muted);font-size:14px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
+.tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--panel2);color:var(--muted)}
+.tag.am{background:#4a1418;color:#FFC2C4}.tag.next{background:#4a3f0b;color:#FFE77A}.tag.bo{background:#3d2a10;color:#FFB48A}.tag.web{background:#1d2b45;color:var(--blue)}.tag.van{background:#1d2b45;color:var(--blue)}
+.carrier{font-style:italic;color:#e6e6e6;font-size:14px}
+.note{background:rgba(238,209,7,.08);border-left:3px solid var(--accent);padding:4px 8px;font-size:13px;margin-top:4px;border-radius:4px}
+.backmsg{background:#3a2020;border:1px solid #7a3a33;color:#FFC2C4;border-radius:10px;padding:6px 10px;font-size:14px;margin:4px 0}
+details.lines summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:4px}
+details.lines ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:#ddd}
+.sug{font-size:14px;margin-bottom:6px}.sug b{color:var(--accent)}.sug .why{color:var(--muted);font-size:12px;display:block}
+.ctl{display:flex;flex-direction:column;gap:8px}
+.ctl select{width:100%}
+.ctl .btns{display:flex;gap:8px;flex-wrap:wrap}
+.ctl .btns .btn{flex:1;min-width:92px}
+.done{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.done .no{font-size:20px}.done .grow{flex:1;min-width:200px}
+.empty{color:var(--muted);padding:14px 0}
+.cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(320px,1fr);gap:18px;align-items:start}
+.log{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4px;max-height:520px;overflow:auto}
+.log div b{color:var(--ink)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-start;justify-content:center;padding:40px 12px;overflow:auto;z-index:50}
+#modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:12px}
+#modal h3{margin:0;font-family:var(--num);font-size:28px;font-weight:400}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#262727;font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:60}
+.ro{opacity:.85}
+@media (max-width:900px){.cols{grid-template-columns:1fr}.row{grid-template-columns:24px minmax(0,1fr)}.row .ctl{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div id="login"><div id="lerr"></div></div>
+<div class="wrap" id="app" style="display:none">
+  <h1>RELEASE QUEUE</h1>
+  <div class="sub">Every Bromham delivery order stops here first. Release it with the courier fixed, send it to the van, or hold it. The warehouse only sees what you release.</div>
+  <div id="sw"></div>
+  <div id="tiles" class="tiles"></div>
+  <div class="cols">
+    <div id="main"><div class="empty">Loading…</div></div>
+    <div id="side"></div>
+  </div>
+</div>
+<div id="modal"><div class="box" id="mbox"></div></div>
+<div id="toast"></div>
+<script src="auth.js?v=20261118181238"></script>
+<script src="activity.js?v=20261118181238"></script>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/dispatch';
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+let token = store.get('tsd_me_token');
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const N = v => Number(v) || 0;
+const gbp = v => '£' + Math.round(N(v)).toLocaleString('en-GB');
+const hm = s => s ? new Date(s).toLocaleTimeString('en-GB', {timeZone:'Europe/London', hour:'2-digit', minute:'2-digit'}) : '';
+const when = s => { if (!s) return ''; const d = new Date(s), t = new Date(); const same = d.toLocaleDateString('en-GB',{timeZone:'Europe/London'}) === t.toLocaleDateString('en-GB',{timeZone:'Europe/London'}); return same ? hm(s) : d.toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short', timeZone:'Europe/London'}) + ' ' + hm(s); };
+const toast = m => { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 3200); };
+
+let D = null, query = '', busy = false;
+const pickSvc = {};    // id -> chosen service id (kept across refreshes)
+const ticked = new Set();
+
+async function api(body){
+  const r = await fetch(API, body ? {method:'POST', headers:{Authorization:'Bearer ' + token, 'Content-Type':'application/json'}, body: JSON.stringify(body)}
+    : {headers:{Authorization:'Bearer ' + token}, cache:'no-store'});
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('Please log in again'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error) throw new Error(j.error || 'Something went wrong');
+  return j;
+}
+function showLogin(msg){ $('app').style.display = 'none'; $('login').style.display = 'flex'; if (msg) $('lerr').textContent = msg; }
+function start(){ $('login').style.display = 'none'; $('app').style.display = 'block'; load(); }
+
+async function load(){
+  try { D = await api(); render(); }
+  catch(e){ if (!D) $('main').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+// refresh every 30s, but never while someone's mid-decision (a dropdown open, typing, or a pop-up)
+setInterval(() => {
+  const a = document.activeElement;
+  if (busy || $('modal').style.display === 'flex' || (a && /SELECT|INPUT|TEXTAREA/.test(a.tagName) && a.type !== 'search')) return;
+  if (token) load();
+}, 30000);
+
+const GRP = { am: ['AM / pre-12', 'am'], next: ['Next day', 'next'], standard: ['2–3 day', ''], check: ['No delivery method', 'bo'], van: ['Own van', 'van'] };
+function svcName(id){ const s = (D.services || []).find(x => x.id === +id); return s ? `${s.courier} ${s.service}` : ''; }
+function svcOptions(sel){
+  const all = D.services || [], used = all.filter(s => s.uses > 0), rest = all.filter(s => !s.uses);
+  const o = s => `<option value="${s.id}" ${+sel === s.id ? 'selected' : ''}>${esc(s.courier + ' · ' + s.service)}</option>`;
+  return `<option value="">Choose courier service…</option><optgroup label="Used recently">${used.map(o).join('')}</optgroup><optgroup label="Everything else">${rest.map(o).join('')}</optgroup>`;
+}
+function matches(o){
+  if (!query) return true;
+  const q = query.toLowerCase().replace(/[\s\-]/g, ''), digits = query.replace(/\D/g, '');
+  if (digits.length >= 3 && String(o.no || '').replace(/\D/g, '').replace(/^0+/, '').includes(digits.replace(/^0+/, ''))) return true;
+  const hay = [o.no, o.customer, o.town, o.postcode, o.carrier, o.notes, o.rep, ...(o.lines || []).flatMap(l => [l.sku, l.name])].join('|').toLowerCase().replace(/[\s\-]/g, '');
+  return query.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w.replace(/[\s\-]/g, '')));
+}
+function tagsOf(o){
+  const t = [], g = GRP[o.grp];
+  if (g) t.push(`<span class="tag ${g[1]}">${g[0]}</span>`);
+  if (o.backorder) t.push('<span class="tag bo">Backordered</span>');
+  if (o.part_shipped) t.push('<span class="tag bo">Part sent already</span>');
+  if (o.pick_started) t.push('<span class="tag">Pick started in Cin7</span>');
+  if (o.web) t.push('<span class="tag web">Web</span>');
+  if (o.on_van_list && o.state === 'queued') t.push('<span class="tag van">On the van list now</span>');
+  return t.join('');
+}
+function info(o){
+  const lines = o.lines || [];
+  return `<div><span class="no">${esc(o.no)}</span> <span class="meta">· ${when(o.arrived)}${o.ship_by ? ' · needed by ' + new Date(o.ship_by + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'}) : ''}</span></div>
+    <div class="cust">${esc(o.customer)}</div>
+    <div class="tags">${tagsOf(o)}</div>
+    ${o.sent_back ? `<div class="backmsg">↩ <b>Sent back by ${esc(o.sent_back.by || 'warehouse')}</b> ${hm(o.sent_back.at)}: ${esc(o.sent_back.reason || '')}${o.sent_back.note ? ' · “' + esc(o.sent_back.note) + '”' : ''}</div>` : ''}
+    ${o.carrier ? `<div class="carrier">Cin7: “${esc(o.carrier)}”</div>` : '<div class="carrier">Cin7: no delivery method</div>'}
+    <div class="meta">${esc([o.town, o.postcode].filter(Boolean).join(' · '))}${N(o.weight) ? ' · <b style="color:#fff">' + (Math.round(N(o.weight) * 10) / 10).toLocaleString('en-GB') + ' kg</b>' : ' · no weight'}${N(o.value) ? ' · ' + gbp(o.value) + ' ex VAT' : ''}${o.rep ? ' · ' + esc(o.rep === 'WooCommerce' ? 'Website' : o.rep) : ''}</div>
+    ${o.notes ? `<div class="note">${esc(o.notes)}</div>` : ''}
+    ${lines.length ? `<details class="lines"><summary>${lines.length} line${lines.length === 1 ? '' : 's'}</summary><ul>${lines.map(l => `<li>${N(l.qty).toLocaleString('en-GB')}× ${esc(l.sku)} · ${esc(l.name)}${N(l.bo) ? ' <span style="color:#FFB48A">(' + N(l.bo) + ' on backorder)</span>' : ''}</li>`).join('')}</ul></details>` : ''}`;
+}
+function decideRow(o){
+  const s = o.suggest || {};
+  if (pickSvc[o.id] === undefined) pickSvc[o.id] = s.service_id || '';
+  const ro = !D.me.office;
+  const sug = s.van ? `<b>🚐 Van</b>${s.courier ? ' <span class="meta">(or ' + esc(s.courier + ' ' + s.service) + ')</span>' : ''}` : s.courier ? `<b>${esc(s.courier + ' ' + s.service)}</b>` : '<span class="meta">No suggestion</span>';
+  return `<div class="row ${o.sent_back ? 'back' : (GRP[o.grp] || [])[1] || ''}" data-id="${o.id}">
+    ${ro ? '<span></span>' : `<input type="checkbox" class="chk" data-tick="${o.id}" ${ticked.has(o.id) ? 'checked' : ''} title="Tick to release several at once">`}
+    <div>${info(o)}</div>
+    <div class="ctl ${ro ? 'ro' : ''}">
+      <div class="sug">Suggested: ${sug}${s.why ? `<span class="why">${esc(s.why)}</span>` : ''}</div>
+      ${ro ? '' : `<select data-svc="${o.id}">${svcOptions(pickSvc[o.id])}</select>
+      <div class="btns">
+        <button class="btn ${s.van ? '' : 'g'}" data-a="release" data-id="${o.id}">✓ Release</button>
+        <button class="btn ${s.van ? 'y' : 'v'}" data-a="van" data-id="${o.id}">🚐 Van</button>
+        <button class="btn" data-a="hold" data-id="${o.id}">⏸ Hold</button>
+      </div>`}
+    </div>
+  </div>`;
+}
+function doneRow(o, kind){
+  const ro = !D.me.office;
+  const what = kind === 'released' ? `🔒 <b>${esc([o.courier, o.service].filter(Boolean).join(' ') || 'Released')}</b>`
+    : kind === 'van' ? '🚐 <b>Van</b>' : `⏸ <b>${esc(o.hold_reason || 'On hold')}</b>`;
+  return `<div class="done">
+    <span class="no">${esc(o.no)}</span>
+    <div class="grow"><div><b>${esc(o.customer)}</b> <span class="meta">${esc([o.town, o.postcode].filter(Boolean).join(' · '))}${N(o.weight) ? ' · ' + Math.round(N(o.weight)) + ' kg' : ''}</span></div>
+      <div class="meta">${what} · ${esc(o.by || '')} ${when(o.updated_at)}${o.note ? ' · “' + esc(o.note) + '”' : ''}</div></div>
+    ${ro ? '' : kind === 'hold'
+      ? `<button class="btn" data-a="queue" data-id="${o.id}">Back to queue</button>`
+      : `<button class="btn" data-a="queue" data-id="${o.id}" title="${kind === 'van' ? 'Takes it off the van list and back to the queue' : 'Pulls it back from the warehouse'}">↶ Undo</button>`}
+  </div>`;
+}
+function render(){
+  if (!D) return;
+  const all = D.orders || [];
+  const shown = all.filter(matches);
+  const decide = shown.filter(o => o.state === 'queued');
+  const hold = shown.filter(o => o.state === 'hold');
+  const van = shown.filter(o => o.state === 'van');
+  const rel = shown.filter(o => o.state === 'released').sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+  const back = all.filter(o => o.state === 'queued' && o.sent_back).length;
+
+  $('sw').innerHTML = D.on
+    ? `<div class="switch on"><div class="t"><b>✓ Dispatch control is ON</b><div class="sub">Since ${when(D.since)}${D.switched_by ? ' (' + esc(D.switched_by) + ')' : ''}. The warehouse only sees released orders and can't change the courier or add to the van.</div></div>${D.me.office ? '<button class="btn r" id="swbtn">Switch off</button>' : ''}</div>`
+    : `<div class="switch off"><div class="t"><b>Dispatch control is OFF</b><div class="sub">The warehouse works exactly as before. You can make decisions here now; they only take effect once it's switched on.</div></div>${D.me.office ? '<button class="btn y" id="swbtn">Switch on…</button>' : ''}</div>`;
+  $('tiles').innerHTML = [
+    ['To decide', all.filter(o => o.state === 'queued').length, all.some(o => o.state === 'queued') ? 'warn' : ''],
+    ['Sent back', back, back ? 'bad' : ''],
+    ['On hold', all.filter(o => o.state === 'hold').length, ''],
+    ['To the van', all.filter(o => o.state === 'van').length, ''],
+    ['Released, not picked', all.filter(o => o.state === 'released').length, ''],
+  ].map(([k, n, c]) => `<div class="tile ${c}"><div class="k">${k}</div><div class="n">${n}</div></div>`).join('');
+
+  const canBulk = D.me.office && ticked.size;
+  $('main').innerHTML = `
+    <div class="bar"><input type="search" id="q" placeholder="🔍 Find: order number, customer, postcode, SKU…" value="${esc(query)}">
+      ${D.me.office ? `<button class="btn y" id="bulk" ${canBulk ? '' : 'disabled'}>✓ Release ticked (${ticked.size})</button>` : '<span class="sub">View only</span>'}</div>
+    <h2>To decide <span class="n">${decide.length}</span> <span class="h">Oldest first. Anything sent back by the warehouse is at the top.</span></h2>
+    <div class="list">${decide.length ? decide.map(decideRow).join('') : '<div class="empty">Nothing waiting. 👌</div>'}</div>
+    <h2>On hold <span class="n">${hold.length}</span> <span class="h">Backorders, waiting on the customer, credit…</span></h2>
+    <div class="list">${hold.length ? hold.map(o => doneRow(o, 'hold')).join('') : '<div class="empty">None.</div>'}</div>`;
+  $('side').innerHTML = `
+    <h2>To the van <span class="n">${van.length}</span> <span class="h">Booked on the Van Team screen</span></h2>
+    <div class="list">${van.length ? van.map(o => doneRow(o, 'van')).join('') : '<div class="empty">None.</div>'}</div>
+    <h2>Released <span class="n">${rel.length}</span> <span class="h">In the warehouse, not picked yet</span></h2>
+    <div class="list">${rel.length ? rel.slice(0, 60).map(o => doneRow(o, 'released')).join('') + (rel.length > 60 ? `<div class="sub">+ ${rel.length - 60} more (search to find one)</div>` : '') : '<div class="empty">None.</div>'}</div>
+    <h2>Activity</h2>
+    <div class="log">${(D.log || []).map(l => `<div>${when(l.at)} · <b>${esc(l.by || '')}</b> ${esc(ACT[l.action] || l.action)} ${l.no ? '<b>' + esc(l.no) + '</b>' : ''}${l.detail ? ' · ' + esc(l.detail) : ''}</div>`).join('') || '<div>Nothing yet.</div>'}</div>`;
+  wire();
+}
+const ACT = { released: 'released', van: 'sent to van', hold: 'held', queued: 'put back in the queue', sent_back: '↩ warehouse sent back', switch_on: 'switched dispatch control ON', switch_off: 'switched dispatch control OFF' };
+
+function wire(){
+  const q = $('q'); q.oninput = () => { query = q.value.trim(); const p = q.selectionStart; render(); const n = $('q'); n.focus(); try { n.setSelectionRange(p, p); } catch(e){} };
+  document.querySelectorAll('[data-svc]').forEach(s => s.onchange = () => { pickSvc[s.dataset.svc] = s.value; });
+  document.querySelectorAll('[data-tick]').forEach(c => c.onchange = () => { c.checked ? ticked.add(c.dataset.tick) : ticked.delete(c.dataset.tick); const b = $('bulk'); if (b) { b.disabled = !ticked.size; b.textContent = `✓ Release ticked (${ticked.size})`; } });
+  document.querySelectorAll('[data-a]').forEach(b => b.onclick = () => act(b.dataset.a, b.dataset.id, b));
+  const sw = $('swbtn'); if (sw) sw.onclick = switchModal;
+  const bk = $('bulk'); if (bk) bk.onclick = bulk;
+}
+const byId = id => (D.orders || []).find(o => o.id === id);
+async function act(a, id, btn){
+  const o = byId(id); if (!o) return;
+  if (a === 'hold') return holdModal(o);
+  if (a === 'release' && !pickSvc[id]) { toast('Pick the courier service first'); const s = document.querySelector(`[data-svc="${id}"]`); if (s) s.focus(); return; }
+  busy = true; if (btn) btn.disabled = true;
+  try {
+    await api({ action: a === 'release' ? 'release' : a === 'van' ? 'van' : 'queue', id, service_id: a === 'release' ? +pickSvc[id] : undefined });
+    toast(a === 'release' ? `${o.no} released · ${svcName(pickSvc[id])}` : a === 'van' ? `${o.no} sent to the van` : `${o.no} back in the queue`);
+    ticked.delete(id); delete pickSvc[id];
+    await load();
+  } catch(e){ toast(e.message); if (btn) btn.disabled = false; }
+  busy = false;
+}
+async function bulk(){
+  const items = [...ticked].map(id => ({ id, service_id: +pickSvc[id] || 0 }));
+  const missing = items.filter(i => !i.service_id).map(i => (byId(i.id) || {}).no);
+  if (missing.length) return toast('No courier picked for ' + missing.join(', '));
+  busy = true;
+  try {
+    const r = await api({ action: 'release_many', items });
+    const bad = (r.results || []).filter(x => !x.ok);
+    toast(bad.length ? `${items.length - bad.length} released, ${bad.length} failed` : `${items.length} released`);
+    ticked.clear(); items.forEach(i => delete pickSvc[i.id]);
+    await load();
+  } catch(e){ toast(e.message); }
+  busy = false;
+}
+function modal(html){ $('mbox').innerHTML = html; $('modal').style.display = 'flex'; }
+function closeModal(){ $('modal').style.display = 'none'; }
+$('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+function holdModal(o){
+  const R = ['Waiting on stock (backorder)', 'Calling the customer', 'Waiting on payment / credit', 'Customer wants a later date', 'Address or details to check', 'Other'];
+  modal(`<h3>Hold ${esc(o.no)}</h3><div class="sub">${esc(o.customer)}. It stays here, out of the warehouse, until you release it.</div>
+    <select id="hr">${R.map(r => `<option ${o.backorder && r.startsWith('Waiting on stock') ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>
+    <input id="hn" placeholder="Note (optional)" maxlength="300">
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="hc">Cancel</button><button class="btn y" id="hok">Hold it</button></div>`);
+  $('hc').onclick = closeModal;
+  $('hok').onclick = async () => {
+    $('hok').disabled = true;
+    try { await api({ action: 'hold', id: o.id, reason: $('hr').value, note: $('hn').value }); closeModal(); toast(o.no + ' on hold'); await load(); }
+    catch(e){ toast(e.message); $('hok').disabled = false; }
+  };
+}
+function switchModal(){
+  const on = !D.on;
+  // default cut-off: 5pm on the last working day, so overnight and today's orders wait for you; older ones are already in the warehouse
+  const cut = new Date(); cut.setHours(17, 0, 0, 0); do { cut.setDate(cut.getDate() - 1); } while (cut.getDay() === 0 || cut.getDay() === 6);
+  const loc = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const waiting = d => (D.orders || []).filter(o => o.state === 'queued' && o.arrived && new Date(o.arrived) >= d).length;
+  modal(on
+    ? `<h3>Switch dispatch control on?</h3>
+       <div>From now on the warehouse only sees orders released here, with the courier fixed. They lose the "Going on own van", "Collection" and "Priority" buttons; their only way out is "Send back to the office".</div>
+       <label class="sub" style="display:flex;flex-direction:column;gap:6px">Orders that came in from this time wait for you. Anything older stays on the warehouse screens as it is, so nothing disappears from under them.
+         <input type="datetime-local" id="ssince" value="${loc(cut)}"></label>
+       <div class="sub" id="scount"></div>
+       <div class="sub">No one gets a notification. You can switch it off again at any time and everything goes back to how it was.</div>
+       <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="sc">Cancel</button><button class="btn y" id="sok">Switch on</button></div>`
+    : `<h3>Switch dispatch control off?</h3><div>The warehouse goes back to seeing every order and choosing couriers and the van themselves. Your decisions here are kept.</div>
+       <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="sc">Cancel</button><button class="btn r" id="sok">Switch off</button></div>`);
+  $('sc').onclick = closeModal;
+  const ss = $('ssince');
+  const count = () => { const d = new Date(ss.value); $('scount').innerHTML = isNaN(d) ? '' : `<b>${waiting(d)}</b> order${waiting(d) === 1 ? '' : 's'} will wait for you; the rest stay in the warehouse.`; };
+  if (ss) { ss.oninput = count; count(); }
+  $('sok').onclick = async () => {
+    $('sok').disabled = true;
+    const since = ss && ss.value ? new Date(ss.value).toISOString() : null;
+    try { const r = await api({ action: 'switch', on, since }); closeModal(); toast(on ? `On. ${r.queued ?? 0} waiting for you, ${r.kept || 0} kept in the warehouse.` : 'Off'); await load(); }
+    catch(e){ toast(e.message); $('sok').disabled = false; }
+  };
+}
+
+if (token) start(); else showLogin();
+TSDAuth.mount(t => { token = t; start(); });
+</script>
+</body>
+</html>
