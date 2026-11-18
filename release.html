@@ -87,8 +87,8 @@ details.lines ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:#ddd}
 </div>
 <div id="modal"><div class="box" id="mbox"></div></div>
 <div id="toast"></div>
-<script src="auth.js?v=20261118182011"></script>
-<script src="activity.js?v=20261118182011"></script>
+<script src="auth.js?v=20261118221130"></script>
+<script src="activity.js?v=20261118221130"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/dispatch';
 const mem = {};
@@ -149,7 +149,7 @@ function matches(o){
 function tagsOf(o){
   const t = [], g = GRP[o.grp];
   if (g) t.push(`<span class="tag ${g[1]}">${g[0]}</span>`);
-  if (o.backorder) t.push('<span class="tag bo">Backordered</span>');
+  if (o.backorder) t.push(o.ready === 'all' ? '<span class="tag bo" style="background:#1f3b2a;color:var(--good)">Backorder · stock in now</span>' : o.ready === 'some' ? '<span class="tag bo">Backorder · partial stock</span>' : '<span class="tag bo">Backordered</span>');
   if (o.part_shipped) t.push('<span class="tag bo">Part sent already</span>');
   if (o.pick_started) t.push('<span class="tag">Pick started in Cin7</span>');
   if (o.web) t.push('<span class="tag web">Web</span>');
@@ -158,7 +158,7 @@ function tagsOf(o){
 }
 function info(o){
   const lines = o.lines || [];
-  return `<div><span class="no">${esc(o.no)}</span> <span class="meta">· ${when(o.arrived)}${o.ship_by ? ' · needed by ' + new Date(o.ship_by + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'}) : ''}</span></div>
+  return `<div><span class="no">${esc(o.no)}</span> <span class="meta">· ${when(o.arrived)}${o.ship_by ? ' · needed by ' + new Date(o.ship_by + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'}) : ''}</span> <a data-detail="${o.id}" style="cursor:pointer;text-decoration:underline;color:var(--blue);font-size:13px">Details</a></div>
     <div class="cust">${esc(o.customer)}</div>
     <div class="tags">${tagsOf(o)}</div>
     ${o.sent_back ? `<div class="backmsg">↩ <b>Sent back by ${esc(o.sent_back.by || 'warehouse')}</b> ${hm(o.sent_back.at)}: ${esc(o.sent_back.reason || '')}${o.sent_back.note ? ' · “' + esc(o.sent_back.note) + '”' : ''}</div>` : ''}
@@ -191,7 +191,7 @@ function doneRow(o, kind){
   const what = kind === 'released' ? `🔒 <b>${esc([o.courier, o.service].filter(Boolean).join(' ') || 'Released')}</b>`
     : kind === 'van' ? '🚐 <b>Van</b>' : `⏸ <b>${esc(o.hold_reason || 'On hold')}</b>`;
   return `<div class="done">
-    <span class="no">${esc(o.no)}</span>
+    <span class="no">${esc(o.no)}</span> <a data-detail="${o.id}" style="cursor:pointer;text-decoration:underline;color:var(--blue);font-size:12px">Details</a>
     <div class="grow"><div><b>${esc(o.customer)}</b> <span class="meta">${esc([o.town, o.postcode].filter(Boolean).join(' · '))}${N(o.weight) ? ' · ' + Math.round(N(o.weight)) + ' kg' : ''}</span></div>
       <div class="meta">${what} · ${esc(o.by || '')} ${when(o.updated_at)}${o.note ? ' · “' + esc(o.note) + '”' : ''}</div></div>
     ${ro ? '' : kind === 'hold'
@@ -204,6 +204,8 @@ function render(){
   const all = D.orders || [];
   const shown = all.filter(matches);
   const decide = shown.filter(o => o.state === 'queued');
+  const decideWaiting = decide.filter(o => o.backorder && o.ready !== 'all' && !o.sent_back);
+  const decideReady = decide.filter(o => !decideWaiting.includes(o));
   const hold = shown.filter(o => o.state === 'hold');
   const van = shown.filter(o => o.state === 'van');
   const rel = shown.filter(o => o.state === 'released').sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
@@ -212,8 +214,11 @@ function render(){
   $('sw').innerHTML = D.on
     ? `<div class="switch on"><div class="t"><b>✓ Dispatch control is ON</b><div class="sub">Since ${when(D.since)}${D.switched_by ? ' (' + esc(D.switched_by) + ')' : ''}. The warehouse only sees released orders and can't change the courier or add to the van.</div></div>${D.me.office ? '<button class="btn r" id="swbtn">Switch off</button>' : ''}</div>`
     : `<div class="switch off"><div class="t"><b>Dispatch control is OFF</b><div class="sub">The warehouse works exactly as before. You can make decisions here now; they only take effect once it's switched on.</div></div>${D.me.office ? '<button class="btn y" id="swbtn">Switch on…</button>' : ''}</div>`;
+  const allQueued = all.filter(o => o.state === 'queued');
+  const allWaiting = allQueued.filter(o => o.backorder && o.ready !== 'all' && !o.sent_back).length;
   $('tiles').innerHTML = [
-    ['To decide', all.filter(o => o.state === 'queued').length, all.some(o => o.state === 'queued') ? 'warn' : ''],
+    ['Ready to decide', allQueued.length - allWaiting, (allQueued.length - allWaiting) ? 'warn' : ''],
+    ['Waiting on stock', allWaiting, ''],
     ['Sent back', back, back ? 'bad' : ''],
     ['On hold', all.filter(o => o.state === 'hold').length, ''],
     ['To the van', all.filter(o => o.state === 'van').length, ''],
@@ -224,8 +229,10 @@ function render(){
   $('main').innerHTML = `
     <div class="bar"><input type="search" id="q" placeholder="🔍 Find: order number, customer, postcode, SKU…" value="${esc(query)}">
       ${D.me.office ? `<button class="btn y" id="bulk" ${canBulk ? '' : 'disabled'}>✓ Release ticked (${ticked.size})</button>` : '<span class="sub">View only</span>'}</div>
-    <h2>To decide <span class="n">${decide.length}</span> <span class="h">Oldest first. Anything sent back by the warehouse is at the top.</span></h2>
-    <div class="list">${decide.length ? decide.map(decideRow).join('') : '<div class="empty">Nothing waiting. 👌</div>'}</div>
+    <h2>Ready to decide <span class="n">${decideReady.length}</span> <span class="h">Oldest first. Anything sent back by the warehouse is at the top.</span></h2>
+    <div class="list">${decideReady.length ? decideReady.map(decideRow).join('') : '<div class="empty">Nothing waiting. 👌</div>'}</div>
+    <details ${decideWaiting.length ? '' : 'style="display:none"'}><summary style="cursor:pointer;color:var(--muted);margin:14px 0 8px">Waiting on stock (${decideWaiting.length}) — backordered, not all in yet</summary>
+    <div class="list">${decideWaiting.map(decideRow).join('')}</div></details>
     <h2>On hold <span class="n">${hold.length}</span> <span class="h">Backorders, waiting on the customer, credit…</span></h2>
     <div class="list">${hold.length ? hold.map(o => doneRow(o, 'hold')).join('') : '<div class="empty">None.</div>'}</div>`;
   $('side').innerHTML = `
@@ -244,6 +251,7 @@ function wire(){
   document.querySelectorAll('[data-svc]').forEach(s => s.onchange = () => { pickSvc[s.dataset.svc] = s.value; });
   document.querySelectorAll('[data-tick]').forEach(c => c.onchange = () => { c.checked ? ticked.add(c.dataset.tick) : ticked.delete(c.dataset.tick); const b = $('bulk'); if (b) { b.disabled = !ticked.size; b.textContent = `✓ Release ticked (${ticked.size})`; } });
   document.querySelectorAll('[data-a]').forEach(b => b.onclick = () => act(b.dataset.a, b.dataset.id, b));
+  document.querySelectorAll('[data-detail]').forEach(a => a.onclick = (e) => { e.preventDefault(); e.stopPropagation(); detailModal(a.dataset.detail); });
   const sw = $('swbtn'); if (sw) sw.onclick = switchModal;
   const bk = $('bulk'); if (bk) bk.onclick = bulk;
 }
@@ -274,6 +282,39 @@ async function bulk(){
     await load();
   } catch(e){ toast(e.message); }
   busy = false;
+}
+async function detailModal(id){
+  const o = byId(id);
+  modal('<h3>Loading…</h3>');
+  try {
+    const d = await api({ action: 'detail', id });
+    const rows = (d.lines || []).map(l => {
+      const short = N(l.bo) > 0 && l.available != null && N(l.available) < 0;
+      return `<tr><td>${esc(l.sku)}</td><td>${esc(l.name)}</td><td style="text-align:right">${N(l.qty)}</td>
+        <td style="text-align:right">${N(l.bo) || ''}</td>
+        <td style="text-align:right">${l.on_hand != null ? N(l.on_hand) : '—'}</td>
+        <td style="text-align:right">${l.on_order != null ? N(l.on_order) : '—'}</td>
+        <td style="text-align:right${short ? ';color:var(--bad);font-weight:700' : ''}">${l.available != null ? N(l.available) : '—'}</td>
+        <td class="meta">${l.next_delivery ? new Date(l.next_delivery + 'T12:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short'}) : ''}</td></tr>`;
+    }).join('');
+    const badge = o && o.backorder ? (o.ready === 'all' ? '<span class="tag bo" style="background:#1f3b2a;color:var(--good)">Backorder · stock in now</span>'
+      : o.ready === 'some' ? '<span class="tag bo">Backorder · partial stock</span>' : '<span class="tag bo">Backorder · still short</span>') : '';
+    modal(`<h3>${esc(d.no)}</h3>
+      <div class="sub">${esc(d.customer)} · ${esc(d.address || [d.town, d.postcode].filter(Boolean).join(', '))}</div>
+      <div class="tags">${badge}</div>
+      <div class="meta">${esc(d.carrier || 'No delivery method')}${N(d.weight) ? ' · ' + (Math.round(N(d.weight) * 10) / 10) + ' kg' : ''}${d.value ? ' · ' + gbp(d.value) + ' ex VAT' : ''}${d.rep ? ' · ' + esc(d.rep) : ''}</div>
+      ${d.notes ? `<div class="note">${esc(d.notes)}</div>` : ''}
+      ${d.sent_back ? `<div class="backmsg">↩ Sent back by ${esc(d.sent_back.by || 'warehouse')}: ${esc(d.sent_back.reason || '')}${d.sent_back.note ? ' · “' + esc(d.sent_back.note) + '”' : ''}</div>` : ''}
+      <div style="overflow:auto;max-height:50vh"><table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="color:var(--muted);text-align:left"><th>SKU</th><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">B/O</th><th style="text-align:right">On hand</th><th style="text-align:right">On order</th><th style="text-align:right">Available</th><th>Next in</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="8" class="empty">No lines</td></tr>'}</tbody>
+      </table></div>
+      <div style="display:flex;justify-content:flex-end"><button class="btn" id="dc">Close</button></div>`);
+    $('dc').onclick = closeModal;
+  } catch (e) {
+    modal(`<h3>Couldn't load</h3><div class="sub">${esc(e.message)}</div><div style="display:flex;justify-content:flex-end"><button class="btn" id="dc">Close</button></div>`);
+    $('dc').onclick = closeModal;
+  }
 }
 function modal(html){ $('mbox').innerHTML = html; $('modal').style.display = 'flex'; }
 function closeModal(){ $('modal').style.display = 'none'; }
