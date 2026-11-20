@@ -97,7 +97,11 @@ td.z{color:#6b6e6e}
 <script src="activity.js?v=20261118185153"></script>
 <script>
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/manage';
-const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[new URLSearchParams(location.search).get('tab')] || 'users';
+const QS = new URLSearchParams(location.search);
+const TAB = ({ tasks: 'tasks', activity: 'activity', emails: 'emails' })[QS.get('tab')] || 'users';
+// 20 Nov: ?open=<day>|<ref> jumps the Activity log straight to a day and a search term (e.g. an order number),
+// for links in from elsewhere in Bob — such as the "Sent out" drill-down on Warehouse Today.
+const OPEN = QS.get('open');
 const ACT_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/activity';
 const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
@@ -281,6 +285,11 @@ function edit(t){
 // Who opened what, clicked what, and every change sent to Bob (with whether it worked). Logins are recorded by the server.
 const londonToday = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
 const AF = { day: londonToday(), who: store.get('tsd_al_who') || '', kind: store.get('tsd_al_kind') || '', q: '' };
+if (OPEN && TAB === 'activity') {
+  const i = OPEN.indexOf('|'), d = i < 0 ? '' : OPEN.slice(0, i), ref = i < 0 ? OPEN : OPEN.slice(i + 1);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) AF.day = d;
+  if (ref) { AF.q = ref; AF.who = ''; }   // a specific order matters more than whichever person was last picked
+}
 let A = null, shown = 300, qTimer;
 const KINDS = [['', 'Everything'], ['change', 'Changes'], ['failed', 'Failed'], ['click', 'Clicks'], ['view', 'Screens opened'], ['login', 'Logins']];
 const ON = d => d.on === true || d.on === 'true';
@@ -384,7 +393,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261118185153';
+  const BUILD = '20261120140500';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

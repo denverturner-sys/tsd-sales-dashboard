@@ -47,6 +47,13 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 #modal .orow:first-of-type{border-top:0}
 #modal .orow b{font-weight:700}
 #modal .orow .t{color:var(--muted);font-size:13px;white-space:nowrap}
+#modal .orow a{color:inherit;text-decoration:none;cursor:pointer}
+#modal .orow a:hover{color:var(--accent);text-decoration:underline}
+#modal .daynav{display:flex;align-items:center;gap:8px;margin:6px 0 0}
+#modal .daynav button{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;font-family:var(--body)}
+#modal .daynav button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+#modal .daynav button:disabled{opacity:.35;cursor:default}
+#modal .daynav input[type=date]{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:14px;font-family:var(--body);color-scheme:dark}
 </style>
 </head>
 <body>
@@ -60,6 +67,7 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/warehouse-dash';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dd = n => n === 1 ? '1 day' : n + ' days';
+const dmy = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) : '';
 let lastData = null;
 function draw(d){
   lastData = d;
@@ -86,28 +94,88 @@ function draw(d){
   </div>
   <div class="note"><b>How late is worked out:</b> next-day orders in before 2pm should go the same day (after 2pm, the next working day). 2-3 day orders should go by the end of day 2. Anything with a "required by" date uses that date. Orders that came in with no service and are wanted today aren't counted as late. Counts cover orders sent through Bob; collections aren't included.</div>`;
   document.getElementById('upd').textContent = 'Updated ' + new Date(d.generated_at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/London'}) + ' · refreshes by itself';
-  document.getElementById('tileSentToday').onclick = openSentToday;
+  document.getElementById('tileSentToday').onclick = () => openSentDay(d.today);
 }
-// 20 Nov (Denver): drill-down behind "Sent out today" — every order that's actually left, grouped the same
-// way as the "Sent today by service" bar chart (so Own Van Delivery sits apart from the couriers), newest first within each group.
-function openSentToday(){
-  if (!lastData) return;
-  const list = lastData.sent_today_list || [];
-  const order = (lastData.by_service_today || []).map(x => x.service);   // same group order as the bar chart (busiest first)
+// 20 Nov (Denver): drill-down behind "Sent out today" — every order that's actually left, grouped the same way as
+// the "Sent today by service" bar chart (so Own Van Delivery sits apart from the couriers), newest first within each
+// group. The order number opens the sales order; the time opens that order's fulfil event in the Activity log.
+// A day picker lets you step back to any earlier day instead of just today's.
+function gotoOrders(no){
+  try { if (window.parent !== window) { window.parent.postMessage({ tsdGoto: { screen: 'orders', open: no } }, location.origin); return; } } catch(e){}
+  location.href = 'orders.html?open=' + encodeURIComponent(no);
+}
+function gotoActivity(day, ref){
+  const openv = day + '|' + ref;
+  try { if (window.parent !== window) { window.parent.postMessage({ tsdGoto: { screen: 'activity', open: openv } }, location.origin); return; } } catch(e){}
+  location.href = 'manage.html?tab=activity&open=' + encodeURIComponent(openv);
+}
+let modalDay = null;
+const dayCache = {};   // day -> {sent_list, by_service} | {error:true}
+function dayData(day){
+  if (lastData && day === lastData.today) return { sent_list: lastData.sent_today_list || [], by_service: lastData.by_service_today || [] };
+  return dayCache[day] || null;
+}
+async function loadSentDay(day){
+  const have = dayData(day); if (have) return have;
+  try {
+    const r = await fetch(API + '?day=' + day, {cache:'no-store'});
+    const j = await r.json();
+    if (!r.ok || j.error) throw 0;
+    dayCache[day] = { sent_list: j.sent_list || [], by_service: j.by_service || [] };
+  } catch(e){ dayCache[day] = { sent_list: [], by_service: [], error: true }; }
+  return dayCache[day];
+}
+function openSentDay(day){
+  modalDay = day || (lastData && lastData.today);
+  if (!modalDay) return;
+  document.getElementById('modal').style.display = 'flex';
+  renderSentDay();
+}
+function shiftModalDay(n){
+  const dt = new Date(modalDay + 'T12:00:00'); dt.setDate(dt.getDate() + n);
+  const nd = dt.toISOString().slice(0, 10);
+  if (lastData && nd > lastData.today) return;
+  modalDay = nd; renderSentDay();
+}
+async function renderSentDay(){
+  const day = modalDay, today = lastData && lastData.today;
+  document.getElementById('mbox').innerHTML = `
+    <button class="close" id="mclose">✕ Close</button>
+    <h3>Sent out</h3>
+    <div class="daynav">
+      <button id="dprevd" title="Day before">‹</button>
+      <input type="date" id="dpick" value="${esc(day)}" ${today ? `max="${esc(today)}"` : ''}>
+      <button id="dnextd" title="Day after" ${today && day >= today ? 'disabled' : ''}>›</button>
+      ${today && day !== today ? '<button id="dtodayb">Today</button>' : ''}
+    </div>
+    <div class="sub" id="dcount">Loading…</div>
+    <div id="dbody"></div>`;
+  document.getElementById('mclose').onclick = closeModal;
+  document.getElementById('dprevd').onclick = () => shiftModalDay(-1);
+  document.getElementById('dnextd').onclick = () => shiftModalDay(1);
+  document.getElementById('dpick').onchange = e => { if (e.target.value) { modalDay = e.target.value; renderSentDay(); } };
+  const tb = document.getElementById('dtodayb'); if (tb) tb.onclick = () => { modalDay = today; renderSentDay(); };
+  const data = await loadSentDay(day);
+  if (modalDay !== day) return;   // navigated elsewhere while this was loading
+  fillSentDay(data, day);
+}
+function fillSentDay(data, day){
+  const list = data.sent_list || [];
+  const order = (data.by_service || []).map(x => x.service);   // same group order as the bar chart (busiest first)
   const groups = {};
   list.forEach(o => { if (!groups[o.service]) groups[o.service] = []; groups[o.service].push(o); });
   const names = Object.keys(groups).sort((a, b) => order.indexOf(a) - order.indexOf(b));
   const t = s => new Date(s).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/London'});
-  document.getElementById('mbox').innerHTML = `
-    <button class="close" id="mclose">✕ Close</button>
-    <h3>Sent out today</h3>
-    <div class="sub">${list.length} order${list.length === 1 ? '' : 's'} · ${esc(lastData.today)}</div>
-    ${names.length ? names.map(name => `
+  document.getElementById('dcount').textContent = `${list.length} order${list.length === 1 ? '' : 's'} · ${dmy(day)}`;
+  document.getElementById('dbody').innerHTML = data.error ? '<div class="empty">Couldn\'t load that day. Try again.</div>'
+    : (names.length ? names.map(name => `
       <div class="grp"><h4>${esc(name)} <span style="color:var(--muted);font-weight:400">(${groups[name].length})</span></h4>
-        ${groups[name].slice().reverse().map(o => `<div class="orow"><span><b>${esc(o.no)}</b> ${esc(o.customer || '')}</span><span class="t">${t(o.sent_at)}</span></div>`).join('')}
-      </div>`).join('') : '<div class="empty">Nothing sent yet today.</div>'}`;
-  document.getElementById('modal').style.display = 'flex';
-  document.getElementById('mclose').onclick = closeModal;
+        ${groups[name].slice().reverse().map(o => `<div class="orow"><span><a data-order="${esc(o.no)}"><b>${esc(o.no)}</b></a> ${esc(o.customer || '')}</span><span class="t"><a data-time="${esc(o.no)}">${t(o.sent_at)}</a></span></div>`).join('')}
+      </div>`).join('') : '<div class="empty">Nothing sent that day.</div>');
+  document.getElementById('dbody').onclick = e => {
+    const oEl = e.target.closest('[data-order]'); if (oEl) { gotoOrders(oEl.dataset.order); return; }
+    const tEl = e.target.closest('[data-time]'); if (tEl) { gotoActivity(day, tEl.dataset.time); return; }
+  };
 }
 function closeModal(){ document.getElementById('modal').style.display = 'none'; }
 document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
@@ -117,7 +185,7 @@ async function load(){
   catch(e){ if (!document.getElementById('out').innerHTML) document.getElementById('upd').textContent = "Can't load right now. Check the connection."; }
 }
 load(); setInterval(load, 60000);
-(function(){ const BUILD='20261120134500'; setInterval(async () => { try { const t = await (await fetch(location.pathname + '?_=' + Date.now(), {cache:'no-store'})).text(); const m = t.match(/const BUILD='(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 300000); })();
+(function(){ const BUILD='20261120140500'; setInterval(async () => { try { const t = await (await fetch(location.pathname + '?_=' + Date.now(), {cache:'no-store'})).text(); const m = t.match(/const BUILD='(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 300000); })();
 </script>
 </body>
 </html>
