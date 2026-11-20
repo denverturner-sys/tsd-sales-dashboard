@@ -95,7 +95,7 @@ function openSentToday(){
   const list = lastData.sent_today_list || [];
   const order = (lastData.by_service_today || []).map(x => x.service);   // same group order as the bar chart (busiest first)
   const groups = {};
-  list.forEach(o => { (groups[o.service] ||= []).push(o); });
+  list.forEach(o => { if (!groups[o.service]) groups[o.service] = []; groups[o.service].push(o); });
   const names = Object.keys(groups).sort((a, b) => order.indexOf(a) - order.indexOf(b));
   const t = s => new Date(s).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/London'});
   document.getElementById('mbox').innerHTML = `
