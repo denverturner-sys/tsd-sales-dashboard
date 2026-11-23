@@ -120,7 +120,22 @@ function trackUrl(courier, n, postcode){
   if (c.includes('royal mail')) return `https://www.royalmail.com/track-your-item#/tracking-results/${t}`;
   if (c.includes('parcelforce')) return `https://www.parcelforce.com/track-trace?trackNumber=${t}`;
   if (c.includes('fedex')) return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
+  // 23 Nov: Palletforce has no plain tracking-link format - their tracker only takes a form POST (postcode + tracking
+  // number), so there's no URL to hand out directly. This is the plain-text fallback (customerLine, anywhere we just
+  // need a link); the clickable "Track it" button instead calls trackPalletforce() below, which submits that POST for us.
+  if (c.includes('palletforce')) return 'https://www.palletforce.com/en/track-my-pallet/';
   return `https://www.google.com/search?q=${encodeURIComponent((courier || '') + ' tracking ' + n)}`;
+}
+// Submits Palletforce's own Quick Track form (https://alliancev3.palletforce.net/QuickTrack/index) into a fresh tab -
+// confirmed by watching the real form on their tracking page: fields DestPostCode/TrackingNum/ConNum/CustRef, POST only.
+function trackPalletforce(n, postcode){
+  const name = 'pf_' + Date.now();
+  window.open('', name);
+  const f = document.createElement('form');
+  f.method = 'POST'; f.action = 'https://alliancev3.palletforce.net/QuickTrack/index'; f.target = name; f.style.display = 'none';
+  const add = (k, v) => { const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v || ''; f.appendChild(i); };
+  add('DestPostCode', postcode); add('TrackingNum', n); add('ConNum', ''); add('CustRef', '');
+  document.body.appendChild(f); f.submit(); f.remove();
 }
 // Cin7's tracking box holds real numbers, or notes like "Own Van Delivery 01/10/2026" / "Collected 01/10/2026" / "Direct on 00592"
 function cin7Numbers(t){ return String(t || '').split(/[,;\s]+/).map(x => x.trim()).filter(x => /^[A-Z0-9]{8,}$/i.test(x) && /\d{6,}/.test(x)); }
@@ -194,6 +209,7 @@ function stage(o){
 // a line Coty can paste straight into an email or text to the customer
 function customerLine(o, s){
   const p = (s.ps || [])[0];
+  if (p && /palletforce/i.test(p.courier || '')) return `Your order ${o.no} went out${p.when ? ' on ' + dmy(p.when) : ''} with Palletforce. Track it at ${trackUrl(p.courier, p.n, o.postcode)} using tracking number ${p.n} and the delivery postcode${o.postcode ? ' (' + o.postcode + ')' : ''}.`;
   if (p) return `Your order ${o.no} went out${p.when ? ' on ' + dmy(p.when) : ''} with ${p.courier || 'our courier'}. Tracking number ${p.n}: ${trackUrl(p.courier, p.n, o.postcode)}`;
   const strip = t => String(t).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
   return `Order ${o.no}: ${strip(s.h).replace('✓ ', '')}${s.d ? '. ' + strip(s.d) : ''}`;
@@ -204,9 +220,14 @@ function card(o, i){
   const ps = s.ps || [];
   const lines = o.lines || [];
   const bo = lines.filter(l => +l.bo > 0).length;
-  const parcelsHtml = ps.map(p => `<div class="parcel"><b>${esc(p.courier || 'Courier')}</b>${p.boxes > 1 ? `<span class="tag">${p.boxes} parcels</span>` : ''}<span class="tn">${esc(p.n)}</span>
-      <a class="btn go" href="${esc(trackUrl(p.courier, p.n, o.postcode))}" target="_blank" rel="noopener">Track it ↗</a>
-      <button class="btn" data-copy="${esc(p.n)}">Copy no.</button></div>`).join('');
+  const parcelsHtml = ps.map(p => {
+    const trackBtn = /palletforce/i.test(p.courier || '')
+      ? `<button type="button" class="btn go" data-pf="${esc(p.n)}" data-pf-pc="${esc(o.postcode || '')}">Track it ↗</button>`
+      : `<a class="btn go" href="${esc(trackUrl(p.courier, p.n, o.postcode))}" target="_blank" rel="noopener">Track it ↗</a>`;
+    return `<div class="parcel"><b>${esc(p.courier || 'Courier')}</b>${p.boxes > 1 ? `<span class="tag">${p.boxes} parcels</span>` : ''}<span class="tn">${esc(p.n)}</span>
+      ${trackBtn}
+      <button class="btn" data-copy="${esc(p.n)}">Copy no.</button></div>`;
+  }).join('');
   return `<div class="o ${s.cls}">
     <div class="top"><span class="no">${esc(o.no)}</span><span class="meta">Ordered ${dmy(o.order_date)}${o.location && o.location !== 'Bromham' ? ' · ' + esc(o.location) : ''}</span></div>
     <div class="cust">${esc(o.customer)}${o.ship_name && o.ship_name !== o.customer ? ` <span class="meta">· ${esc(o.ship_name)}</span>` : ''}</div>
@@ -244,6 +265,7 @@ async function copy(t){
 document.getElementById('out').addEventListener('click', e => {
   const c = e.target.closest('[data-copy]'); if (c) return copy(c.dataset.copy);
   const l = e.target.closest('[data-line]'); if (l) { const o = R[+l.dataset.line]; copy(customerLine(o, stage(o))); }
+  const pf = e.target.closest('[data-pf]'); if (pf) return trackPalletforce(pf.dataset.pf, pf.dataset.pfPc);
 });
 
 // ---------- login (same as My Sales) ----------
@@ -270,7 +292,7 @@ TSDAuth.mount(t => { token = t; showApp(); });
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (waits while someone has a search in).
 (function(){
-  const BUILD = '20261105154936';
+  const BUILD = '20261123160000';
   let newer = false;
   async function check(){
     try {

@@ -112,13 +112,32 @@ function trackUrl(courier, n, postcode){
   if (c.includes('royal mail')) return `https://www.royalmail.com/track-your-item#/tracking-results/${t}`;
   if (c.includes('parcelforce')) return `https://www.parcelforce.com/track-trace?trackNumber=${t}`;
   if (c.includes('fedex')) return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
+  // 23 Nov: Palletforce has no plain tracking-link format - their tracker only takes a form POST (postcode + tracking
+  // number), so there's no URL to hand out directly. trackLinks() below calls trackPalletforce() instead for these.
+  if (c.includes('palletforce')) return 'https://www.palletforce.com/en/track-my-pallet/';
   return `https://www.google.com/search?q=${encodeURIComponent((courier || '') + ' tracking ' + n)}`;
 }
-const trackLinks = (ps, pc, long) => (ps || []).map(p => `<a class="trk" title="${esc((p.courier || '') + ' ' + p.n)}" href="${esc(trackUrl(p.courier, p.n, pc))}" target="_blank" rel="noopener">${long ? esc((p.courier || 'Track') + ' ' + p.n) : 'Track'} ↗</a>`).join(' ');
+// Submits Palletforce's own Quick Track form (https://alliancev3.palletforce.net/QuickTrack/index) into a fresh tab -
+// confirmed by watching the real form on their tracking page: fields DestPostCode/TrackingNum/ConNum/CustRef, POST only.
+function trackPalletforce(n, postcode){
+  const name = 'pf_' + Date.now();
+  window.open('', name);
+  const f = document.createElement('form');
+  f.method = 'POST'; f.action = 'https://alliancev3.palletforce.net/QuickTrack/index'; f.target = name; f.style.display = 'none';
+  const add = (k, v) => { const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v || ''; f.appendChild(i); };
+  add('DestPostCode', postcode); add('TrackingNum', n); add('ConNum', ''); add('CustRef', '');
+  document.body.appendChild(f); f.submit(); f.remove();
+}
+const trackLinks = (ps, pc, long) => (ps || []).map(p => /palletforce/i.test(p.courier || '')
+  ? `<a class="trk" href="javascript:void(0)" data-pf="${esc(p.n)}" data-pf-pc="${esc(pc || '')}" title="${esc((p.courier || '') + ' ' + p.n)}">${long ? esc((p.courier || 'Track') + ' ' + p.n) : 'Track'} ↗</a>`
+  : `<a class="trk" title="${esc((p.courier || '') + ' ' + p.n)}" href="${esc(trackUrl(p.courier, p.n, pc))}" target="_blank" rel="noopener">${long ? esc((p.courier || 'Track') + ' ' + p.n) : 'Track'} ↗</a>`).join(' ');
 function toast(t){ const e = document.getElementById('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(e._t); e._t = setTimeout(() => e.style.display = 'none', 3500); }
 function modal(h){ document.getElementById('mbox').innerHTML = h; document.getElementById('mbox').style.maxWidth = '860px'; document.getElementById('mbox').style.maxHeight = ''; document.getElementById('mbox').style.overflow = ''; document.getElementById('modal').style.display = 'flex'; }
 function closeModal(){ document.getElementById('modal').style.display = 'none'; }
 document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+// Palletforce's "Track it" links aren't real hrefs (their tracker needs a form POST) - wherever one shows up, in the
+// list or the order popup, send the click to trackPalletforce() instead.
+document.addEventListener('click', e => { const pf = e.target.closest('[data-pf]'); if (pf) { e.stopPropagation(); trackPalletforce(pf.dataset.pf, pf.dataset.pfPc); } });
 function showLogin(msg){ clearInterval(timer); document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
 function start(){ document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block'; shell(); load(); if (OPEN && !OPEN.startsWith('q:') && !start.done) { start.done = true; openOrder(/^[0-9a-f-]{36}$/i.test(OPEN) ? { id: OPEN } : { no: OPEN }); } clearInterval(timer); timer = setInterval(() => { if (document.getElementById('modal').style.display !== 'flex' && !document.activeElement?.matches('input')) load(); }, 60000); }
 async function api(qs, body){
@@ -143,7 +162,7 @@ function draw(){
   const stn = document.getElementById('stn'); if (stn) stn.innerHTML = ['dispatch', 'office'].map(p => D.online[p] ? `<b class="on">● ${PR[p]} connected</b>` : `<b class="off">● ${PR[p]} not connected</b>`).join(' &nbsp; ') + ' <span class="sub">(you can still print from this screen)</span>';
   document.getElementById('list').innerHTML = D.orders.length ? `<table class="ol"><tr><th>Order</th><th>Date</th><th>Customer</th><th class="hm">Site</th><th>Status</th><th>Tracking</th>${D.can_price ? '<th class="r hm">Ex VAT</th>' : ''}<th></th></tr>` +
     D.orders.map(o => `<tr class="clk" data-row="${o.id}"><td><b>${esc(o.no)}</b>${o.ref ? `<div class="sub">Web #${esc(o.ref)}</div>` : ''}${o.prints ? `<div class="sub" title="Last printed ${esc(when(o.prints.at))} by ${esc(o.prints.by)} (${esc(PN[o.prints.printer] || o.prints.printer)})">🖨 printed${o.prints.n > 1 ? ' ×' + o.prints.n : ''} · ${esc(o.prints.by)}</div>` : ''}</td><td>${dmy(o.date)}</td><td>${esc(o.customer)}</td><td class="hm">${esc(o.location)}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span></td><td>${trackLinks(o.parcels, o.postcode, false)}</td>${D.can_price ? `<td class="r hm">${gbp(o.total)}</td>` : ''}<td class="r"><button class="pbtn" data-o="${o.id}">Print…</button></td></tr>`).join('') + '</table>' + (D.orders.length >= 100 ? '<div class="sub" style="margin-top:8px">Showing the latest 100. Search to narrow it down.</div>' : '') : '<div class="empty">No orders match.</div>';
-  document.querySelectorAll('a.trk').forEach(a => a.onclick = e => e.stopPropagation());
+  document.querySelectorAll('a.trk').forEach(a => a.onclick = e => { e.stopPropagation(); if (a.dataset.pf) trackPalletforce(a.dataset.pf, a.dataset.pfPc); });
   document.querySelectorAll('[data-o]').forEach(b => b.onclick = e => { e.stopPropagation(); printDlg(D.orders.find(o => o.id === b.dataset.o)); });
   document.querySelectorAll('tr[data-row]').forEach(r => r.onclick = () => openOrder({ id: r.dataset.row }));
   const a = document.getElementById('adm'); if (D.is_admin && !a.innerHTML) a.innerHTML = '<div class="card"><div class="k">Print stations</div><div class="sub" style="margin:6px 0">Set up once on the PC next to each printer (dispatch and office).</div><button class="pbtn" id="stset">Show set-up steps</button></div>', document.getElementById('stset').onclick = stationSetup;
@@ -254,7 +273,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261113143211';
+  const BUILD = '20261123160000';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
