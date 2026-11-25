@@ -34,13 +34,13 @@ header img{height:48px}
 .chip{background:var(--panel);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;min-width:110px}
 .chip .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
 .chip .v{font-family:var(--num);font-size:28px;line-height:1.05}
-.chip.warn .v{color:var(--accent)}
+.chip.warn .v{color:var(--accent-text)}
 #search{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
 #search input{flex:1;max-width:620px;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 14px;font-size:18px;font-family:inherit}
 #search input:focus{outline:none;border-color:var(--accent)}
 #search button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:15px;font-family:inherit}
 .issue{font-size:12px;background:rgba(255,122,107,.12);border:1px solid var(--bad);border-radius:6px;padding:6px 8px;line-height:1.4}
-.btn.ship{background:var(--good);color:#262727;border-color:var(--good)}
+.btn.ship{background:var(--good);color:var(--on-accent);border-color:var(--good)}
 .topbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .topbar #search{flex:1 1 520px;margin:0}
 .topbar #search input{max-width:none;padding:14px 16px;font-size:19px}
@@ -53,10 +53,10 @@ header img{height:48px}
 @media (max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}}
 .sec{background:var(--panel);border-radius:14px;padding:14px;margin-bottom:16px}
 .sec h2{margin:0 0 10px;display:flex;align-items:baseline;gap:10px;font-family:var(--num);font-weight:400;font-size:28px;letter-spacing:1px}
-.sec h2 .n{background:var(--accent);color:#262727;border-radius:6px;padding:0 8px;font-size:22px}
+.sec h2 .n{background:var(--accent);color:var(--on-accent);border-radius:6px;padding:0 8px;font-size:22px}
 .sec h2 .h{font-family:var(--body);font-size:13px;color:var(--muted);letter-spacing:0}
 .sec.urgent{border:2px solid var(--accent)}
-h3.day{font-family:var(--num);font-weight:400;font-size:22px;letter-spacing:1px;margin:12px 0 8px;color:var(--accent)}
+h3.day{font-family:var(--num);font-weight:400;font-size:22px;letter-spacing:1px;margin:12px 0 8px;color:var(--accent-text)}
 h3.day:first-of-type{margin-top:0}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
 .side .cards{grid-template-columns:minmax(0,1fr)}
@@ -69,8 +69,8 @@ h3.day:first-of-type{margin-top:0}
 .addr{font-size:14px;line-height:1.35}
 .tags{display:flex;gap:6px;flex-wrap:wrap}
 .tag{font-size:11px;font-weight:700;letter-spacing:.6px;padding:3px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap}
-.t-pick{background:transparent;border:1px solid var(--muted);color:var(--ink)} .t-ok{background:var(--good);color:#262727}
-.t-bo{background:transparent;border:1px solid var(--bad);color:var(--bad)} .t-route{background:var(--blue);color:#262727}
+.t-pick{background:transparent;border:1px solid var(--muted);color:var(--ink)} .t-ok{background:var(--good);color:var(--on-accent)}
+.t-bo{background:transparent;border:1px solid var(--bad);color:var(--bad)} .t-route{background:var(--blue);color:var(--on-accent)}
 .t-draft{background:transparent;border:1px solid var(--blue);color:var(--blue)} .t-add{background:transparent;border:1px solid var(--line);color:var(--muted)}
 .carrier{font-size:12px;color:var(--muted);font-style:italic}
 ul.lines{margin:2px 0 0;padding:6px 0 0;list-style:none;font-size:13px;line-height:1.45;border-top:1px solid var(--line)}
@@ -81,7 +81,7 @@ ul.lines .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;align-items:center}
 .btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer}
 .btn:hover{border-color:var(--muted)}
-.btn.go{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.out{color:var(--muted)}
 .empty{color:var(--muted);font-size:14px;padding:6px 2px}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
@@ -92,7 +92,7 @@ ul.lines .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #modal .err{color:var(--bad);font-size:13px;min-height:16px}
 .warnbox{background:rgba(238,209,7,.12);border:1px solid var(--accent);border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.4}
 .plist{font-size:13px;margin:2px 0 4px;padding-left:18px}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
 footer{color:var(--muted);font-size:12px;margin-top:4px}
 #msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
 #tabs{max-width:1900px;margin:0 auto;padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap}
@@ -100,14 +100,93 @@ footer{color:var(--muted);font-size:12px;margin-top:4px}
 #tabs{position:sticky;top:0;z-index:20;background:var(--bg);padding-bottom:10px;max-width:none;padding-left:max(20px, calc((100% - 1900px) / 2 + 20px));padding-right:max(20px, calc((100% - 1900px) / 2 + 20px));box-shadow:0 6px 12px -8px rgba(0,0,0,.6)}
 #tabs a{color:var(--muted);text-decoration:none;font-weight:700;font-size:15px;padding:9px 16px;border:1px solid var(--line);border-radius:999px}
 #tabs a:hover{color:var(--ink);border-color:var(--muted)}
-#tabs a.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+#tabs a.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .credit{font-size:13px;font-weight:600;background:rgba(255,122,107,.16);border:1px solid var(--bad);color:var(--ink);border-radius:6px;padding:6px 8px;margin:6px 0;line-height:1.35}
 table.chooser{width:100%;border-collapse:collapse;font-size:14px;margin:4px 0 6px}
 table.chooser td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:middle}
 table.chooser td:first-child{width:28px} table.chooser input[type=checkbox]{width:20px;height:20px}
 table.chooser .cm{color:var(--muted);font-size:13px}
 table.chooser .cq{width:80px;text-align:center;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px;font-size:16px;font-family:inherit}
+
+/* ===== 25 Nov redesign: list rows, tap to expand, one main button ===== */
+.wrap{padding:18px 22px 40px;max-width:1500px}
+header .l img{display:none}
+.title{font-family:var(--num);font-weight:700;font-size:30px;letter-spacing:-.5px;line-height:1.1}
+.sub{font-size:13.5px;margin-top:4px}
+header{flex-direction:column;align-items:stretch;gap:12px}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;width:100%;margin:6px 0 4px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px;min-width:0;box-shadow:var(--shadow)}
+.chip .k{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--muted)}
+.chip .v{font-family:var(--num);font-weight:700;font-size:28px;letter-spacing:-.6px;line-height:1.15;margin-top:4px}
+.chip.warn .v{color:var(--ink)}
+.layout{display:block}
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden}
+.sec.urgent{border:1px solid var(--line)}
+.sec h2{margin:0;padding:14px 18px 12px;border-bottom:1px solid var(--line);font-family:var(--num);font-weight:600;font-size:16px;letter-spacing:0;align-items:baseline;flex-wrap:wrap}
+.sec h2 .n{background:transparent;color:var(--muted);padding:0;font-size:13px;font-weight:600;font-family:var(--body)}
+.sec h2 .h{font-size:12.5px;color:var(--muted);font-weight:400}
+details.sec > summary h2{border-bottom:0}
+details.sec[open] > summary h2{border-bottom:1px solid var(--line)}
+h3.day{margin:0;padding:12px 18px 8px;font-family:var(--num);font-weight:600;font-size:14px;letter-spacing:0;color:var(--ink);border-bottom:1px solid var(--line);background:var(--panel2)}
+.cards{display:block}
+.empty{padding:16px 18px}
+details.card{display:block;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:0;position:relative;opacity:1}
+details.card:last-child{border-bottom:0}
+details.card > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:120px minmax(150px,1.05fr) minmax(170px,1.5fr) minmax(130px,.9fr) 230px;align-items:center;gap:14px;padding:12px 16px 12px 18px;transition:background .12s}
+:root[data-density="compact"] details.card > summary{padding-top:8px;padding-bottom:8px}
+details.card > summary::-webkit-details-marker{display:none}
+details.card > summary:hover{background:var(--hover)}
+details.card[open] > summary{background:var(--panel2)}
+details.card.delivered > summary{opacity:.75}
+.r-no{display:flex;flex-direction:column;gap:2px;min-width:0}
+.no{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:-.2px;line-height:1.2}
+.r-no .meta,.r-cust .meta,.r-prod .meta{font-size:12.5px}
+.r-cust{min-width:0} .cust{font-weight:600;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-cust .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-prod{font-size:13.5px;min-width:0} .r-prod .first{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tags{gap:5px}
+.tag{font-size:11.5px;font-weight:600;letter-spacing:0;text-transform:none;padding:2px 8px;border-radius:999px;background:var(--panel2)!important;border:1px solid var(--line)!important;color:var(--ink)!important}
+.tag.t-bo{color:var(--muted)!important;background:transparent!important}
+.tag.t-pick{background:var(--ink)!important;border-color:var(--ink)!important;color:var(--bg)!important}
+.tag.t-draft,.tag.t-add{color:var(--muted)!important;background:transparent!important}
+.r-act{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.r-act .btn{white-space:nowrap}
+.r-act .btn.go,.r-act .btn.ship{background:var(--ink)!important;color:var(--bg)!important;border:1px solid transparent!important;border-radius:9px;padding:9px 14px;font-weight:600;box-shadow:var(--shadow);transition:transform .08s}
+.r-act .btn.go:hover,.r-act .btn.ship:hover{transform:translateY(-1px)}
+.chev{width:22px;height:22px;display:grid;place-items:center;color:var(--muted);transition:transform .15s;flex:0 0 22px}
+.chev svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+details.card[open] .chev{transform:rotate(180deg)}
+.r-x{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:26px;padding:6px 18px 18px;background:var(--panel2);border-top:1px dashed var(--line)}
+@media (max-width:900px){.r-x{grid-template-columns:1fr;gap:14px}}
+.r-x .k2{font-size:11px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+ul.lines{border-top:0;padding-top:0;font-size:13.5px;line-height:1.5}
+ul.lines li{padding:5px 0;border-bottom:1px solid var(--line)} ul.lines li:last-child{border-bottom:0}
+ul.lines .s{font-family:var(--mono);font-size:12.5px;min-width:96px}
+ul.lines .nm{white-space:normal}
+.r-x .meta,.r-x .addr{font-size:13px;margin:3px 0}
+.note{background:var(--tint-warn);font-size:13px;padding:7px 10px;border-radius:8px;margin:6px 0}
+.carrier{font-size:13px;font-style:normal;margin:6px 0}
+.issue{font-size:13px;background:var(--tint-bad);border:1px solid transparent;border-radius:9px;padding:8px 11px;margin:6px 0}
+.credit{background:var(--tint-bad);border-color:transparent}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:0}
+@media (max-width:560px){.btns{grid-template-columns:1fr}}
+.btns .btn{margin:0;width:100%;text-align:left;background:var(--panel)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:9px;padding:9px 12px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);transition:border-color .15s,transform .08s}
+.btns .btn:hover{border-color:var(--muted)!important;transform:translateY(-1px)}
+.btns .btn[data-a=back]{color:var(--bad)!important}
+.where{color:var(--muted);padding:10px 18px 0;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase}
+#toast{background:var(--ink);color:var(--bg)}
+#modal .box{border:1px solid var(--line)}
+#modal h3{font-family:var(--num);font-weight:700;font-size:22px;letter-spacing:-.3px}
+@media (max-width:860px){
+  .wrap{padding:14px 14px 40px}
+  .chips{grid-template-columns:1fr 1fr;gap:8px} .chip{padding:10px 12px} .chip .v{font-size:23px}
+  details.card > summary{grid-template-columns:1fr auto;grid-template-areas:"no act" "cust cust" "prod prod" "tags tags";gap:5px 10px;padding:12px 12px 12px 16px}
+  .r-no{grid-area:no;flex-direction:row;align-items:baseline;gap:10px} .r-cust{grid-area:cust} .r-prod{grid-area:prod} .r-tags{grid-area:tags} .r-act{grid-area:act}
+  .r-x{padding:4px 14px 16px}
+}
+
 </style>
+<script src="theme.js?v=20261125223848"></script>
 </head>
 <body>
 <script>
@@ -121,7 +200,7 @@ table.chooser .cq{width:80px;text-align:center;background:var(--bg);color:var(--
 })();
 </script>
 <div class="wrap" style="padding-bottom:0"><div class="topbar">
-  <div id="search"><input id="q" type="search" placeholder="🔍 Find an order: number, customer, address, postcode, SKU or product…" autocomplete="off"><button id="qclear" style="display:none">Clear</button></div>
+  <div id="search"><input id="q" type="search" placeholder="Find an order: number, customer, address, postcode, SKU or product…" autocomplete="off"><button id="qclear" style="display:none">Clear</button></div>
   <div class="addbar"><span class="sub">Not on the list?</span><input id="addno" placeholder="SO-09123" autocomplete="off"><button id="addbtn">Add to van list</button><span class="msg" id="addmsg"></span></div>
 </div></div>
 <div class="wrap" id="app"><div id="msg">Loading van orders…</div></div>
@@ -174,61 +253,85 @@ function pickTag(o){
 const CREDIT_TXT = { hold: 'Account ON HOLD in Cin7', stop: 'Office has flagged this account to stop', over: 'Account is over its credit limit', late: 'Account has invoices more than 60 days late' };
 function creditBanner(cust){
   const f = ((data && data.credit) || {})[cust]; if (!f || !CREDIT_TXT[f.flag]) return '';
-  return `<div class="credit">⚠ ${CREDIT_TXT[f.flag]}. Check with the office before it goes out.</div>`;
+  return `<div class="credit">${CREDIT_TXT[f.flag]}. Check with the office before it goes out.</div>`;
 }
+// 25 Nov redesign: a row per order with ONE main button (send to Track-POD, or picked & loaded); tap the row for the rest.
+// Every button keeps its class and data-a, so the wiring in render() and the print buttons work exactly as before.
+const OPEN = new Set();   // rows someone has opened stay open when the list refreshes
+const CHEV = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
 function card(o){
   const addr = o.address || [o.town, o.postcode].filter(Boolean).join(', ');
   const who = [o.contact, o.phone].filter(Boolean).join(' · ');
   let tags = pickTag(o);
   if (o.added_from) tags += `<span class="tag t-add">Added from ${esc(o.added_from)}</span>`;
   if (o.stage === 'booked') tags += o.route && o.route !== o.no ? `<span class="tag t-route">Route ${esc(o.route)}</span>` : '<span class="tag t-draft">Not routed yet</span>';
-  let extra = '', btns = '';
+  let extra = '', prim = '', btns = '';
   if (DC() && o.office && o.office.state && o.office.state !== 'van') tags += '<span class="tag t-bo">Not sent to van by the office</span>';
   if (WHV()) {
     if (o.stage === 'to_book' && !(o.office && o.office.state === 'van')) {
       extra = '<div class="meta">Not sent to the van by the office yet.</div>';
     } else if (o.stage === 'to_book') {
       // 18 Nov (Denver): the warehouse still books the van, but only what the office sent to it
-      btns = `<button class="btn go" data-a="push" data-id="${o.id}">${o.backorder && o.stock_in !== 'all' ? '📦 Send what we have: Track-POD + Cin7' : 'Send to Track-POD &amp; fulfil'}</button>
-              <button class="btn out" data-a="back" data-id="${o.id}">↩ Problem? Send back</button>`;
+      prim = `<button class="btn go" data-a="push" data-id="${o.id}" title="${o.backorder && o.stock_in !== 'all' ? 'Send what we have: Track-POD + Cin7' : 'Books it into Track-POD and fulfils it in Cin7'}">${o.backorder && o.stock_in !== 'all' ? 'Send what we have' : 'Send to Track-POD &amp; fulfil'}</button>`;
+      btns = `<button class="btn out" data-a="back" data-id="${o.id}">Problem? Send back</button>`;
       if (o.ship_by) extra = `<div class="meta">Needed by ${dshort(o.ship_by)}</div>`;
     } else if (o.stage === 'booked') {
       extra = `<div class="meta">${o.driver ? 'Driver ' + esc(o.driver) : 'No driver yet'}${o.route_status ? ' · route ' + esc(o.route_status.toLowerCase()) : ''}</div>`;
-      btns = `${o.ship !== 'SHIPPED' ? `<button class="btn ship" data-a="ful" data-id="${o.id}">✓ Picked &amp; loaded: ship in Cin7</button>` : ''}
-              <button class="btn out" data-a="back" data-id="${o.id}">↩ Problem? Send back</button>`;
+      prim = o.ship !== 'SHIPPED' ? `<button class="btn ship" data-a="ful" data-id="${o.id}" title="Picked &amp; loaded: ship in Cin7">Picked &amp; loaded</button>` : '';
+      btns = `<button class="btn out" data-a="back" data-id="${o.id}">Problem? Send back</button>`;
     } else if (o.stage === 'delivered') {
       extra = `<div class="meta">Delivered ${dshort(o.tp_date)}${o.signed_by ? ' · signed by ' + esc(o.signed_by) : ''}</div>`;
     }
   } else if (o.stage === 'to_book') {
-    btns = `<button class="btn go" data-a="push" data-id="${o.id}">${o.backorder && o.stock_in !== 'all' ? '📦 Send what we have: Track-POD + Cin7' : 'Send to Track-POD &amp; fulfil'}</button>
-            <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
-            <button class="btn out" data-a="coll" data-id="${o.id}">🏪 Collection</button>`;
+    prim = `<button class="btn go" data-a="push" data-id="${o.id}" title="${o.backorder && o.stock_in !== 'all' ? 'Send what we have: Track-POD + Cin7' : 'Books it into Track-POD and fulfils it in Cin7'}">${o.backorder && o.stock_in !== 'all' ? 'Send what we have' : 'Send to Track-POD &amp; fulfil'}</button>`;
+    btns = `<button class="btn out" data-a="out" data-id="${o.id}">Send to courier</button>
+            <button class="btn out" data-a="coll" data-id="${o.id}">Change to collection</button>`;
     if (o.ship_by) extra = `<div class="meta">Needed by ${dshort(o.ship_by)}</div>`;
   } else if (o.stage === 'booked') {
     extra = `<div class="meta">${o.driver ? 'Driver ' + esc(o.driver) : 'No driver yet'}${o.eta ? ' · ETA ' + new Date(o.eta).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : ''}${o.route_status ? ' · route ' + esc(o.route_status.toLowerCase()) : ''}</div>`;
-    btns = `${o.ship !== 'SHIPPED' ? `<button class="btn ship" data-a="ful" data-id="${o.id}">✓ Pick, pack &amp; ship in Cin7</button>` : ''}
-            <button class="btn out" data-a="out" data-id="${o.id}">🚚 Send to courier</button>
-            <button class="btn out" data-a="coll" data-id="${o.id}">🏪 Collection</button>`;
+    prim = o.ship !== 'SHIPPED' ? `<button class="btn ship" data-a="ful" data-id="${o.id}" title="Pick, pack &amp; ship in Cin7">Pick, pack &amp; ship</button>` : '';
+    btns = `<button class="btn out" data-a="out" data-id="${o.id}">Send to courier</button>
+            <button class="btn out" data-a="coll" data-id="${o.id}">Change to collection</button>`;
   } else {
     extra = `<div class="meta">Delivered ${dshort(o.tp_date)}${o.signed_by ? ' · signed by ' + esc(o.signed_by) : ''}${o.photo ? ' · photo taken' : ''}</div>`;
   }
-  return `<div class="card ${o.stage === 'to_book' ? 'tobook' : o.stage}">
-    <div class="top"><span class="no">${esc(o.no || '')}</span><span class="meta">${esc(o.location || '')} · ordered ${dshort(o.order_date)}</span></div>
-    <div class="cust">${esc(o.customer)}</div>
-    ${creditBanner(o.customer)}
-    <div class="tags">${tags}</div>
-    ${addr ? `<div class="addr">${esc(addr)}</div>` : '<div class="note">No delivery address on the Cin7 order</div>'}
-    ${who ? `<div class="meta">${esc(who)}</div>` : ''}
-    ${o.carrier ? `<div class="carrier">“${esc(o.carrier)}”</div>` : ''}
-    ${o.notes ? `<div class="note">${esc(o.notes)}</div>` : ''}
-    ${extra}
-    ${o.stage === 'booked' ? `<div class="meta">Cin7: ${o.ship === 'SHIPPED' ? '<b style="color:var(--good)">shipped ✓</b>' : o.ship === 'PARTIALLY SHIPPED' ? 'part shipped' : '<b style="color:var(--accent)">not fulfilled yet</b>'}</div>` : ''}
-    ${o.fulfil_error && o.ship !== 'SHIPPED' ? `<div class="issue"><b>Cin7 wouldn't ${esc(o.fulfil_error.step)}</b> · ${new Date(o.fulfil_error.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}<br>“${esc(o.fulfil_error.message)}”</div>` : ''}
-    ${o.van_outcome ? `<div class="issue"><b>Van run: ${esc(o.van_outcome)}</b>${o.ship === 'SHIPPED' ? ' · Cin7 shows the rest sent' : ' · the rest still needs sending. Rebook it in Track-POD or move it to courier.'}</div>` : ''}
-    ${o.stage !== 'delivered' ? lines(o) : ''}
-    <div class="btns">${btns}<button class="btn out notebtn" data-id="${o.id}" data-kind="delivery">🖨 Print note</button><button class="btn out notebtn lblbtn" data-id="${o.id}">🏷 Address label</button></div>
-  </div>`;
+  const l = o.lines || [], first = l[0], more = l.length - 1;
+  const prod = first ? `<span class="first">${(+first.qty).toLocaleString('en-GB')} × ${esc(first.name)}</span>${more > 0 ? `<span class="meta">+ ${more} more line${more === 1 ? '' : 's'}</span>` : ''}` : '';
+  const allLines = l.map(x => `<li><span class="q">${(+x.qty).toLocaleString('en-GB')}×</span><span class="s">${esc(x.sku)}</span><span class="nm">${esc(x.name)}</span></li>`).join('');
+  const place = [o.town, o.postcode].filter(Boolean).join(' · ') || addr;
+  return `<details class="card ${o.stage === 'to_book' ? 'tobook' : o.stage}" data-oid="${esc(o.id)}"${OPEN.has(String(o.id)) ? ' open' : ''}>
+    <summary>
+      <div class="r-no"><span class="no">${esc(o.no || '')}</span><span class="meta">ordered ${dshort(o.order_date)}</span></div>
+      <div class="r-cust"><div class="cust">${esc(o.customer)}</div>${place ? `<div class="meta">${esc(place)}</div>` : ''}</div>
+      <div class="r-prod">${prod}</div>
+      <div class="r-tags"><div class="tags">${tags}</div></div>
+      <div class="r-act">${prim}<span class="chev">${CHEV}</span></div>
+    </summary>
+    <div class="r-x">
+      <div>
+        <div class="k2">${l.length ? l.length + ' line' + (l.length === 1 ? '' : 's') : 'Lines'}</div>
+        ${l.length ? `<ul class="lines">${allLines}</ul>` : '<div class="meta">No lines</div>'}
+      </div>
+      <div>
+        <div class="k2">Details</div>
+        ${creditBanner(o.customer)}
+        ${addr ? `<div class="addr">${esc(addr)}</div>` : '<div class="note">No delivery address on the Cin7 order</div>'}
+        ${who ? `<div class="meta">${esc(who)}</div>` : ''}
+        ${o.location ? `<div class="meta">${esc(o.location)}</div>` : ''}
+        ${o.carrier ? `<div class="carrier">Delivery: “${esc(o.carrier)}”</div>` : ''}
+        ${o.notes ? `<div class="note">${esc(o.notes)}</div>` : ''}
+        ${extra}
+        ${o.stage === 'booked' ? `<div class="meta">Cin7: ${o.ship === 'SHIPPED' ? '<b>shipped</b>' : o.ship === 'PARTIALLY SHIPPED' ? 'part shipped' : '<b>not fulfilled yet</b>'}</div>` : ''}
+        ${o.fulfil_error && o.ship !== 'SHIPPED' ? `<div class="issue"><b>Cin7 wouldn't ${esc(o.fulfil_error.step)}</b> · ${new Date(o.fulfil_error.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}<br>“${esc(o.fulfil_error.message)}”</div>` : ''}
+        ${o.van_outcome ? `<div class="issue"><b>Van run: ${esc(o.van_outcome)}</b>${o.ship === 'SHIPPED' ? ' · Cin7 shows the rest sent' : ' · the rest still needs sending. Rebook it in Track-POD or move it to courier.'}</div>` : ''}
+        <div class="k2">Options</div>
+        <div class="btns">${btns}<button class="btn out notebtn" data-id="${o.id}" data-kind="delivery">Print note</button><button class="btn out notebtn lblbtn" data-id="${o.id}">Address label</button></div>
+      </div>
+    </div>
+  </details>`;
 }
+document.addEventListener('toggle', e => { const d = e.target; if (d && d.matches && d.matches('details.card')) { d.open ? OPEN.add(d.dataset.oid) : OPEN.delete(d.dataset.oid); } }, true);
+document.addEventListener('click', e => { if (e.target.closest('summary button, summary a, summary input, summary select')) e.preventDefault(); }, true);
 
 let query = '';
 const norm = t => String(t ?? '').toLowerCase().replace(/[\s\-]/g, '');
@@ -262,7 +365,7 @@ function render(){
   const bookedHtml = days.length ? days.map(d => `<h3 class="day">${d === data.today ? 'Today · ' : ''}${dlong(d)} (${booked.filter(o => o.tp_date === d).length})</h3><div class="cards">${booked.filter(o => o.tp_date === d).map(card).join('')}</div>`).join('') : '<div class="empty">Nothing booked.</div>';
   document.getElementById('app').innerHTML = `
   <header>
-    <div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">Van Team · Own van deliveries</div><div class="sub">Everything going on our own vans, and where it's at in Track-POD.</div></div></div>
+    <div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">Van team · own van deliveries</div><div class="sub">Everything going on our own vans and where it's at in Track-POD. Tap an order for every option.</div></div></div>
     <div class="chips">
       <div class="chip ${toBook.length ? 'warn' : ''}"><span class="k">To book</span><span class="v">${toBook.length}</span></div>
       <div class="chip"><span class="k">Booked</span><span class="v">${booked.length}</span></div>
@@ -271,7 +374,7 @@ function render(){
     </div>
   </header>
   ${query ? (() => { const hits = all.filter(o => matches(o, query)); return `<section class="sec urgent"><h2>Search: “${esc(query)}” <span class="n">${hits.length}</span> <span class="h">across every section on this screen</span></h2>
-    ${hits.length ? `<div class="cards">${hits.map(o => `<div><div class="meta" style="font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px">${STAGE[o.stage] || ''}${o.tp_date ? ' · ' + dshort(o.tp_date) : ''}</div>${card(o)}</div>`).join('')}</div>`
+    ${hits.length ? `<div class="cards">${hits.map(o => `<div class="where">${STAGE[o.stage] || ''}${o.tp_date ? ' · ' + dshort(o.tp_date) : ''}</div>${card(o)}`).join('')}</div>`
       : '<div class="empty">Nothing matches. If it\'s a van order it may not be on this list yet: add it by number above.</div>'}</section>`; })() : `<div class="layout">
     <div>
       ${WHV() ? `<section class="sec urgent"><h2>To book in Track-POD <span class="n">${toBook.length}</span> <span class="h">Pick a date and send. It lands in Track-POD ready to route, and is picked, packed &amp; shipped in Cin7.</span></h2>
@@ -329,7 +432,7 @@ async function addOrder(){
 function partWarn(o, warnOnly){
   const l = o.lines || [], li = (x, q) => `<li><b>${(+q).toLocaleString('en-GB')}×</b> ${esc(x.sku)} · ${esc(x.name)}</li>`;
   const going = l.filter(x => (+x.qty || 0) > (+x.bo || 0)), staying = l.filter(x => (+x.bo || 0) > 0);
-  return `<div class="warnbox">⚠ <b>This order is part backordered, so it will go in two deliveries.</b><br>That means a second van trip for the rest. Only do this if the customer needs it now. <b>Are you sure you want to continue?</b></div>${warnOnly ? '' : `
+  return `<div class="warnbox"><b>This order is part backordered, so it will go in two deliveries.</b><br>That means a second van trip for the rest. Only do this if the customer needs it now. <b>Are you sure you want to continue?</b></div>${warnOnly ? '' : `
     <div class="sub" style="color:var(--ink)"><b>Going on the van</b></div><ul class="plist">${going.map(x => li(x, x.qty - (+x.bo || 0))).join('') || '<li>Nothing is in stock yet</li>'}</ul>
     <div class="sub" style="color:var(--ink)"><b>Staying on backorder</b> (book it again when it arrives)</div><ul class="plist">${staying.map(x => li(x, x.bo)).join('')}</ul>`}`;
 }
@@ -349,7 +452,7 @@ function chooserWire(o, part, okBtn, okText){
   const refresh = () => {
     const qs = [...document.querySelectorAll('#mbox .cq')], filled = qs.filter(q => q.value.trim() !== '');
     const full = filled.length === qs.length && qs.every((q, i) => +q.value === (+lines[i].qty || 0));
-    const n = document.getElementById('qnote'); if (n) n.innerHTML = filled.length === qs.length && !full ? '⚠ <b>Not everything is going.</b> This will be a part order and the rest stays open.' : '';
+    const n = document.getElementById('qnote'); if (n) n.innerHTML = filled.length === qs.length && !full ? '<b>Not everything is going.</b> This will be a part order and the rest stays open.' : '';
   };
   document.querySelectorAll('#mbox .cq').forEach(q => q.oninput = refresh);
   st.list = () => {
@@ -388,13 +491,13 @@ function openPush(id){
     const tp = j.already ? `${o.no} was already in Track-POD (linked up)` : `${o.no} sent to Track-POD for ${dshort(date)}`;
     if (j.fulfil && !j.fulfil.ok) {
       document.getElementById('mbox').innerHTML = `<h3>Half done · ${esc(o.no)}</h3>
-        <div class="sub" style="color:var(--ink)">✓ ${tp}.</div>
-        <div class="issue" style="font-size:14px"><b>✗ Cin7 stopped at the ${esc(j.fulfil.step || '?')} step</b><br>“${esc(j.fulfil.error || 'unknown error')}”</div>
-        <div class="sub">Sort it in Cin7, then use <b>✓ Pick, pack &amp; ship in Cin7</b> on the order's card (it's now under Booked).</div>
+        <div class="sub" style="color:var(--ink)">${tp}.</div>
+        <div class="issue" style="font-size:14px"><b>Cin7 stopped at the ${esc(j.fulfil.step || '?')} step</b><br>“${esc(j.fulfil.error || 'unknown error')}”</div>
+        <div class="sub">Sort it in Cin7, then use <b>Pick, pack &amp; ship in Cin7</b> on the order's card (it's now under Booked).</div>
         <div class="row"><button class="btn go" id="hok">OK</button></div>`;
       document.getElementById('hok').onclick = () => { closeModal(); load(); }; return;
     }
-    closeModal(); toast(`${tp} · ${j.fulfil?.already ? 'already fulfilled in Cin7' : j.fulfil?.part ? 'in-stock items picked, packed & shipped in Cin7' : 'picked, packed & shipped in Cin7'} ✓`); load();
+    closeModal(); toast(`${tp} · ${j.fulfil?.already ? 'already fulfilled in Cin7' : j.fulfil?.part ? 'in-stock items picked, packed & shipped in Cin7' : 'picked, packed & shipped in Cin7'} `); load();
   };
 }
 function openFul(id){
@@ -415,7 +518,7 @@ function openFul(id){
     const b = document.getElementById('fok'); b.disabled = true; b.textContent = 'Working in Cin7…';
     const j = await post({action:'fulfil', id, boxes: 1, part: part || !!c.pick, van: true, pick: c.pick});
     if (!j.ok) { document.getElementById('ferr').innerHTML = `Cin7 stopped at the <b>${esc(j.step || '?')}</b> step: “${esc(j.error || 'unknown error')}”`; b.disabled = false; b.textContent = 'Try again'; return; }
-    closeModal(); toast(`${o.no} ${j.already ? 'was already fulfilled in Cin7' : 'picked, packed & shipped in Cin7'} ✓`); load();
+    closeModal(); toast(`${o.no} ${j.already ? 'was already fulfilled in Cin7' : 'picked, packed & shipped in Cin7'} `); load();
   };
 }
 function openOut(id, coll){
@@ -425,7 +528,7 @@ function openOut(id, coll){
   document.getElementById('mbox').innerHTML = `
     <h3>${what} · ${esc(o.no)}</h3>
     <div class="sub">${esc(o.customer)}. ${coll ? 'This takes it off the van list and puts it on the Collections screen for the trade counter.' : 'This takes it off the van list and puts it on the Pick &amp; Dispatch screen to go by courier.'} If the delivery method in Cin7 is wrong, update it there too.</div>
-    ${inTp ? `<label class="sub" style="display:flex;gap:10px;align-items:flex-start;color:var(--ink)"><input type="checkbox" id="odel" checked style="width:20px;height:20px;accent-color:#EED107;margin-top:1px">
+    ${inTp ? `<label class="sub" style="display:flex;gap:10px;align-items:flex-start;color:var(--ink)"><input type="checkbox" id="odel" checked style="width:20px;height:20px;accent-color:var(--accent);margin-top:1px">
       <span>Also delete it from Track-POD (booked for ${dshort(o.tp_date)}${o.route && o.route !== o.no ? ', route ' + esc(o.route) : ''}) so it doesn't go out on the van as well</span></label>` : ''}
     <div class="err" id="oerr"></div>
     <div class="row"><button class="btn" id="oc">Cancel</button><button class="btn go" id="ook">${coll ? 'Move to collections' : 'Send to courier'}</button></div>`;
