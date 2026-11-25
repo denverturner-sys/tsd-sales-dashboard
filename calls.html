@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Calls log · Tiling Supplies Direct</title>
+<style>
+/* 25 Nov 2026: calls logged in HubSpot. You see your own; admins can see anyone's. No leaderboard. ?mine=1 = My calls. */
+:root{--bg:#F4F3EF;--panel:#FFFFFF;--panel2:#F6F5F1;--line:#E3E1DB;--ink:#151617;--muted:#6C6F73;--body:Inter,'Segoe UI',Arial,sans-serif;--num:'Inter Tight',Inter,'Segoe UI',Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:22px 22px 60px}
+h1{font:700 29px/1.1 var(--num);letter-spacing:-.5px;margin:0}
+.sub{color:var(--muted);font-size:13.5px;margin:5px 0 16px;max-width:75ch}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--panel);color:var(--ink);outline:1px solid var(--line)}
+select,input{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+.tile .k{font-size:12.5px;color:var(--muted)} .tile .v{font:700 27px/1.15 var(--num);letter-spacing:-.6px;margin-top:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.dh{padding:10px 17px;font:600 13.5px var(--num);background:var(--panel2);border-bottom:1px solid var(--line)}
+.row{display:grid;grid-template-columns:62px minmax(0,1.3fr) minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 17px;border-bottom:1px solid var(--line);font-size:14px}
+.row:last-child{border-bottom:0}
+.row .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+.row .s{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .p{font-size:12px;color:var(--muted);white-space:nowrap}
+.empty{padding:22px 17px;color:var(--muted)}
+@media (max-width:640px){.row{grid-template-columns:52px 1fr}.row .x,.row .p{display:none}.wrap{padding:16px 14px 60px}}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+#app{display:none}
+</style>
+<script src="theme.js?v=20261125b"></script>
+</head>
+<body>
+<div id="login"><div id="lerr"></div></div>
+<div id="app" class="wrap"></div>
+<script src="auth.js?v=20261125b"></script>
+<script src="activity.js?v=20261125b"></script>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/eos';
+const mem = {};
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MINE = new URLSearchParams(location.search).get('mine') === '1';
+const iso = d => d.toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+let token = store.get('tsd_me_token'), S = { period: 'month', who: MINE ? '' : 'all', D: null };
+function range(p){
+  const t = new Date(), d = new Date(t), mon = new Date(t); mon.setDate(t.getDate() - ((t.getDay() + 6) % 7));
+  if (p === 'week') return [iso(mon), iso(t)];
+  if (p === 'lastweek') { const a = new Date(mon); a.setDate(a.getDate() - 7); const b = new Date(mon); b.setDate(b.getDate() - 1); return [iso(a), iso(b)]; }
+  if (p === 'month') return [iso(new Date(t.getFullYear(), t.getMonth(), 1)), iso(t)];
+  d.setDate(d.getDate() - 89); return [iso(d), iso(t)];
+}
+function showLogin(msg){ document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
+async function load(){
+  const [from, to] = range(S.period);
+  try {
+    const r = await fetch(`${API}?calls=1&from=${from}&to=${to}${S.who ? '&who=' + encodeURIComponent(S.who) : ''}`, { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+    if (r.status === 401) { token = null; store.del('tsd_me_token'); return showLogin('Please log in again.'); }
+    S.D = await r.json(); render();
+  } catch(e){ document.getElementById('app').innerHTML = '<div class="empty">Couldn\'t load the calls. Check the connection.</div>'; }
+}
+function start(){ document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block'; load(); }
+function render(){
+  const D = S.D || {}, calls = D.calls || [], el = document.getElementById('app');
+  if (D.admin === false || D.admin === undefined) S.who = '';
+  const days = []; for (const c of calls) { const d = iso(new Date(c.at)); const g = days[days.length - 1]; if (g && g.d === d) g.list.push(c); else days.push({ d, list: [c] }); }
+  const out = calls.filter(c => c.dir !== 'INBOUND').length, cos = new Set(calls.map(c => c.company).filter(Boolean)).size;
+  el.innerHTML = `<h1>${MINE ? 'My calls' : 'Calls log'}</h1><p class="sub">Calls logged in HubSpot${MINE || !D.admin ? ', yours only' : ''}. Log them in HubSpot and they appear here within a few minutes.${D.admin && !MINE ? ' You can see everyone\'s; staff only see their own.' : ''}</p>
+    <div class="bar"><div class="seg">${[['week', 'This week'], ['lastweek', 'Last week'], ['month', 'This month'], ['90', 'Last 90 days']].map(([k, l]) => `<button data-p="${k}" class="${S.period === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+      ${D.admin && !MINE ? `<select id="who"><option value="all"${S.who === 'all' ? ' selected' : ''}>Everyone</option>${(D.people || []).map(p => `<option value="${esc(p.email)}"${S.who === p.email ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select>` : ''}</div>
+    <div class="tiles"><div class="tile"><div class="k">Calls</div><div class="v">${calls.length}</div></div><div class="tile"><div class="k">Outbound</div><div class="v">${out}</div></div><div class="tile"><div class="k">Different companies</div><div class="v">${cos}</div></div></div>
+    ${D.note ? `<div class="panel"><div class="empty">${esc(D.note)}</div></div>` : days.length ? days.map(g => `<section class="panel"><div class="dh">${esc(new Date(g.d + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))} · ${g.list.length}</div>
+      ${g.list.map(c => `<div class="row"><div class="t">${new Date(c.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div><div style="min-width:0"><div>${esc(c.company || c.contact || 'Unknown')}</div><div class="s">${esc([c.contact && c.company ? c.contact : '', c.title].filter(Boolean).join(' · '))}</div></div><div class="x s">${esc(D.admin && S.who === 'all' && !MINE ? (c.who || '') : '')}</div><div class="p">${c.dir === 'INBOUND' ? 'Inbound' : 'Outbound'}</div></div>`).join('')}</section>`).join('')
+      : '<div class="panel"><div class="empty">No calls logged in this period.</div></div>'}`;
+  el.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { S.period = b.dataset.p; load(); });
+  const w = document.getElementById('who'); if (w) w.onchange = () => { S.who = w.value; load(); };
+}
+if (token) start(); else showLogin();
+TSDAuth.mount(t => { token = t; start(); });
+</script>
+<script>
+(function(){
+  const BUILD = '20261125b';
+  let newer = false;
+  async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\w+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !(document.activeElement && document.activeElement.matches('input,select'))) location.reload(); } catch(e){} }
+  setInterval(check, 120000);
+})();
+</script>
+</body>
+</html>

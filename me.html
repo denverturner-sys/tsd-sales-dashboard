@@ -366,10 +366,10 @@ const svg = (n, cls) => `<svg class="${cls || 'i'}" viewBox="0 0 24 24">${SVG[n]
 const NAVDEF = {
   system: { label: 'System', short: 'System', depts: [
     { key: 'home', label: 'Home', short: 'Home', icon: 'home', desc: 'Your day at a glance', always: true, groups: [
-      { items: ['@home', 'mysales', 'board', 'company'] }] },
+      { items: ['@home', 'mysales', 'mycalls', 'board', 'company'] }] },
     { key: 'sales', label: 'Sales & Marketing', short: 'Sales', icon: 'tag', desc: 'Bromham & Wootton Bassett', groups: [
       { items: ['company'] },
-      { title: 'Sales', items: ['sell', 'quotes', 'orders', 'pos', 'tracking'] },
+      { title: 'Sales', items: ['sell', 'quotes', 'orders', 'pos', 'tracking', 'calls'] },
       { title: 'Wootton Bassett', items: ['wbsales'] },
       { title: 'Ecommerce', items: ['website', 'ads'] },
       { title: 'Marketing', items: ['rewards'] }] },
@@ -383,11 +383,12 @@ const NAVDEF = {
       { title: 'Finance', items: ['finance'] }] }] },
   tasks: { label: 'Tasks & Projects', short: 'Tasks', depts: [
     { key: 'tp', label: 'Tasks & Projects', short: 'Tasks', icon: 'list', desc: "Everyone's work, one place", always: true, groups: [
-      { items: ['projects', 'mytasks', 'teamtasks'] },
+      { items: ['boards', 'scorecard', 'rocks'] },
+      { title: 'Projects & tasks', items: ['projects', 'mytasks', 'teamtasks'] },
       { title: 'Reference', items: ['sops'] }] }] },
   mgmt: { label: 'Management', short: 'Mgmt', admin: true, depts: [
     { key: 'mg', label: 'Management', short: 'Mgmt', icon: 'shield', desc: 'Admins only', groups: [
-      { items: ['mgmthome'] },
+      { items: ['mgmthome', 'meeting'] },
       { title: 'People', items: ['users', 'emails'] },
       { title: 'System', items: ['supportall', 'activity', '@system'] }] }] }
 };
@@ -397,7 +398,7 @@ const LBL = { '@home': 'Home', mysales: 'My sales', board: 'Notices & updates', 
   whdash: 'Overview', purchasing: 'Purchasing', backorders: 'Backorders', goodsin: 'Goods in', pick: 'Pick & dispatch', van: 'Van team', collections: 'Collections',
   wbcoll: 'WB collections', release: 'Release queue', vanplan: 'Van planning', vanprofit: 'Van profit', stock: 'Stock', stockcount: 'Stock count',
   transfer: 'Transfers', stockadj: 'Adjustments', barcodes: 'Barcodes', accounts: 'Invoicing & credit control', finance: 'Finance',
-  projects: 'Projects & issues', mytasks: 'My tasks', teamtasks: 'Team tasks', sops: 'Checklists & SOPs', mgmthome: 'Today', users: 'Users & access',
+  projects: 'Projects & issues', mytasks: 'My tasks', boards: 'Department boards', scorecard: 'Scorecard', rocks: 'Rocks & issues', meeting: 'Weekly meeting', calls: 'Calls log', mycalls: 'My calls', teamtasks: 'Team tasks', sops: 'Checklists & SOPs', mgmthome: 'Today', users: 'Users & access',
   emails: 'Emails', supportall: 'Help & requests', activity: 'Activity log', support: 'My requests', '@system': 'System status', '@appearance': 'Appearance' };
 // the first item of a department is its landing page; inside Sales & Marketing the company dashboard is its overview
 const LBL_IN = { sales: { company: 'Overview' } };
@@ -411,6 +412,12 @@ function buildNav(j){
   SCREENS = new Map(); (j.departments || []).forEach(d => d.screens.forEach(s => SCREENS.set(s.id, s)));
   SCREENS.set('sops', { id: 'sops', name: 'Checklists & SOPs', url: './sops.html' });   // everyone
   const admin = !!(j.me && j.me.is_admin);
+  // 25 Nov: Department boards, Scorecard, Rocks & issues (everyone); Weekly meeting and the whole-team Calls log (admins); My calls (anyone with My sales)
+  SCREENS.set('boards', { id: 'boards', name: 'Department boards', url: './eos.html?view=boards' });
+  SCREENS.set('scorecard', { id: 'scorecard', name: 'Scorecard', url: './eos.html?view=scorecard' });
+  SCREENS.set('rocks', { id: 'rocks', name: 'Rocks & issues', url: './eos.html?view=rocks' });
+  if (admin) { SCREENS.set('meeting', { id: 'meeting', name: 'Weekly meeting', url: './eos.html?view=meeting' }); SCREENS.set('calls', { id: 'calls', name: 'Calls log', url: './calls.html' }); }
+  if (SCREENS.has('mysales')) SCREENS.set('mycalls', { id: 'mycalls', name: 'My calls', url: './calls.html?mine=1' });
   const has = id => id === '@system' ? admin : id.startsWith('@') ? true : SCREENS.has(id);
   const out = {};
   for (const [m, def] of Object.entries(NAVDEF)) {
