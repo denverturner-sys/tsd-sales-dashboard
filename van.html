@@ -226,7 +226,7 @@ function card(o){
     ${o.fulfil_error && o.ship !== 'SHIPPED' ? `<div class="issue"><b>Cin7 wouldn't ${esc(o.fulfil_error.step)}</b> · ${new Date(o.fulfil_error.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}<br>“${esc(o.fulfil_error.message)}”</div>` : ''}
     ${o.van_outcome ? `<div class="issue"><b>Van run: ${esc(o.van_outcome)}</b>${o.ship === 'SHIPPED' ? ' · Cin7 shows the rest sent' : ' · the rest still needs sending. Rebook it in Track-POD or move it to courier.'}</div>` : ''}
     ${o.stage !== 'delivered' ? lines(o) : ''}
-    <div class="btns">${btns}<button class="btn out notebtn" data-id="${o.id}" data-kind="delivery">🖨 Print note</button></div>
+    <div class="btns">${btns}<button class="btn out notebtn" data-id="${o.id}" data-kind="delivery">🖨 Print note</button><button class="btn out notebtn lblbtn" data-id="${o.id}">🏷 Address label</button></div>
   </div>`;
 }
 
