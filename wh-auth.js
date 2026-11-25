@@ -24,15 +24,15 @@
     const draw = () => {
       const d = document.createElement('div');
       d.id = 'wh-gate';
-      d.style.cssText = 'position:fixed;inset:0;background:#262727;z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;font-family:Barlow,Segoe UI,Arial,sans-serif';
+      d.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;font-family:Barlow,Segoe UI,Arial,sans-serif';
       const logo = document.querySelector('header img, img');
-      d.innerHTML = `<form style="background:#323333;border-radius:16px;padding:26px 22px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;color:#fff">
+      d.innerHTML = `<form style="background:var(--panel);border-radius:16px;padding:26px 22px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;color:var(--ink)">
         ${logo ? `<img src="${logo.src}" alt="TSD" style="height:46px;align-self:flex-start">` : ''}
         <div style="font-family:'Bebas Neue','Arial Narrow',Arial,sans-serif;font-size:34px;letter-spacing:1px;line-height:1">Warehouse screens</div>
-        <div style="color:#B9BCBC;font-size:15px">${inFrame ? "You've been logged out. Log back in at the top of the page." : 'Enter the company password. This device then stays logged in until Friday night.'}</div>
-        ${inFrame ? '' : `<input type="password" autocomplete="current-password" placeholder="Password" style="background:#262727;color:#fff;border:1px solid #474949;border-radius:10px;padding:14px;font-size:20px">
-        <button type="submit" style="background:#EED107;color:#262727;border:0;border-radius:10px;padding:14px;font-size:18px;font-weight:700;cursor:pointer">Log in</button>`}
-        <div data-e style="color:#FF7A6B;font-size:15px;min-height:20px">${msg || ''}</div></form>`;
+        <div style="color:var(--muted);font-size:15px">${inFrame ? "You've been logged out. Log back in at the top of the page." : 'Enter the company password. This device then stays logged in until Friday night.'}</div>
+        ${inFrame ? '' : `<input type="password" autocomplete="current-password" placeholder="Password" style="background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:20px">
+        <button type="submit" style="background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:14px;font-size:18px;font-weight:700;cursor:pointer">Log in</button>`}
+        <div data-e style="color:var(--bad);font-size:15px;min-height:20px">${msg || ''}</div></form>`;
       document.body.appendChild(d);
       const f = d.querySelector('form'), i = d.querySelector('input'), e = d.querySelector('[data-e]');
       if (i) setTimeout(() => i.focus(), 50);
@@ -73,8 +73,8 @@
   if (inFrame) window.addEventListener('storage', e => { if (e.key === 'tsd_me_token' && e.newValue) location.reload(); });
   // a small "Lock" button on shared warehouse PCs, so the screen can be logged out (e.g. if a PC moves or someone leaves)
   if (!inFrame && get('tsd_wh_token')) {
-    const addBtn = () => { const b = document.createElement('button'); b.textContent = '🔒 Log out';
-      b.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:1500;background:#323333;color:#B9BCBC;border:1px solid #474949;border-radius:999px;padding:7px 12px;font:600 13px Barlow,Segoe UI,Arial,sans-serif;cursor:pointer;opacity:.75';
+    const addBtn = () => { const b = document.createElement('button'); b.textContent = 'Log out';
+      b.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:1500;background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font:600 13px Barlow,Segoe UI,Arial,sans-serif;cursor:pointer;opacity:.75';
       b.onclick = () => { if (confirm('Log this screen out? It will need the company password again.')) { del('tsd_wh_token'); location.reload(); } };
       document.body.appendChild(b); };
     if (document.body) addBtn(); else document.addEventListener('DOMContentLoaded', addBtn);

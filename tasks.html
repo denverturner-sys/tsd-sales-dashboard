@@ -34,21 +34,21 @@ input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var
 textarea{width:100%;min-height:70px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.del{color:var(--bad);border-color:rgba(255,122,107,.5)}
 .task{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
 .task:last-child{border-bottom:0}
-.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:#262727;font-weight:900;font-size:16px;line-height:1}
+.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:var(--on-accent);font-weight:900;font-size:16px;line-height:1}
 .tick.on{background:var(--good);border-color:var(--good)}
 .tb{flex:1;min-width:0}
 .tt{font-size:16px;font-weight:600;line-height:1.3;word-wrap:break-word}
 .done .tt{text-decoration:line-through;color:var(--muted)}
 .meta{font-size:13px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
-.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent);font-weight:700}
-.notes{font-size:14px;color:#ddd;margin-top:6px;white-space:pre-wrap;line-height:1.4}
+.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent-text);font-weight:700}
+.notes{font-size:14px;color:var(--ink);margin-top:6px;white-space:pre-wrap;line-height:1.4}
 .pri{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:2px}
-.pri.p2{background:var(--bad);color:#262727} .pri.p1{background:var(--accent);color:#262727}
+.pri.p2{background:var(--bad);color:var(--on-accent)} .pri.p1{background:var(--accent);color:var(--on-accent)}
 .tag{display:inline-block;font-size:11px;font-weight:700;border:1px solid var(--blue);color:var(--blue);border-radius:999px;padding:1px 8px}
 .acts{display:flex;gap:6px;flex:none}
 .empty{color:var(--muted);padding:10px 0}
@@ -60,17 +60,18 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 #msg{padding:40px;text-align:center;color:var(--muted)}
 .ms h3{margin:0 0 2px;font-size:16px}
 .ms .lock{color:var(--good);font-weight:700;font-size:13px}
-.ms .day{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin:12px 0 4px}
+.ms .day{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent-text);margin:12px 0 4px}
 .ms .ev{display:flex;gap:10px;padding:5px 0;font-size:14px}.ms .ev .t{color:var(--muted);flex:none;width:92px}
 .ms .li{padding:5px 0;font-size:14px;display:flex;gap:8px}.ms .li .imp{color:var(--bad);font-weight:800}
 .ms .calnav{display:flex;gap:8px;align-items:center;margin:10px 0}.ms .calnav b{flex:1;text-align:center;font-size:15px}
 .ms .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.ms .ch{font-size:11px;text-align:center;color:var(--muted);font-weight:700;text-transform:uppercase}
 .ms .cd{min-height:46px;border:1px solid var(--line);border-radius:6px;padding:3px 5px;cursor:pointer;background:var(--panel2);display:flex;flex-direction:column;justify-content:space-between}
-.ms .cd b{font-size:13px}.ms .cd.off{opacity:.4}.ms .cd.today{border-color:var(--accent)}.ms .cd.sel{background:var(--accent);color:#262727}.ms .cd .dot{font-size:10px;color:var(--blue);letter-spacing:1px}.ms .cd.sel .dot{color:#262727}
+.ms .cd b{font-size:13px}.ms .cd.off{opacity:.4}.ms .cd.today{border-color:var(--accent)}.ms .cd.sel{background:var(--accent);color:var(--on-accent)}.ms .cd .dot{font-size:10px;color:var(--blue);letter-spacing:1px}.ms .cd.sel .dot{color:var(--on-accent)}
 .ms .msadd{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.ms .msadd input,.ms .msadd select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}.ms .msadd #msti{flex:1;min-width:180px}
 .ms .li input[type=checkbox]{width:18px;height:18px;flex:none;margin-top:2px;cursor:pointer}
 .ms .ln{font-size:12px;font-weight:700;color:var(--blue);margin:10px 0 2px}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -115,7 +116,7 @@ function dueTxt(t){
 function row(t){
   const done = t.status === 'done';
   return `<div class="task ${done ? 'done' : ''}">
-    <button class="tick ${done ? 'on' : ''}" data-done="${t.id}" data-on="${done ? 0 : 1}" title="${done ? 'Not done after all' : 'Done'}">${done ? '✓' : ''}</button>
+    <button class="tick ${done ? 'on' : ''}" data-done="${t.id}" data-on="${done ? 0 : 1}" title="${done ? 'Not done after all' : 'Done'}">${done ? '' : ''}</button>
     <div class="tb"><div class="tt">${t.priority ? `<span class="pri p${t.priority}">${t.priority === 2 ? 'URGENT' : 'HIGH'}</span>` : ''}${esc(t.title)}</div>
       <div class="meta">${dueTxt(t)}<span>${done ? 'done ' + dmy(t.done_at) : age(t.created_at)}</span>${t.added_for_you ? '<span class="tag">Added for you</span>' : ''}${t.project ? `<span class="tag">Project: ${esc(t.project)}</span>` : ''}</div>
       ${t.notes ? `<div class="notes">${esc(t.notes)}</div>` : ''}</div>
@@ -126,7 +127,7 @@ function row(t){
 let seenPending = false;
 setInterval(() => { if (seenPending && token && document.visibilityState === 'visible' && document.body.offsetWidth > 0) { seenPending = false; api({ action: 'seen' }).catch(() => {}); } }, 3000);
 const seenTxt = at => { if (!at) return '<span class="late">Not seen yet</span>'; const d = new Date(at), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' }), same = d.toLocaleDateString('en-GB', { timeZone: 'Europe/London' }) === new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/London' });
-  return `<span style="color:var(--good)">✓ Seen ${same ? t : dmy(at) + ' ' + t}</span>`; };
+  return `<span style="color:var(--good)">Seen ${same ? t : dmy(at) + ' ' + t}</span>`; };
 function render(){
   const open = D.tasks.filter(t => t.status === 'open'), done = D.tasks.filter(t => t.status === 'done');
   const late = open.filter(t => t.due && t.due < D.today).length;
@@ -248,7 +249,7 @@ function renderMs(){
   const el = document.getElementById('ms'); if (!el) return;
   if (!MS) { el.innerHTML = ''; return; }
   const st = MS.st || {};
-  const priv = `<div class="lock">🔒 Private to you. Not shared with managers or admins, and not stored by us. <a href="#" id="mspriv" style="color:var(--blue);font-weight:600">How this works</a></div>`;
+  const priv = `<div class="lock">Private to you. Not shared with managers or admins, and not stored by us. <a href="#" id="mspriv" style="color:var(--blue);font-weight:600">How this works</a></div>`;
   if (!st.configured && !st.connected) { el.innerHTML = ''; return; }   // not set up yet: stay out of the way
   if (!st.connected || st.expired) {
     el.innerHTML = `<div class="card ms"><h3>Microsoft calendar &amp; To Do</h3>${priv}

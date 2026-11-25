@@ -34,21 +34,21 @@ input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var
 textarea{width:100%;min-height:70px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.del{color:var(--bad);border-color:rgba(255,122,107,.5)}
 .task{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
 .task:last-child{border-bottom:0}
-.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:#262727;font-weight:900;font-size:16px;line-height:1}
+.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:var(--on-accent);font-weight:900;font-size:16px;line-height:1}
 .tick.on{background:var(--good);border-color:var(--good)}
 .tb{flex:1;min-width:0}
 .tt{font-size:16px;font-weight:600;line-height:1.3;word-wrap:break-word}
 .done .tt{text-decoration:line-through;color:var(--muted)}
 .meta{font-size:13px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
-.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent);font-weight:700}
-.notes{font-size:14px;color:#ddd;margin-top:6px;white-space:pre-wrap;line-height:1.4}
+.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent-text);font-weight:700}
+.notes{font-size:14px;color:var(--ink);margin-top:6px;white-space:pre-wrap;line-height:1.4}
 .pri{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:2px}
-.pri.p2{background:var(--bad);color:#262727} .pri.p1{background:var(--accent);color:#262727}
+.pri.p2{background:var(--bad);color:var(--on-accent)} .pri.p1{background:var(--accent);color:var(--on-accent)}
 .tag{display:inline-block;font-size:11px;font-weight:700;border:1px solid var(--blue);color:var(--blue);border-radius:999px;padding:1px 8px}
 .acts{display:flex;gap:6px;flex:none}
 .empty{color:var(--muted);padding:10px 0}
@@ -61,18 +61,19 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 
 .seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .seg button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:700;cursor:pointer}
-.seg button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .req{padding:12px 0;border-bottom:1px solid var(--line)} .req:last-child{border-bottom:0}
 .rt{font-size:16px;font-weight:600;line-height:1.3;word-wrap:break-word}
 .st{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:1px 7px;margin-right:6px;text-transform:uppercase;vertical-align:2px}
-.st.new{background:var(--blue);color:#262727} .st.seen{background:var(--panel2);color:var(--ink)} .st.working{background:var(--accent);color:#262727}
-.st.done{background:var(--good);color:#262727} .st.wont{background:var(--line);color:var(--muted)}
-.reply{margin-top:6px;border-left:3px solid var(--accent);padding:2px 10px;color:#ddd;font-size:14px;white-space:pre-wrap}
+.st.new{background:var(--blue);color:var(--on-accent)} .st.seen{background:var(--panel2);color:var(--ink)} .st.working{background:var(--accent);color:var(--on-accent)}
+.st.done{background:var(--good);color:var(--on-accent)} .st.wont{background:var(--line);color:var(--muted)}
+.reply{margin-top:6px;border-left:3px solid var(--accent);padding:2px 10px;color:var(--ink);font-size:14px;white-space:pre-wrap}
 .adm{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
 .adm select,.adm input{padding:6px 8px;font-size:14px}
 .f{display:grid;grid-template-columns:150px 150px 1fr;gap:8px;margin-bottom:8px}
 @media (max-width:700px){.f{grid-template-columns:1fr 1fr}.f .full{grid-column:1/-1}}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -134,7 +135,7 @@ function render(){
       <input id="rt" placeholder="In a few words…" maxlength="200" required></div>
       <textarea id="rd" placeholder="Details: which screen, which order number, what you expected (optional)" maxlength="3000"></textarea>
       <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn y" type="submit">Send</button></div></form></div>`}
-  ${MASTER && nNew ? `<div class="sub" style="margin-bottom:8px"><b style="color:var(--accent)">${nNew} new</b></div>` : ''}
+  ${MASTER && nNew ? `<div class="sub" style="margin-bottom:8px"><b style="color:var(--accent-text)">${nNew} new</b></div>` : ''}
   ${view === 'all' ? `<div class="seg">${[['open','Open'],['done',"Done / won't do"],['every','All']].map(([v, l]) => `<button data-fl="${v}" class="${filt === v ? 'on' : ''}">${l}</button>`).join('')}</div>` : ''}
   <div class="card"><div class="k">${view === 'all' ? 'Requests' : 'Your requests'}</div>
     ${list.length ? list.map(view === 'all' ? allRow : mineRow).join('') : '<div class="empty">Nothing here.</div>'}</div>`;

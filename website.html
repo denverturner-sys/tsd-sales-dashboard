@@ -31,14 +31,14 @@ nav#tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)
 nav#tabs button{background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:700;cursor:pointer}
 nav#tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
 nav#tabs .n{background:var(--line);color:var(--ink);border-radius:999px;padding:1px 7px;font-size:12px;margin-left:6px}
-nav#tabs .n.hot{background:var(--accent);color:#262727}
+nav#tabs .n.hot{background:var(--accent);color:var(--on-accent)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
 .tile{background:var(--panel);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;border:2px solid transparent}
 .tile.click{cursor:pointer} .tile.click:hover{border-color:var(--line)}
 .tile .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
 .tile .v{font-family:var(--num);font-size:42px;line-height:1}
 .tile .h{font-size:13px;color:var(--muted)}
-.tile.hot{border-color:var(--accent)} .tile.hot .v{color:var(--accent)} .tile.red .v{color:var(--bad)} .tile.green .v{color:var(--good)}
+.tile.hot{border-color:var(--accent)} .tile.hot .v{color:var(--accent-text)} .tile.red .v{color:var(--bad)} .tile.green .v{color:var(--good)}
 .sec{background:var(--panel);border-radius:14px;padding:14px 16px;margin-bottom:16px}
 .sec h2{margin:0 0 10px;font-family:var(--num);font-weight:400;font-size:26px;letter-spacing:1px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .sec h2 .h{font-family:var(--body);font-size:13px;color:var(--muted);letter-spacing:0}
@@ -47,11 +47,11 @@ th{text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase;co
 td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
 td.r,th.r{text-align:right;white-space:nowrap}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap;margin:1px 3px 1px 0}
-.t-good{background:var(--good);color:#262727} .t-bad{background:var(--bad);color:#262727} .t-warn{background:var(--accent);color:#262727}
+.t-good{background:var(--good);color:var(--on-accent)} .t-bad{background:var(--bad);color:var(--on-accent)} .t-warn{background:var(--accent);color:var(--on-accent)}
 .t-out{background:transparent;border:1px solid var(--muted);color:var(--muted)} .t-blue{background:transparent;border:1px solid var(--blue);color:var(--blue)}
-.muted{color:var(--muted)} .bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--accent)}
+.muted{color:var(--muted)} .bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--accent-text)}
 .btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
-.btn:hover{border-color:var(--muted)} .btn.go{background:var(--accent);color:#262727;border-color:var(--accent)} .btn.sm{padding:3px 8px;font-size:12px}
+.btn:hover{border-color:var(--muted)} .btn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)} .btn.sm{padding:3px 8px;font-size:12px}
 .btn[disabled]{opacity:.35;cursor:default}
 input.txt,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
 input.txt:focus,textarea:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
@@ -60,7 +60,7 @@ input.pos{width:54px;text-align:center;background:var(--bg);color:var(--ink);bor
 @media (max-width:1100px){.addform{grid-template-columns:1fr 1fr}}
 .rank{font-family:var(--num);font-size:24px;color:var(--muted);width:36px;text-align:center}
 tr.bumped td{background:rgba(238,209,7,.08)}
-.bumpnote{font-size:12px;color:var(--accent)}
+.bumpnote{font-size:12px;color:var(--accent-text)}
 .acts{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 @media (max-width:1100px){.grid2{grid-template-columns:minmax(0,1fr)}}
@@ -77,16 +77,17 @@ a{color:var(--blue)}
 #modal .box{background:var(--panel);border-radius:14px;padding:20px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain}
 #modal h3{margin:0;font-family:var(--num);font-weight:400;font-size:30px;letter-spacing:1px}
 #modal .row{display:flex;gap:10px;justify-content:flex-end}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--on-accent);border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #login form{background:var(--panel);border-radius:14px;padding:28px 24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
 #login img{height:50px;align-self:flex-start}
 #login input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px}
-#login button{background:var(--accent);color:#262727;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
+#login button{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
 #lerr{color:var(--bad);font-size:14px;min-height:18px}
 #msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
 footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login">
@@ -240,7 +241,7 @@ function renderTodo(){
       <input class="txt" id="a_note" placeholder="Note (optional)">
       <button class="btn go" onclick="addItem()">Add to list</button>
     </div></div>
-  <div class="sec"><h2>New product builder <span class="h">pick from Cin7, add photos and datasheets, Claude writes the listing and creates a draft</span> <a class="btn go" style="text-decoration:none;display:inline-block" href="webnew.html">➕ Add a new product</a></h2></div>
+  <div class="sec"><h2>New product builder <span class="h">pick from Cin7, add photos and datasheets, Claude writes the listing and creates a draft</span> <a class="btn go" style="text-decoration:none;display:inline-block" href="webnew.html">Add a new product</a></h2></div>
   <div class="sec"><h2>To add to the website <span class="h">${n} product${n===1?'':'s'} · ${rank ? 'you set the order' : 'Etienne sets the order'} · ticks itself off when the SKU goes live on the site</span></h2>
     ${n ? `<table><thead><tr><th>#</th><th>Product</th><th>Why</th><th>Added</th><th class="r">On list</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">Nothing on the list.</div>'}</div>
   <div class="sec"><h2>Recently added to the site <button class="btn sm" onclick="showDone=!showDone;render()">${showDone ? 'Hide' : 'Show'} (${D.done.length})</button>
@@ -438,7 +439,7 @@ function renderCleanup(){
       Nothing here changes Google Ads itself: the changes are made in Google Ads.</div></div>
     <div class="tiles">${tile('Jobs left', live.length, 'of ' + jobs.length, live.length ? 'hot' : 'green')}${tile('Products not selling', gbp(c.products_total), 'spent in 30 days, no sales', c.products_total > 100 ? 'red' : '')}${tile('Dead campaigns', c.enabled_idle.length, 'switched on, £0 spent', c.enabled_idle.length ? 'red' : '')}${tile('Duplicates', c.duplicates.length, 'sets of near-identical campaigns', '')}</div>
     ${jobs.map((j, i) => `<div class="sec" style="${j.n ? '' : 'opacity:.55'}">
-      <h2 style="cursor:pointer" onclick="openJob = openJob === '${j.id}' ? null : '${j.id}'; render()">${j.n ? `${i + 1}.` : '✓'} ${j.title} ${j.n ? `<span class="tag ${P[j.prio]}">${j.prio}</span>` : '<span class="tag t-blue">Done</span>'}
+      <h2 style="cursor:pointer" onclick="openJob = openJob === '${j.id}' ? null : '${j.id}'; render()">${j.n ? `${i + 1}.` : ''} ${j.title} ${j.n ? `<span class="tag ${P[j.prio]}">${j.prio}</span>` : '<span class="tag t-blue">Done</span>'}
         ${j.rows.length ? `<span class="h">${j.rows.length} item${j.rows.length === 1 ? '' : 's'} · ${openJob === j.id ? 'hide' : 'show'} list</span>` : ''}</h2>
       <div style="font-size:14px;line-height:1.55"><b>Why:</b> ${j.why}</div>
       <div style="font-size:14px;line-height:1.55;margin-top:4px"><b>What to do:</b> ${esc(j.how)}</div>

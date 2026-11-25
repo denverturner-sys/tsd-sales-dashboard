@@ -13,30 +13,30 @@
   const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
   const css = `
-  .ta{width:100%;max-width:560px;background:#323333;border-radius:16px;padding:24px 22px;display:flex;flex-direction:column;gap:14px;color:#fff;font-family:Barlow,'Segoe UI',Arial,sans-serif}
+  .ta{width:100%;max-width:560px;background:var(--panel);border-radius:16px;padding:24px 22px;display:flex;flex-direction:column;gap:14px;color:var(--ink);font-family:Barlow,'Segoe UI',Arial,sans-serif}
   .ta .ta-top{display:flex;align-items:center;gap:14px}
   .ta .ta-top img{height:46px}
   .ta h1{margin:0;font-family:'Bebas Neue','Arial Narrow',Arial,sans-serif;font-weight:400;font-size:34px;letter-spacing:1px;line-height:1}
-  .ta .ta-sub{color:#B9BCBC;font-size:14px}
+  .ta .ta-sub{color:var(--muted);font-size:14px}
   .ta .ta-names{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-  .ta .ta-names button{background:#3B3C3C;color:#fff;border:2px solid #474949;border-radius:12px;padding:16px 10px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}
-  .ta .ta-names button:hover,.ta .ta-names button:focus{border-color:#EED107;outline:none}
-  .ta .ta-names button.last{border-color:#EED107}
+  .ta .ta-names button{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:16px 10px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}
+  .ta .ta-names button:hover,.ta .ta-names button:focus{border-color:var(--accent);outline:none}
+  .ta .ta-names button.last{border-color:var(--accent)}
   .ta .ta-dots{display:flex;gap:14px;justify-content:center;margin:6px 0}
-  .ta .ta-dots span{width:18px;height:18px;border-radius:50%;border:2px solid #B9BCBC}
-  .ta .ta-dots span.on{background:#EED107;border-color:#EED107}
+  .ta .ta-dots span{width:18px;height:18px;border-radius:50%;border:2px solid var(--muted)}
+  .ta .ta-dots span.on{background:var(--accent);border-color:var(--accent)}
   .ta .ta-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:330px;margin:0 auto;width:100%}
-  .ta .ta-pad button{background:#3B3C3C;color:#fff;border:0;border-radius:12px;padding:18px 0;font-size:26px;font-weight:700;cursor:pointer;font-family:inherit}
-  .ta .ta-pad button:active{background:#EED107;color:#262727}
-  .ta .ta-pad button.s{font-size:16px;color:#B9BCBC}
-  .ta .ta-err{color:#FF7A6B;font-size:15px;min-height:20px;text-align:center}
-  .ta .ta-link{background:none;border:0;color:#8EC5FF;cursor:pointer;font-size:14px;font-family:inherit;padding:0;align-self:center}
+  .ta .ta-pad button{background:var(--panel2);color:var(--ink);border:0;border-radius:12px;padding:18px 0;font-size:26px;font-weight:700;cursor:pointer;font-family:inherit}
+  .ta .ta-pad button:active{background:var(--accent);color:var(--on-accent)}
+  .ta .ta-pad button.s{font-size:16px;color:var(--muted)}
+  .ta .ta-err{color:var(--bad);font-size:15px;min-height:20px;text-align:center}
+  .ta .ta-link{background:none;border:0;color:var(--blue);cursor:pointer;font-size:14px;font-family:inherit;padding:0;align-self:center}
   .ta .ta-who{font-size:22px;font-weight:700;text-align:center}
   .ta-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:1000}
   .ta table{width:100%;border-collapse:collapse;font-size:15px}
-  .ta td{padding:8px 4px;border-bottom:1px solid #474949}
-  .ta .ta-btn{background:transparent;color:#fff;border:1px solid #474949;border-radius:8px;padding:6px 10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
-  .ta .ta-btn.go{background:#EED107;color:#262727;border-color:#EED107}
+  .ta td{padding:8px 4px;border-bottom:1px solid var(--line)}
+  .ta .ta-btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+  .ta .ta-btn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
   .ta .ta-tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;margin-left:6px}
   `;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -110,7 +110,7 @@
       if (!j.ok) { body.textContent = j.error || 'Admins only.'; return; }
       body.className = '';
       body.innerHTML = `<div class="ta-sub" style="margin-bottom:8px">Reset gives the person a one-off temporary PIN to read out to them. They pick their own the moment they log in.</div>
-        <table>${j.staff.map(s => `<tr><td><b>${esc(s.name)}</b>${s.locked ? '<span class="ta-tag" style="background:#FF7A6B;color:#262727">Locked</span>' : ''}${s.must_change ? '<span class="ta-tag" style="border:1px solid #EED107;color:#EED107">Temp PIN</span>' : ''}${!s.has_pin ? '<span class="ta-tag" style="border:1px solid #B9BCBC;color:#B9BCBC">No PIN</span>' : ''}</td>
+        <table>${j.staff.map(s => `<tr><td><b>${esc(s.name)}</b>${s.locked ? '<span class="ta-tag" style="background:var(--bad);color:var(--on-accent)">Locked</span>' : ''}${s.must_change ? '<span class="ta-tag" style="border:1px solid var(--accent);color:var(--accent-text)">Temp PIN</span>' : ''}${!s.has_pin ? '<span class="ta-tag" style="border:1px solid var(--muted);color:var(--muted)">No PIN</span>' : ''}</td>
           <td style="text-align:right;white-space:nowrap">${s.locked ? `<button class="ta-btn" data-u="${esc(s.name)}">Unlock</button> ` : ''}<button class="ta-btn" data-r="${esc(s.name)}">Reset PIN</button></td></tr>`).join('')}</table>`;
       body.querySelectorAll('[data-u]').forEach(b => b.onclick = async () => { const r = await post({ action: 'admin_pin', name: b.dataset.u, what: 'unlock' }, token); if (!r.ok) alertBox(esc(r.error)); draw(); });
       body.querySelectorAll('[data-r]').forEach(b => b.onclick = async () => {

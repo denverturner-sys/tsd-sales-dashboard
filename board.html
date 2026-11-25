@@ -34,21 +34,21 @@ input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var
 textarea{width:100%;min-height:70px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.del{color:var(--bad);border-color:rgba(255,122,107,.5)}
 .task{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
 .task:last-child{border-bottom:0}
-.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:#262727;font-weight:900;font-size:16px;line-height:1}
+.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:var(--on-accent);font-weight:900;font-size:16px;line-height:1}
 .tick.on{background:var(--good);border-color:var(--good)}
 .tb{flex:1;min-width:0}
 .tt{font-size:16px;font-weight:600;line-height:1.3;word-wrap:break-word}
 .done .tt{text-decoration:line-through;color:var(--muted)}
 .meta{font-size:13px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
-.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent);font-weight:700}
-.notes{font-size:14px;color:#ddd;margin-top:6px;white-space:pre-wrap;line-height:1.4}
+.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent-text);font-weight:700}
+.notes{font-size:14px;color:var(--ink);margin-top:6px;white-space:pre-wrap;line-height:1.4}
 .pri{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:2px}
-.pri.p2{background:var(--bad);color:#262727} .pri.p1{background:var(--accent);color:#262727}
+.pri.p2{background:var(--bad);color:var(--on-accent)} .pri.p1{background:var(--accent);color:var(--on-accent)}
 .tag{display:inline-block;font-size:11px;font-weight:700;border:1px solid var(--blue);color:var(--blue);border-radius:999px;padding:1px 8px}
 .acts{display:flex;gap:6px;flex:none}
 .empty{color:var(--muted);padding:10px 0}
@@ -61,20 +61,21 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 
 .seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .seg button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:700;cursor:pointer}
-.seg button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .f{display:grid;grid-template-columns:150px 1fr;gap:8px;margin-bottom:8px}
 .f2{display:grid;grid-template-columns:1fr 1fr 120px;gap:8px;margin-bottom:8px}
 @media (max-width:700px){.f,.f2{grid-template-columns:1fr 1fr}.f .full,.f2 .full{grid-column:1/-1}}
 label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
 .day{margin-top:6px}
-.dh{font-weight:700;font-size:14px;color:var(--accent);margin:10px 0 2px;letter-spacing:.3px}
+.dh{font-weight:700;font-size:14px;color:var(--accent-text);margin:10px 0 2px;letter-spacing:.3px}
 .dh.td{color:var(--ink)}
 .ent{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)} .ent:last-child{border-bottom:0}
 .ic{flex:none;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--panel2)}
 .ic.holiday{background:rgba(142,197,255,.18)} .ic.out{background:rgba(238,209,7,.16)} .ic.sick{background:rgba(255,122,107,.16)} .ic.training{background:rgba(125,219,152,.16)} .ic.note{background:rgba(255,255,255,.08)}
-.eb{flex:1;min-width:0} .et{font-size:15px;font-weight:600;line-height:1.35;word-wrap:break-word} .ed{font-size:14px;color:#ddd;margin-top:2px;white-space:pre-wrap}
+.eb{flex:1;min-width:0} .et{font-size:15px;font-weight:600;line-height:1.35;word-wrap:break-word} .ed{font-size:14px;color:var(--ink);margin-top:2px;white-space:pre-wrap}
 .em{font-size:12px;color:var(--muted);margin-top:3px}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -88,7 +89,7 @@ const mem = {};
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
 let token = store.get('tsd_me_token'), D = null, timer, kind = 'holiday';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const KINDS = { holiday: ['🏖️', 'Holiday / day off'], out: ['🚗', 'Out (appointment, site visit…)'], sick: ['🤒', 'Off sick'], training: ['🎓', 'Training'], note: ['📌', 'Note for the team'] };
+const KINDS = { holiday: ['', 'Holiday / day off'], out: ['', 'Out (appointment, site visit…)'], sick: ['', 'Off sick'], training: ['', 'Training'], note: ['', 'Note for the team'] };
 const PART = { day: '', am: ' (morning)', pm: ' (afternoon)' };
 const fmt = (d, o) => new Date(d + 'T12:00:00').toLocaleDateString('en-GB', o || { weekday: 'short', day: 'numeric', month: 'short' });
 const addD = (d, n) => { const x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };

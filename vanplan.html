@@ -23,9 +23,9 @@ h2{font-family:var(--num);font-size:24px;letter-spacing:.5px;margin:0;font-weigh
 .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
 .btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:inherit;font-weight:600;padding:7px 12px;border-radius:10px;cursor:pointer;transition:transform .08s ease,border-color .15s}
 .btn:hover{border-color:var(--muted)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.5;cursor:default}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
-.btn.g{background:#1f3b2a;border-color:#2E9E6A;color:var(--good)}
-input,select{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;padding:6px 9px;border-radius:9px;color-scheme:dark}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.g{background:var(--tint-good);border-color:var(--good);color:var(--good)}
+input,select{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;padding:6px 9px;border-radius:9px;color-scheme:dark}
 .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted)}
 .chip b{color:var(--ink)}
 .grid{display:grid;grid-template-columns:minmax(380px,1fr) minmax(0,1.25fr);gap:14px;align-items:start}
@@ -46,21 +46,22 @@ input,select{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);fo
 .stop .t{font-weight:700}.stop .m{color:var(--muted);font-size:12px}
 .stop select{font-size:12px;padding:3px 6px}
 .flag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin:2px 4px 0 0}
-.f-warn{background:#4a3f0b;color:#FFE77A}.f-bad{background:#4a1418;color:#FFC2C4}.f-cour{background:#1d2b45;color:var(--blue)}.f-ok{background:#1b3a28;color:var(--good)}
-.note{font-size:12px;color:#ffe9a8;margin-top:2px}
+.f-warn{background:var(--tint-warn);color:var(--warn)}.f-bad{background:var(--tint-bad);color:var(--bad)}.f-cour{background:var(--tint-info);color:var(--blue)}.f-ok{background:var(--tint-good);color:var(--good)}
+.note{font-size:12px;color:var(--warn);margin-top:2px}
 .pool{background:var(--panel);border:1px dashed var(--line);border-radius:14px;padding:12px}
 .empty{color:var(--muted);padding:10px 0}
 .booked{font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-start;justify-content:center;padding:40px 12px;overflow:auto;z-index:2000}
 #modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:10px}
 #modal h3{margin:0;font-family:var(--num);font-size:28px;font-weight:400}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#262727;font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:2100}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--on-accent);font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:2100}
 .leaflet-popup-content{font-family:var(--body);font-size:13px}
 .pin{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #111;display:flex;align-items:center;justify-content:center}
 .pin span{transform:rotate(45deg);font-weight:700;font-size:11px;color:#111}
 details summary{cursor:pointer}
 @media (max-width:1000px){.grid{grid-template-columns:1fr}#map{position:relative;height:420px}.col{max-height:none}}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -68,8 +69,8 @@ details summary{cursor:pointer}
   <div class="bar" style="margin-top:0">
     <div style="flex:1;min-width:260px"><h1>VAN PLANNING</h1><div class="sub">Plan the runs, check the money, then book them into Track-POD. Suggested runs are a starting point: move drops between runs to suit.</div></div>
     <label class="sub">Run day <input type="date" id="day"></label>
-    <button class="btn y" id="suggest">✨ Suggest runs</button>
-    <button class="btn" id="reload">↻</button>
+    <button class="btn y" id="suggest">Suggest runs</button>
+    <button class="btn" id="reload">Refresh</button>
   </div>
   <div class="bar" id="chips"></div>
   <div class="grid">
@@ -201,7 +202,7 @@ function flags(o, r){
   if (o.backorder && o.stock_in !== 'all') f.push('<span class="flag f-bad">Stock not all in</span>');
   if (!located(o)) f.push('<span class="flag f-bad">No location: check postcode</span>');
   if (!N(o.weight)) f.push('<span class="flag f-warn">No weight in Cin7</span>');
-  if (SITE_WORDS.test(o.notes || '')) f.push('<span class="flag f-warn">⚠ Site note</span>');
+  if (SITE_WORDS.test(o.notes || '')) f.push('<span class="flag f-warn">Site note</span>');
   if (D.dispatch_on && o.office && o.office.state !== 'van') f.push('<span class="flag f-warn">Not sent to van by the office</span>');
   if (r) {
     const dt = detour(r, o.id);
@@ -230,7 +231,7 @@ function render(){
     <span class="chip">Google routes today <b>${D.google.used}/${D.google.cap}</b></span>
     <span class="chip" title="${esc(C.basis || '')}">Costs: driver ${gbp(C.driver_default)}/day · fuel £${N(C.fuel_per_mile).toFixed(2)}/mi · London +${gbp((C.extras || {}).LDN)} (Van profit settings)</span>`;
   $('left').innerHTML = `
-    ${runs.length ? '' : `<div class="booked">No runs planned for ${dshort(day)} yet. Press <b>✨ Suggest runs</b>, or put drops on a run with the dropdowns below.</div>`}
+    ${runs.length ? '' : `<div class="booked">No runs planned for ${dshort(day)} yet. Press <b>Suggest runs</b>, or put drops on a run with the dropdowns below.</div>`}
     ${runs.map((r, ri) => {
       const n = runNumbers(r), c = COLORS[ri % COLORS.length];
       return `<div class="run" style="--c:${c}">
@@ -246,8 +247,8 @@ function render(){
         <div class="money">Delivery charges <b>${gbp(n.delivery)}</b> + goods margin <b>${gbp(n.margin)}</b> − run cost <b>${gbp(n.cost)}</b> (driver ${gbp(n.driver)}, van ${gbp(n.vanDay)}, fuel ${gbp(n.fuel)}${n.london ? ', London ' + gbp(n.london) : ''})${n.est ? ' · <i>miles and time are estimates until you get the Google route</i>' : ''}</div>
         <div class="stops">${n.os.map((o, i) => stopRow(o, r, i)).join('') || '<div class="empty">No drops on this run.</div>'}</div>
         <div class="bar" style="margin-bottom:0">
-          <button class="btn" data-g="${r.id}" ${r.stops.length ? '' : 'disabled'}>🗺 ${r.google ? 'Re-check' : 'Get'} Google route</button>
-          <button class="btn g" data-book="${r.id}" ${r.stops.length ? '' : 'disabled'}>✓ Book run in Track-POD for ${dshort(day)}</button>
+          <button class="btn" data-g="${r.id}" ${r.stops.length ? '' : 'disabled'}>${r.google ? 'Re-check' : 'Get'} Google route</button>
+          <button class="btn g" data-book="${r.id}" ${r.stops.length ? '' : 'disabled'}>Book run in Track-POD for ${dshort(day)}</button>
           <button class="btn" data-del="${r.id}" title="Remove this run (the drops go back to the list)">✕</button>
         </div>
       </div>`; }).join('')}
@@ -292,7 +293,7 @@ function bookModal(rid){
   const warn = [n.kg > n.cap ? `Over the van's ${n.cap} kg.` : '', n.minutes > DAY_MIN ? 'Longer than a working day.' : '', n.os.some(o => o.backorder && o.stock_in !== 'all') ? 'Some stock isn’t all in yet (only what’s in goes on the van).' : ''].filter(Boolean).join(' ');
   modal(`<h3>Book Run ${String.fromCharCode(65 + ri)} for ${dshort(day)}</h3>
     <div class="sub">${n.os.length} drops · ${Math.round(n.kg)} kg · ${esc(r.van || '')}${r.driver ? ' · ' + esc(r.driver) : ''}. Each order goes into Track-POD for ${dshort(day)} in this order, ready to route. The warehouse then sees it on their van screen to pick and load.</div>
-    ${warn ? `<div style="color:var(--bad)">⚠ ${esc(warn)}</div>` : ''}
+    ${warn ? `<div style="color:var(--bad)">${esc(warn)}</div>` : ''}
     <ol style="margin:0;padding-left:20px">${n.os.map(o => `<li>${esc(o.no)} ${esc(o.customer)} · ${esc(o.postcode || '')}</li>`).join('')}</ol>
     <label class="sub"><input type="checkbox" id="bful"> Also pick, pack &amp; ship them in Cin7 now (the old way). Leave unticked so the warehouse ships each one when it's loaded.</label>
     <div id="bprog" class="sub"></div>

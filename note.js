@@ -53,7 +53,7 @@
           ${o.boxes ? `<div>Boxes / parcels: <b>${o.boxes}</b></div>` : ''}
           ${o.rep && o.rep !== 'WooCommerce' ? `<div>Account manager: ${esc(o.rep)}</div>` : o.rep === 'WooCommerce' ? '<div>Website order</div>' : ''}</div>
       </div>
-      <table><thead><tr><th style="width:18%">Code</th><th>Description</th><th class="r" style="width:10%">Ordered</th><th class="r" style="width:11%">${collect ? 'Collecting now' : 'In this delivery'}</th>${anyPrev ? `<th class="r" style="width:10%">${collect ? 'Collected before' : 'Sent before'}</th>` : ''}${anyBo ? '<th class="r" style="width:10%">To follow</th>' : ''}<th class="c" style="width:7%">✓</th></tr></thead><tbody>
+      <table><thead><tr><th style="width:18%">Code</th><th>Description</th><th class="r" style="width:10%">Ordered</th><th class="r" style="width:11%">${collect ? 'Collecting now' : 'In this delivery'}</th>${anyPrev ? `<th class="r" style="width:10%">${collect ? 'Collected before' : 'Sent before'}</th>` : ''}${anyBo ? '<th class="r" style="width:10%">To follow</th>' : ''}<th class="c" style="width:7%"></th></tr></thead><tbody>
         ${o.lines.map(l => `<tr><td>${esc(l.sku)}</td><td>${esc(l.name)}</td><td class="r">${num(l.qty)}</td><td class="r"><b>${num(l.go)}</b></td>${anyPrev ? `<td class="r">${l.prev > 0 ? num(l.prev) : ''}</td>` : ''}${anyBo ? `<td class="r ${l.follow > 0 ? 'bo' : ''}">${l.follow > 0 ? num(l.follow) : ''}</td>` : ''}<td class="c">☐</td></tr>`).join('')}
       </tbody></table>
       ${anyBo ? `<div class="foot bo">Items marked "to follow" are on order and will ${collect ? 'be ready to collect' : 'be sent'} as soon as they arrive.</div>` : ''}
@@ -123,13 +123,13 @@
     // ask how many parcels (one label each)
     const ov = document.createElement('div');
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:Barlow,Arial,sans-serif';
-    ov.innerHTML = `<div style="background:#323333;color:#fff;border-radius:14px;padding:20px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:12px">
-      <div style="font-size:22px;font-weight:700">🏷 Address label · ${esc(o.no)}</div>
-      <div style="color:#B9BCBC;font-size:14px">${esc(o.ship_name || o.customer || '')}${o.postcode ? ' · ' + esc(o.postcode) : ''}<br>4×6 label. In the print box, pick the <b style="color:#fff">FedEx label printer</b> (the browser remembers it next time).</div>
+    ov.innerHTML = `<div style="background:var(--panel);color:var(--ink);border-radius:14px;padding:20px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:22px;font-weight:700">Address label · ${esc(o.no)}</div>
+      <div style="color:var(--muted);font-size:14px">${esc(o.ship_name || o.customer || '')}${o.postcode ? ' · ' + esc(o.postcode) : ''}<br>4×6 label. In the print box, pick the <b style="color:var(--ink)">FedEx label printer</b> (the browser remembers it next time).</div>
       <label style="display:flex;align-items:center;gap:10px;font-size:16px">Labels (one per parcel)
-        <input id="tsdlbn" type="number" min="1" max="50" value="${o.boxes || 1}" inputmode="numeric" style="width:70px;text-align:center;font-size:18px;padding:6px;border-radius:8px;border:1px solid #474949;background:#262727;color:#fff"></label>
-      <div style="display:flex;gap:10px;justify-content:flex-end"><button id="tsdlbc" style="background:transparent;color:#fff;border:1px solid #474949;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer">Cancel</button>
-        <button id="tsdlbp" style="background:#EED107;color:#262727;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer">Print</button></div></div>`;
+        <input id="tsdlbn" type="number" min="1" max="50" value="${o.boxes || 1}" inputmode="numeric" style="width:70px;text-align:center;font-size:18px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end"><button id="tsdlbc" style="background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer">Cancel</button>
+        <button id="tsdlbp" style="background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer">Print</button></div></div>`;
     document.body.appendChild(ov);
     const close = () => ov.remove();
     ov.addEventListener('click', e => { if (e.target === ov) close(); });

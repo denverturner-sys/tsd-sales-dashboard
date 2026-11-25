@@ -23,13 +23,13 @@ button,input,select,textarea{font-family:inherit;font-size:17px}
 .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 input,select,textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
-.btn{background:var(--accent);color:#262727;border:0;border-radius:10px;padding:13px 18px;font-weight:800;cursor:pointer}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:13px 18px;font-weight:800;cursor:pointer}
 .btn.alt{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
 .btn.full{width:100%;margin-top:10px}
 .btn:disabled{opacity:.5}
 .seg{display:flex;gap:6px;margin-bottom:12px}
 .seg button{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:10px;font-weight:700;cursor:pointer}
-.seg button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:560px){.g2{grid-template-columns:1fr}}
 .msg{padding:10px 12px;border-radius:10px;margin-bottom:12px;font-weight:600}
@@ -52,12 +52,12 @@ tr.done td input{border-color:var(--good)}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
 .row:first-of-type{border-top:0}
 .tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;background:var(--panel2)}
-.tag.warn{background:rgba(238,209,7,.18);color:var(--accent)}.tag.ok{background:rgba(125,219,152,.15);color:var(--good)}
+.tag.warn{background:rgba(238,209,7,.18);color:var(--accent-text)}.tag.ok{background:rgba(125,219,152,.15);color:var(--good)}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 .pr{display:none}
 .mini{font-size:12px;color:var(--muted);line-height:1.3}
 .flag{display:inline-block;margin-top:3px;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700}
-.flag.bad{background:rgba(255,122,107,.18);color:var(--bad)}.flag.warn{background:rgba(238,209,7,.18);color:var(--accent)}
+.flag.bad{background:rgba(255,122,107,.18);color:var(--bad)}.flag.warn{background:rgba(238,209,7,.18);color:var(--accent-text)}
 tr.flash td{background:rgba(238,209,7,.22)}
 #scanbox{position:fixed;left:0;right:0;top:0;z-index:20;background:var(--panel);border-bottom:2px solid var(--accent);padding:10px 14px;display:none;max-width:900px;margin:0 auto}
 #reader{width:100%;max-height:34vh;overflow:hidden;border-radius:10px;background:#000}
@@ -70,6 +70,7 @@ tr.flash td{background:rgba(238,209,7,.22)}
   .screen{display:none}
 }
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -193,7 +194,7 @@ function countView(){
       ${blind ? '' : `<td class="r">${num(l.expected)}<div class="mini">${l.allocated ? num(l.allocated) + ' allocated' : ''}${l.elsewhere ? (l.allocated ? '<br>' : '') + num(l.elsewhere) + ' at ' + esc(other()) : ''}</div></td>`}
       <td class="r"><span class="pr"><span class="box"></span></span><input id="i${l.product_id}" class="noprint" type="number" inputmode="decimal" min="0" step="any" value="${esc(v)}" oninput="setVal('${l.product_id}', this.value)" onkeydown="nextOnEnter(event)"></td></tr>`; }).join('');
   return pick + `<div class="card"><div class="pr"><b>Stock count sheet: ${esc(site)} · ${esc(supplier === '*' ? 'All suppliers' : supplier)}</b> · ${new Date().toLocaleDateString('en-GB')} · Counted by: ____________</div>
-    <div class="noprint" style="display:flex;gap:10px;margin-bottom:10px"><input type="search" placeholder="Filter by SKU or name" oninput="setFilter(this.value)"><button class="btn" onclick="startScan()">📷 Scan</button><button class="btn alt" onclick="print()">Print</button></div>
+    <div class="noprint" style="display:flex;gap:10px;margin-bottom:10px"><input type="search" placeholder="Filter by SKU or name" oninput="setFilter(this.value)"><button class="btn" onclick="startScan()">Scan</button><button class="btn alt" onclick="print()">Print</button></div>
     <table><thead><tr><th>SKU</th><th>Product</th>${blind ? '' : '<th class="r">Bob has</th>'}<th class="r">Counted</th></tr></thead><tbody id="tb">${rows}</tbody></table></div>
     <div class="card noprint"><div class="k">Note (optional)</div><textarea rows="2" placeholder="e.g. pallet 3 was damaged, 2 boxes in the wrong bay" oninput="note=this.value;saveDraft()">${esc(note)}</textarea>
     <div class="m" style="margin-top:6px">Leave a line blank if you didn't count it. Only counted lines are compared. Your numbers save on this device as you go.</div></div>

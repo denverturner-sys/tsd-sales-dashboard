@@ -29,7 +29,7 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--body)}
 .label{font-size:20px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
 .num{font-family:var(--num);font-weight:400;letter-spacing:1px;line-height:.9}
-.good{color:var(--good)} .bad{color:var(--bad)} .warn{color:var(--accent)} .muted{color:var(--muted)}
+.good{color:var(--good)} .bad{color:var(--bad)} .warn{color:var(--accent-text)} .muted{color:var(--muted)}
 
 /* ---------- TV: fixed 1920x1080 stage, scaled to fit the screen ---------- */
 #tv{position:fixed;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;padding:36px 56px;display:flex;flex-direction:column;gap:26px}
@@ -80,11 +80,12 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family
 #party .banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;text-align:center;
   background:rgba(20,20,20,.88);border:4px solid var(--accent);border-radius:28px;padding:4vh 6vw;transition:transform .6s cubic-bezier(.2,1.6,.4,1),opacity .6s}
 #party.on .banner{transform:translate(-50%,-50%) scale(1);opacity:1}
-#party .banner .big{font-family:var(--display,inherit);font-weight:800;font-size:min(12vw,150px);line-height:1;color:var(--accent);letter-spacing:.02em;animation:tsdpulse 1.2s ease-in-out infinite}
+#party .banner .big{font-family:var(--display,inherit);font-weight:800;font-size:min(12vw,150px);line-height:1;color:var(--accent-text);letter-spacing:.02em;animation:tsdpulse 1.2s ease-in-out infinite}
 #party .banner .sub{font-size:min(4vw,40px);margin-top:2vh;color:var(--ink)}
 @keyframes tsdpulse{50%{transform:scale(1.06)}}
 .bar .fill.hit{background:var(--good)}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="party"><canvas></canvas><div class="banner"><div class="big">TARGET HIT!</div><div class="sub"></div></div></div>
@@ -156,7 +157,7 @@ function monthRows(c){
   return c.months.map(m => { const nm = day(m.m).toLocaleDateString('en-GB',{month:'short'});
     const hit = m.target && !m.partial && m.total >= m.target;
     return `<div style="display:flex;align-items:center;gap:8px;font-size:14px;margin-top:6px"><span style="width:34px">${nm}</span>
-      <div style="flex:1;background:#3B3C3C;border-radius:4px;height:14px;position:relative"><div style="width:${Math.max(0,m.total)/max*100}%;height:100%;border-radius:4px;background:${m.partial?'#8a7d05':hit?'#7DDB98':'#EED107'}"></div>${m.target?`<div style="position:absolute;top:-2px;bottom:-2px;left:${m.target/max*100}%;width:2px;background:#fff"></div>`:''}</div>
+      <div style="flex:1;background:var(--panel2);border-radius:4px;height:14px;position:relative"><div style="width:${Math.max(0,m.total)/max*100}%;height:100%;border-radius:4px;background:${m.partial?'#8a7d05':hit?'#7DDB98':'#EED107'}"></div>${m.target?`<div style="position:absolute;top:-2px;bottom:-2px;left:${m.target/max*100}%;width:2px;background:#fff"></div>`:''}</div>
       <strong style="width:62px;text-align:right">${gbpk(m.total)}${m.partial?'*':''}</strong></div>`; }).join('');
 }
 

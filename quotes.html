@@ -32,14 +32,14 @@ nav#tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)
 nav#tabs button{background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:700;cursor:pointer}
 nav#tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
 nav#tabs .n{background:var(--line);color:var(--ink);border-radius:999px;padding:1px 7px;font-size:12px;margin-left:6px}
-nav#tabs .n.hot{background:var(--accent);color:#262727}
+nav#tabs .n.hot{background:var(--accent);color:var(--on-accent)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
 .tile{background:var(--panel);border-radius:12px;padding:14px 16px;cursor:pointer;border:2px solid transparent;display:flex;flex-direction:column;gap:4px}
 .tile:hover{border-color:var(--line)}
 .tile .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
 .tile .v{font-family:var(--num);font-size:46px;line-height:1}
 .tile .h{font-size:13px;color:var(--muted)}
-.tile.hot{border-color:var(--accent)} .tile.hot .v{color:var(--accent)}
+.tile.hot{border-color:var(--accent)} .tile.hot .v{color:var(--accent-text)}
 .tile.red .v{color:var(--bad)} .tile.green .v{color:var(--good)}
 .sec{background:var(--panel);border-radius:14px;padding:14px 16px;margin-bottom:16px}
 .sec h2{margin:0 0 10px;font-family:var(--num);font-weight:400;font-size:26px;letter-spacing:1px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
@@ -50,13 +50,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
 td.r,th.r{text-align:right;white-space:nowrap}
 tr.click{cursor:pointer} tr.click:hover td{background:rgba(255,255,255,.03)}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap;margin:1px 3px 1px 0}
-.t-in{background:var(--good);color:#262727} .t-nopo{background:var(--bad);color:#262727} .t-over{background:transparent;border:1px solid var(--bad);color:var(--bad)}
+.t-in{background:var(--good);color:var(--on-accent)} .t-nopo{background:var(--bad);color:var(--on-accent)} .t-over{background:transparent;border:1px solid var(--bad);color:var(--bad)}
 .t-po{background:transparent;border:1px solid var(--blue);color:var(--blue)} .t-snz{background:transparent;border:1px solid var(--muted);color:var(--muted)}
-.t-a{background:var(--accent);color:#262727} .t-b{background:var(--ink);color:#262727} .t-c{background:var(--line);color:var(--ink)} .t-d{background:transparent;border:1px solid var(--line);color:var(--muted)}
-.muted{color:var(--muted)} .bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--accent)}
+.t-a{background:var(--accent);color:var(--on-accent)} .t-b{background:var(--ink);color:var(--on-accent)} .t-c{background:var(--line);color:var(--ink)} .t-d{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.muted{color:var(--muted)} .bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--accent-text)}
 .btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
-.btn:hover{border-color:var(--muted)} .btn.go{background:var(--accent);color:#262727;border-color:var(--accent)} .btn.sm{padding:4px 8px;font-size:12px}
-.btn.on{background:var(--ink);color:#262727;border-color:var(--ink)}
+.btn:hover{border-color:var(--muted)} .btn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)} .btn.sm{padding:4px 8px;font-size:12px}
+.btn.on{background:var(--ink);color:var(--on-accent);border-color:var(--ink)}
 .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 input.txt,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
 input.txt:focus,textarea:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
@@ -85,12 +85,12 @@ input[type=date]{color-scheme:dark}
 #modal h3{margin:0;font-family:var(--num);font-weight:400;font-size:30px;letter-spacing:1px}
 #modal .row{display:flex;gap:10px;justify-content:flex-end}
 #modal .err{color:var(--bad);font-size:13px;min-height:16px}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--on-accent);border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #login form{background:var(--panel);border-radius:14px;padding:28px 24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
 #login img{height:50px;align-self:flex-start}
 #login input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px}
-#login button{background:var(--accent);color:#262727;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
+#login button{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
 #lerr{color:var(--bad);font-size:14px;min-height:18px}
 #msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
 footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
@@ -104,17 +104,18 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 .qlines{font-size:12px;color:var(--muted);line-height:1.45}
 .qbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
 .qbtns .btn{padding:8px 11px;font-size:13px}
-.qbtns .btn.no{border-color:var(--accent);color:var(--accent)}
+.qbtns .btn.no{border-color:var(--accent);color:var(--accent-text)}
 .qbtns .btn.lost{border-color:var(--bad);color:var(--bad)}
 .qbtns .btn.later{border-color:var(--blue);color:var(--blue)}
 .qcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px}
 @media (max-width:600px){.qcards{grid-template-columns:minmax(0,1fr)}}
 .lastfu{font-size:13px;background:rgba(255,255,255,.04);border-radius:6px;padding:5px 8px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chips .btn.sel{background:var(--accent);color:#262727;border-color:var(--accent)}
+.chips .btn.sel{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 details.sec>summary{list-style:none;cursor:pointer}
 .credit{font-size:13px;font-weight:600;background:rgba(255,122,107,.16);border:1px solid var(--bad);color:var(--ink);border-radius:6px;padding:6px 8px;margin:6px 0;line-height:1.35}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login">
@@ -193,7 +194,7 @@ function start(){
 
 // ---------- render ----------
 const STAGE = {appointmentscheduled:'Contacted', qualifiedtobuy:'Quote sent', presentationscheduled:'Followed up', decisionmakerboughtin:'Followed up twice', '1469012232':'Going ahead later', closedwon:'Won', closedlost:'Lost', '1433181613':'Archived'};
-const FU = {no_answer:'📞 No answer', spoke:'💬 Spoke', later:'📅 Going ahead later', lost:'✗ Lost', remind:'⏰ Reminder', note:'📝 Note'};
+const FU = {no_answer:'No answer', spoke:'Spoke', later:'Going ahead later', lost:'Lost', remind:'Reminder', note:'Note'};
 function matches(q){
   if (!query) return true;
   const hay = [q.no, q.customer, q.contact, q.phone, q.email, ...(q.lines || []).flatMap(l => [l.sku, l.name])].join('|').toLowerCase();
@@ -205,7 +206,7 @@ function creditBanner(cust){
   const lim = f.limit > 0 ? ` (owes ${gbp(f.net)} against a ${gbp(f.limit)} limit)` : '';
   const t = { hold: 'Account ON HOLD in Cin7', stop: 'Office has flagged this account to stop', over: 'Over credit limit' + lim,
     late: `Has invoices ${f.oldest} days late (${gbp(f.overdue)} overdue)`, near: 'Close to credit limit' + lim }[f.flag];
-  return t ? `<div class="credit">⚠ ${t}. Talk to the office before it goes ahead on account.</div>` : '';
+  return t ? `<div class="credit">${t}. Talk to the office before it goes ahead on account.</div>` : '';
 }
 function card(q){
   const cls = q.bucket === 'due' && q.cold ? 'cold' : q.bucket;
@@ -226,11 +227,11 @@ function card(q){
     ${q.lost_reason && q.bucket === 'lost' ? `<div class="qmeta">Lost: ${esc(q.lost_reason)}</div>` : ''}
     ${q.error && !q.deal_id ? `<div class="qmeta bad">HubSpot: ${esc(q.error)}</div>` : ''}
     <div class="qbtns">${live ? `
-      <button class="btn no" onclick="fu('${q.id}','no_answer')">📞 No answer</button>
-      <button class="btn" onclick="fu('${q.id}','spoke')">💬 Spoke</button>
-      <button class="btn later" onclick="fu('${q.id}','later')">📅 Going ahead later</button>
-      <button class="btn lost" onclick="fu('${q.id}','lost')">✗ Lost</button>
-      <button class="btn sm" onclick="fu('${q.id}','note')">📝 Note</button>` : ''}${hsLink}</div>
+      <button class="btn no" onclick="fu('${q.id}','no_answer')">No answer</button>
+      <button class="btn" onclick="fu('${q.id}','spoke')">Spoke</button>
+      <button class="btn later" onclick="fu('${q.id}','later')">Going ahead later</button>
+      <button class="btn lost" onclick="fu('${q.id}','lost')">Lost</button>
+      <button class="btn sm" onclick="fu('${q.id}','note')">Note</button>` : ''}${hsLink}</div>
   </div>`;
 }
 function section(title, hint, list, open = true){

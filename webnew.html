@@ -26,7 +26,7 @@ button,input,select,textarea{font-family:inherit;font-size:16px}
 input,select,textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px}
 textarea{min-height:90px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
-.btn{background:var(--accent);color:#262727;border:0;border-radius:10px;padding:13px 18px;font-weight:800;cursor:pointer}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:13px 18px;font-weight:800;cursor:pointer}
 .btn.full{width:100%;margin-top:12px}
 .btn.alt{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
 .btn.sm{padding:6px 12px;font-size:14px}
@@ -39,19 +39,20 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .msg{padding:10px 12px;border-radius:10px;margin-bottom:12px;font-weight:600}
 .msg.ok{background:rgba(125,219,152,.15);color:var(--good)} .msg.bad{background:rgba(255,122,107,.15);color:var(--bad)}
 .tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:800}
-.t-q{background:rgba(142,197,255,.18);color:var(--blue)} .t-ok{background:rgba(125,219,152,.18);color:var(--good)} .t-bad{background:rgba(255,122,107,.18);color:var(--bad)} .t-w{background:rgba(238,209,7,.2);color:var(--accent)}
+.t-q{background:rgba(142,197,255,.18);color:var(--blue)} .t-ok{background:rgba(125,219,152,.18);color:var(--good)} .t-bad{background:rgba(255,122,107,.18);color:var(--bad)} .t-w{background:rgba(238,209,7,.2);color:var(--accent-text)}
 .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .thumb{position:relative;width:86px;height:86px;border-radius:8px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
 .thumb img{width:100%;height:100%;object-fit:cover}
-.thumb button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:50%;width:22px;height:22px;cursor:pointer;line-height:1}
-.thumb i{position:absolute;left:3px;bottom:3px;background:var(--accent);color:#262727;font-style:normal;font-size:10px;font-weight:800;padding:0 5px;border-radius:4px}
+.thumb button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);color:var(--ink);border:0;border-radius:50%;width:22px;height:22px;cursor:pointer;line-height:1}
+.thumb i{position:absolute;left:3px;bottom:3px;background:var(--accent);color:var(--on-accent);font-style:normal;font-size:10px;font-weight:800;padding:0 5px;border-radius:4px}
 .file{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-top:6px}
 .file span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr{padding:10px 0;border-bottom:1px solid var(--line)} .tr:last-child{border-bottom:0}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 @media(max-width:520px){.row{grid-template-columns:1fr}}
-.seg2{display:flex;gap:6px;flex-wrap:wrap}.seg2 button{flex:1;min-width:150px;background:var(--panel2,#3B3C3C);border:1px solid var(--line,#474949);color:inherit;font:inherit;font-weight:700;padding:10px;border-radius:10px;cursor:pointer}.seg2 button.on{background:var(--accent,#EED107);color:#262727;border-color:var(--accent,#EED107)}
+.seg2{display:flex;gap:6px;flex-wrap:wrap}.seg2 button{flex:1;min-width:150px;background:var(--panel2,var(--panel2));border:1px solid var(--line,var(--line));color:inherit;font:inherit;font-weight:700;padding:10px;border-radius:10px;cursor:pointer}.seg2 button.on{background:var(--accent,var(--accent));color:var(--on-accent);border-color:var(--accent,var(--accent))}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -101,7 +102,7 @@ function schedulePoll(){ clearTimeout(poll); if ((D.drafts || []).some(d => d.st
 function search(v){ clearTimeout(timer); timer = setTimeout(async () => { const my = ++qseq; if (v.trim().length < 2) { hits = []; return paintHits(); }
   try { const j = await api(null, v.trim()); if (my === qseq) { hits = j.results; paintHits(); } } catch(e){} }, 250); }
 function hitHtml(p, i){
-  const note = p.on_site ? `<small style="color:var(--bad)">Already on the website (${esc(p.on_site.status)})</small>` : p.requested ? `<small style="color:var(--accent)">Already requested (${esc(p.requested)})</small>` : '';
+  const note = p.on_site ? `<small style="color:var(--bad)">Already on the website (${esc(p.on_site.status)})</small>` : p.requested ? `<small style="color:var(--accent-text)">Already requested (${esc(p.requested)})</small>` : '';
   return `<button class="hit" ${p.on_site || p.requested ? 'disabled style="opacity:.6;cursor:default"' : `onclick="choose(${i})"`}><b>${esc(p.sku)}</b><small>${esc(p.name)}</small><small>${esc(p.brand || '')}${p.supplier_name ? ' · ' + esc(p.supplier_name) : ''}</small>${note}</button>`;
 }
 function paintHits(){ const h = document.getElementById('hits'); if (h) h.innerHTML = hits.map(hitHtml).join('') || '<div class="m" style="margin-top:8px">Nothing found</div>'; }
@@ -250,7 +251,7 @@ function render(){
       <div class="thumbs">${imgs.map((im, i) => `<div class="thumb"><img src="${im.url}">${i === 0 ? '<i>MAIN</i>' : ''}<button onclick="rmImg(${i})">×</button></div>`).join('')}</div></div>
     <div class="card"><div class="k">4 · Datasheets and supplier info</div>
       <input type="file" accept="application/pdf,.pdf" multiple onchange="addSheets([...this.files]);this.value=''">
-      ${sheets.map((s, i) => `<div class="file"><span>📄 ${esc(s.name)}</span><button class="btn sm alt" onclick="rmSheet(${i})">Remove</button></div>`).join('')}
+      ${sheets.map((s, i) => `<div class="file"><span>${esc(s.name)}</span><button class="btn sm alt" onclick="rmSheet(${i})">Remove</button></div>`).join('')}
       <div class="k">Supplier details (optional)</div><textarea id="f_info" placeholder="Supplier product code, lead time, anything from the supplier's email">${esc(form.info)}</textarea>
       <div class="k">Anything else Claude should know</div><textarea id="f_notes" placeholder="What it's for, sizes, finishes, selling points, things to avoid saying…">${esc(form.notes)}</textarea>
       <button class="btn full" ${busy ? 'disabled' : ''} onclick="submit()">${busy ? 'Working…' : 'Send to Claude → create draft'}</button></div>` : ''}

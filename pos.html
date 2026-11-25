@@ -32,9 +32,9 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;fl
 input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 11px;width:100%}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer;min-height:46px}
-.btn:hover{border-color:var(--accent)}.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}.btn.g{background:var(--good);color:#262727;border-color:var(--good)}
+.btn:hover{border-color:var(--accent)}.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.btn.g{background:var(--good);color:var(--on-accent);border-color:var(--good)}
 .btn:disabled{opacity:.45;cursor:default}.btn.sm{padding:6px 11px;font-size:14px;min-height:34px}.btn.big{font-size:20px;padding:16px 22px;min-height:62px}
-.tabs{display:flex;gap:6px}.tabs button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer}.tabs button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.tabs{display:flex;gap:6px}.tabs button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer}.tabs button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,1fr);gap:14px;align-items:start}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:560px){.g2{grid-template-columns:1fr}}
@@ -43,10 +43,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .res .it{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}.res .it:last-child{border:0}.res .it:hover{background:var(--panel2)}
 .prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
 .pc{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;text-align:left;color:var(--ink);padding:0}
-.pc:hover{border-color:var(--accent)}.pc .im{height:110px;background:#fff center/contain no-repeat}.pc .im.no{background:#3a3b3b;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
+.pc:hover{border-color:var(--accent)}.pc .im{height:110px;background:#fff center/contain no-repeat}.pc .im.no{background:var(--panel2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
 .pc .tx{padding:8px 9px;display:flex;flex-direction:column;gap:3px;flex:1}.pc .nm{font-weight:600;font-size:14px;line-height:1.2}.pc .sk{color:var(--muted);font-size:12px}
 .pc .ft{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:4px;font-size:13px}
-.lv{font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;background:var(--line)}.lv.ok{background:var(--good);color:#262727}.lv.lo{background:var(--amber);color:#262727}.lv.no{background:var(--bad);color:#262727}
+.lv{font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;background:var(--line)}.lv.ok{background:var(--good);color:var(--on-accent)}.lv.lo{background:var(--amber);color:var(--on-accent)}.lv.no{background:var(--bad);color:var(--on-accent)}
 .ln{border-bottom:1px solid var(--line);padding:10px 0}.ln:last-child{border:0}
 .ln .top{display:flex;justify-content:space-between;gap:8px}.ln .nm{font-weight:600;line-height:1.25}.ln .sk{color:var(--muted);font-size:12px}
 .ln .ctl{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:8px;align-items:end;margin-top:8px}
@@ -55,7 +55,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .x{background:transparent;border:0;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px}
 .crow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.crow:last-child{border:0}.crow .m{flex:1;min-width:0}.crow .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .mbox{max-width:720px!important;max-height:90vh;overflow:auto}
-.btn.red{background:#E5484D;border-color:#E5484D;color:#fff}
+.btn.red{background:#E5484D;border-color:var(--bad);color:#fff}
 .warn{background:rgba(255,179,71,.13);border:1px solid var(--amber);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:14px}
 .warn .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .bad{background:rgba(255,122,107,.14);border:1px solid var(--bad);border-radius:8px;padding:8px 10px;margin:8px 0}
@@ -70,14 +70,14 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .charge .prn{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}.charge .prn i{width:8px;height:8px;border-radius:50%;background:var(--good);display:inline-block}
 .charge .amtbox{padding:26px 22px 22px;text-align:center;background:linear-gradient(180deg,rgba(238,209,7,.07),transparent)}
 .charge .lbl{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
-.charge .amt{font-family:var(--num);font-size:clamp(46px,9vw,92px);line-height:1;color:var(--accent);letter-spacing:1.5px;margin:6px 0 4px}
+.charge .amt{font-family:var(--num);font-size:clamp(46px,9vw,92px);line-height:1;color:var(--accent-text);letter-spacing:1.5px;margin:6px 0 4px}
 .charge .vat{font-size:13px;color:var(--muted)}
 .charge .step{padding:14px 22px;border-top:1px solid var(--line)}
 .charge .step .lbl{display:flex;align-items:center;gap:8px;margin-bottom:10px}.charge .step .lbl b{width:20px;height:20px;border-radius:50%;background:var(--line);color:var(--ink);font-size:11px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0}
-.charge .step.done .lbl b{background:var(--good);color:#262727}
+.charge .step.done .lbl b{background:var(--good);color:var(--on-accent)}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(max-width:560px){.seg{grid-template-columns:1fr}}
 .seg button{min-height:54px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-weight:700;font-size:16px;cursor:pointer}
-.seg button:hover:not(:disabled){border-color:var(--accent)}.seg button:disabled{opacity:.4;cursor:default}.seg button.on{background:var(--good);border-color:var(--good);color:#262727;opacity:1}
+.seg button:hover:not(:disabled){border-color:var(--accent)}.seg button:disabled{opacity:.4;cursor:default}.seg button.on{background:var(--good);border-color:var(--good);color:var(--on-accent);opacity:1}
 .charge .ft{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 22px;border-top:1px solid var(--line);flex-wrap:wrap}
 .chosen{outline:3px solid var(--good)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:90;padding:16px}
@@ -85,7 +85,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .modal h3{margin:0 0 8px;font-size:21px}.modal .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
 table.lt{width:100%;border-collapse:collapse}table.lt th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
 table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:middle}table.lt tr.cl{cursor:pointer}table.lt tr.cl:hover td{background:var(--panel2)}
-.r{text-align:right}.st{font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;background:var(--line);white-space:nowrap}.st.g{background:var(--good);color:#262727}.st.a{background:var(--amber);color:#262727}.st.b{background:var(--blue);color:#262727}
+.r{text-align:right}.st{font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;background:var(--line);white-space:nowrap}.st.g{background:var(--good);color:var(--on-accent)}.st.a{background:var(--amber);color:var(--on-accent)}.st.b{background:var(--blue);color:var(--on-accent)}
 #bar{display:none}
 .mgn{font-size:12px;font-weight:700;color:var(--blue);display:flex;gap:6px;justify-content:flex-end}
 @media(max-width:560px){.ln .ctl{grid-template-columns:1fr 1fr}.ln .ctl>div:first-child{grid-column:1/-1}.ln .lt{grid-column:1/-1}}
@@ -94,9 +94,10 @@ table.lt td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #msg{padding:40px;text-align:center;color:var(--muted)}.er{color:var(--bad);font-weight:600}
 #reader{width:100%;max-width:420px;margin:0 auto}
-.lnk{background:none;border:0;color:var(--accent);font:inherit;font-size:14px;cursor:pointer;margin-top:10px;padding:4px;text-decoration:underline;text-underline-offset:3px}
+.lnk{background:none;border:0;color:var(--accent-text);font:inherit;font-size:14px;cursor:pointer;margin-top:10px;padding:4px;text-decoration:underline;text-underline-offset:3px}
 .dform input,.dform select{width:100%;margin-top:6px;box-sizing:border-box}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -168,10 +169,10 @@ function shell(){
   const counter = BOOT.mode === 'counter';
   $('app').innerHTML = `<header><div><div class="title">Trade counter</div><div class="sub">${counter ? esc(BOOT.device.name) : 'Your login'} · stock checked live in Cin7</div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <button class="pill" id="chg">Serving: ${esc(SERVED.name)} <span style="color:var(--accent)">⇄ Change</span></button>
+      <button class="pill" id="chg">Serving: ${esc(SERVED.name)} <span style="color:var(--accent-text)">⇄ Change</span></button>
       <span class="pill">Stock from <select id="loc">${BOOT.locations.map(l => `<option ${l === S.loc ? 'selected' : ''}>${l}</option>`).join('')}</select></span>
       <div class="tabs"><button id="t1" class="${TAB === 'sale' ? 'on' : ''}">New sale</button><button id="t2" class="${TAB === 'list' ? 'on' : ''}">Sales &amp; collections</button></div>
-      ${!counter && BOOT.me && BOOT.me.admin ? '<button class="pill" id="setup">⚙ Counter PCs</button>' : ''}
+      ${!counter && BOOT.me && BOOT.me.admin ? '<button class="pill" id="setup">Counter PCs</button>' : ''}
     </div></header><div id="body"></div><div id="bar"></div>`;
   $('chg').onclick = e => { e.preventDefault(); SERVED = null; askName(); };   // the basket stays as it is (13 Nov: personal logins too, for taking over an order)
   $('loc').onchange = e => { S.loc = e.target.value; if (!counter) S.printer = S.loc === 'Wootton Bassett' ? 'wbcounter' : 'here'; S.lines.forEach(l => l.stock && (l.avail = l.stock[S.loc].available)); if (TAB === 'list') shell(); else drawBasket(); };
@@ -185,7 +186,7 @@ function saleScreen(){
   $('body').innerHTML = `<div class="grid"><div>
       <div class="card"><div class="k">Customer</div><div id="cust"></div></div>
       <div class="card"><div class="k">Products</div>
-        <div style="display:flex;gap:8px"><input id="ps" placeholder="Search name or code, or scan a barcode" autocomplete="off" inputmode="search"><button class="btn" id="cam" title="Scan with the camera">📷</button></div>
+        <div style="display:flex;gap:8px"><input id="ps" placeholder="Search name or code, or scan a barcode" autocomplete="off" inputmode="search"><button class="btn" id="cam" title="Scan with the camera"></button></div>
         <div id="scan" style="display:none;margin-top:10px"><div id="reader"></div><div class="sub" id="scanmsg" style="text-align:center;margin-top:6px">Point the camera at the barcode</div></div>
         <div id="plist"></div></div>
     </div><div><div class="card" id="bk"></div></div></div>`;
@@ -394,13 +395,13 @@ function chargeScreen(){
       <div class="hd"><div><div class="no">${d.pre ? 'Ready to charge' : esc(d.number)}</div><div class="who">${esc(d.cust)}</div></div>
         <div class="prn">${d.pre ? `<a href="#" id="back" class="lnk" style="margin:0">← Back to basket</a>` : pn ? `<i></i>Sales order · ${d.copies || 1} cop${(d.copies || 1) === 1 ? 'y' : 'ies'} · ${esc(pn)}` : 'Not printed'}</div></div>
       <div class="amtbox"><div class="lbl">Amount to charge</div><div class="amt">${gbp(d.total_inc)}</div>${d.total_ex != null ? `<div class="vat">${gbp(d.total_ex)} + VAT ${gbp(d.total_inc - d.total_ex)}</div>` : ''}</div>
-      <div class="step ${d.paid ? 'done' : ''}"><div class="lbl"><b>${d.paid ? '✓' : '1'}</b>Payment</div>${d.pre ? '<div class="sub" style="margin:-4px 0 10px">Press once the card has gone through. That puts the order into Cin7 and prints it.</div>' : ''}
+      <div class="step ${d.paid ? 'done' : ''}"><div class="lbl"><b>${d.paid ? '' : '1'}</b>Payment</div>${d.pre ? '<div class="sub" style="margin:-4px 0 10px">Press once the card has gone through. That puts the order into Cin7 and prints it.</div>' : ''}
         <div class="seg">${[['card', 'Card'], ['cash', 'Cash'], ['account', 'On account']].map(([v, t]) => `<button class="${d.paid === v ? 'on' : ''}" data-pay="${v}" ${d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div></div>
-      ${d.pre ? '<div id="ferr" style="padding:0 22px"></div>' : `<div class="step ${d.finished ? 'done' : ''}"><div class="lbl"><b>${d.finished ? '✓' : '2'}</b>Collection</div>
+      ${d.pre ? '<div id="ferr" style="padding:0 22px"></div>' : `<div class="step ${d.finished ? 'done' : ''}"><div class="lbl"><b>${d.finished ? '' : '2'}</b>Collection</div>
         <div class="seg">${[['all', 'All collected'], ['part', 'Part collected'], ['none', 'Not collected']].map(([v, t]) => `<button class="${d.finished === v ? 'on' : ''}" data-fin="${v}" ${d.finished || !d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div>
-        ${d.finished === 'delivery' ? `<div class="sub" style="margin-top:8px">🚚 Going out for delivery (${esc(d.carrier || '')}). It's on Pick & Dispatch now.</div>` : (!d.finished || d.finished === 'none') ? '<button class="lnk" id="dlv">🚚 Delivering instead? Add a delivery address</button>' : ''}
+        ${d.finished === 'delivery' ? `<div class="sub" style="margin-top:8px">Going out for delivery (${esc(d.carrier || '')}). It's on Pick & Dispatch now.</div>` : (!d.finished || d.finished === 'none') ? '<button class="lnk" id="dlv">Delivering instead? Add a delivery address</button>' : ''}
         <div id="part"></div><div id="ferr"></div>
-        ${d.snap && (!d.finished || d.finished === 'none') ? '<button class="lnk" id="undo" style="display:block;margin:10px auto 0;color:var(--muted)">↩ Customer wants to change something? Undo this sale</button>' : ''}</div>`}
+        ${d.snap && (!d.finished || d.finished === 'none') ? '<button class="lnk" id="undo" style="display:block;margin:10px auto 0;color:var(--muted)">Customer wants to change something? Undo this sale</button>' : ''}</div>`}
       ${d.pre ? '' : `<div class="ft"><button class="btn" id="docs">Print other documents</button><button class="btn y big" id="next" style="min-width:200px" ${d.paid && d.finished ? '' : 'disabled'}>New sale</button></div>`}
       <div id="docbox" style="padding:0 22px"></div></div>`;
     ov.querySelectorAll('[data-pay]').forEach(b => b.onclick = async () => {
@@ -531,11 +532,11 @@ async function collections(){
     const row = o => { const f = credit[o.customer], lines = o.lines || [];
       const full = !o.backorder || o.stock_in === 'all', part = o.backorder && (lines.some(l => (+l.qty || 0) > (+l.bo || 0)) || o.stock_in === 'some' || o.stock_in === 'all');
       return `<div class="crow"><div class="m"><b>${esc(o.no)}</b> · ${esc(o.customer)} <span class="sub">· ${o.age === 0 ? 'today' : o.age + ' day' + (o.age === 1 ? '' : 's')}${o.phone ? ' · ' + esc(o.phone) : ''}</span>
-        ${f && CREDIT_TXT[f.flag] ? `<div class="warn" style="margin-top:4px">⚠ ${CREDIT_TXT[f.flag]}. Check with Accounts before it goes.</div>` : ''}
+        ${f && CREDIT_TXT[f.flag] ? `<div class="warn" style="margin-top:4px">${CREDIT_TXT[f.flag]}. Check with Accounts before it goes.</div>` : ''}
         ${o.part_shipped ? '<div class="sub">Part collected already</div>' : ''}${o.stock_issue ? '<div class="sub" style="color:var(--bad)">Flagged: can\'t find stock</div>' : ''}
         <div class="sub">${lines.slice(0, 4).map(l => `${qf(l.qty)}× ${esc(l.name)}${+l.bo ? ` <span style="color:var(--amber)">(${qf(l.bo)} on backorder)</span>` : ''}`).join('<br>')}${lines.length > 4 ? `<br>+ ${lines.length - 4} more` : ''}</div>
         ${o.notes ? `<div class="sub">“${esc(o.notes)}”</div>` : ''}</div>
-        <div class="acts">${o.section !== 5 && full && !o.stock_issue ? `<button class="btn sm y" data-call="${o.id}">✓ Collected</button>` : ''}${part && !o.stock_issue ? `<button class="btn sm" data-cpart="${o.id}">Part collected</button>` : ''}</div></div>`; };
+        <div class="acts">${o.section !== 5 && full && !o.stock_issue ? `<button class="btn sm y" data-call="${o.id}">Collected</button>` : ''}${part && !o.stock_issue ? `<button class="btn sm" data-cpart="${o.id}">Part collected</button>` : ''}</div></div>`; };
     box.innerHTML = rows.length ? `${ready.length ? `<div class="sub" style="margin:2px 0 4px"><b>Ready to collect (${ready.length})</b></div>${ready.map(row).join('')}` : ''}
       ${wait.length ? `<div class="sub" style="margin:12px 0 4px"><b>Waiting on stock (${wait.length})</b></div>${wait.map(row).join('')}` : ''}` : `<div class="sub">${all.length ? 'No collections match.' : 'No collections waiting.'}</div>`;
     box.querySelectorAll('[data-call]').forEach(b => b.onclick = () => collectOrder(all.find(o => o.id === b.dataset.call), 'all'));
@@ -557,7 +558,7 @@ async function collectOrder(o, mode){
         if (!p.length) return toast("Tick what's gone"); m.remove(); res(p); }; });
     if (!pick) return;
   } else {
-    const ok = await modal(`${esc(o.no)} collected?`, `<b>${esc(o.customer)}</b> is taking everything on this order. It'll be picked, packed and shipped in Cin7.`, [{ t: 'Cancel', v: false }, { t: '✓ All collected', v: true, cls: 'y' }]);
+    const ok = await modal(`${esc(o.no)} collected?`, `<b>${esc(o.customer)}</b> is taking everything on this order. It'll be picked, packed and shipped in Cin7.`, [{ t: 'Cancel', v: false }, { t: 'All collected', v: true, cls: 'y' }]);
     if (!ok) return;
   }
   toast('Updating Cin7…');
@@ -574,8 +575,8 @@ function openSale(r){
   const bar = document.createElement('div'); bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;max-width:760px;margin:0 auto 10px';
   bar.appendChild(close);
   if (r.voided_at) { const t = document.createElement('span'); t.className = 'pill'; t.style.cursor = 'default'; t.textContent = `Cancelled${r.voided_by ? ' by ' + r.voided_by : ''}`; bar.appendChild(t); }
-  else if (!r.collection || r.collection === 'open') { const e = document.createElement('button'); e.className = 'btn'; e.textContent = '✎ Edit this sale'; e.onclick = () => editSale(r); bar.appendChild(e); }
-  else if (r.collection === 'all') { const c = document.createElement('button'); c.className = 'btn'; c.textContent = '↩ Return / credit note'; c.onclick = () => creditNote({ id: r.id }); bar.appendChild(c); }
+  else if (!r.collection || r.collection === 'open') { const e = document.createElement('button'); e.className = 'btn'; e.textContent = 'Edit this sale'; e.onclick = () => editSale(r); bar.appendChild(e); }
+  else if (r.collection === 'all') { const c = document.createElement('button'); c.className = 'btn'; c.textContent = 'Return / credit note'; c.onclick = () => creditNote({ id: r.id }); bar.appendChild(c); }
   ov.prepend(bar);
 }
 // Edit = cancel the Cin7 order, then put the same basket back (same customer, prices and discounts) to change and authorise again

@@ -21,12 +21,12 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .seg button{background:none;border:0;color:var(--muted);font:inherit;font-weight:700;padding:8px 16px;cursor:pointer}
-.seg button.on{background:var(--accent);color:#262727}
+.seg button.on{background:var(--accent);color:var(--on-accent)}
 .btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:inherit;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer}
-.btn:hover{border-color:var(--muted)}.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
-input,select{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px 10px;border-radius:10px;color-scheme:dark}
+.btn:hover{border-color:var(--muted)}.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+input,select{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px 10px;border-radius:10px;color-scheme:dark}
 .warn{background:rgba(238,209,7,.08);border:1px solid var(--accent);border-radius:12px;padding:10px 14px;margin:10px 0;font-size:15px}
-.warn b{color:var(--accent)}
+.warn b{color:var(--accent-text)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
 .tile .k{color:var(--muted);font-size:14px;font-weight:600}
@@ -37,7 +37,7 @@ input,select{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);fo
 .card h2{font-family:var(--num);font-size:28px;letter-spacing:.5px;margin:0;font-weight:400}
 .rhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin-bottom:6px}
 .pill{display:inline-block;padding:2px 9px;border-radius:9px;background:var(--panel2);font-size:12px;color:var(--muted);margin-left:6px;font-weight:600}
-.pill.lon{background:rgba(238,209,7,.15);color:var(--accent)}
+.pill.lon{background:rgba(238,209,7,.15);color:var(--accent-text)}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{text-align:right;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;border-bottom:1px solid var(--line)}
 td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -46,7 +46,7 @@ td.l{white-space:normal}
 tr.sumrow td{border-bottom:0;padding-top:4px;padding-bottom:4px;color:var(--muted)}
 tr.sumrow.tot td{color:var(--ink);font-weight:700;font-size:16px;border-top:2px solid var(--line);padding-top:8px}
 tr.click{cursor:pointer}tr.click:hover td{background:var(--panel2)}
-.flag{color:var(--accent);font-size:12px;font-weight:700;margin-left:4px}
+.flag{color:var(--accent-text);font-size:12px;font-weight:700;margin-left:4px}
 .scroll{overflow-x:auto}
 .chart{width:100%;height:220px;display:block}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}
@@ -57,10 +57,11 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--panel2)}
 .frow label{font-size:15px}.frow .h{color:var(--muted);font-size:12px;display:block}
 .frow input{width:120px;text-align:right}
 .ftitle{font-family:var(--num);font-size:22px;margin:16px 0 2px;letter-spacing:.5px}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#262727;font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:60}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--on-accent);font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:60}
 .so{display:none;color:var(--muted);font-size:12px;white-space:normal;font-weight:400}
 @media (max-width:640px){.hm{display:none}.so{display:block}td.cs{display:none}.wrap{padding:14px 12px 30px}.tile .n{font-size:36px}.cols{grid-template-columns:1fr}h1{font-size:34px}}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -69,12 +70,12 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--panel2)}
   <div class="sub">Our own van deliveries: what each route took, what it cost to run, and what was left. Management only.</div>
   <div class="bar">
     <div class="seg"><button id="mDay" class="on">Day</button><button id="mMonth">Month</button></div>
-    <button class="btn" id="prev">◀</button>
+    <button class="btn" id="prev">‹</button>
     <input type="date" id="pDay"><input type="month" id="pMonth" style="display:none">
-    <button class="btn" id="next">▶</button>
+    <button class="btn" id="next">›</button>
     <button class="btn" id="todayBtn">Today</button>
     <span style="flex:1"></span>
-    <button class="btn y" id="costsBtn">⚙ Running costs</button>
+    <button class="btn y" id="costsBtn">Running costs</button>
   </div>
   <div id="out"><div class="empty">Loading…</div></div>
   <div class="sub" id="foot"></div>
@@ -164,8 +165,8 @@ function totalsTiles(routes, extra){
 }
 function warnBox(routes, s){
   const m = missing(routes, s);
-  const est = s && s.estimated ? `<div class="warn"><b>Running costs are estimates</b> worked out from payroll and Xero averages, not exact figures for each van. <a href="#" onclick="costs();return false" style="color:var(--accent)">See how they were worked out</a></div>` : '';
-  return est + (m.length ? `<div class="warn"><b>Not fully costed yet:</b> ${m.join(', ')} ${m.length > 1 ? "aren't" : "isn't"} filled in, so net profit is higher than it really is. <a href="#" onclick="costs();return false" style="color:var(--accent)">Fill in running costs</a></div>` : '');
+  const est = s && s.estimated ? `<div class="warn"><b>Running costs are estimates</b> worked out from payroll and Xero averages, not exact figures for each van. <a href="#" onclick="costs();return false" style="color:var(--accent-text)">See how they were worked out</a></div>` : '';
+  return est + (m.length ? `<div class="warn"><b>Not fully costed yet:</b> ${m.join(', ')} ${m.length > 1 ? "aren't" : "isn't"} filled in, so net profit is higher than it really is. <a href="#" onclick="costs();return false" style="color:var(--accent-text)">Fill in running costs</a></div>` : '');
 }
 
 function drawDay(d){
@@ -173,13 +174,13 @@ function drawDay(d){
   if (!routes.length) { $('out').innerHTML = `<div class="card"><h2>${dlong(day)}</h2><div class="empty">No van routes in Track-POD for this day.</div></div>`; return; }
   const zero = routes.reduce((a, r) => a + N(r.zero_cost), 0);
   let h = `<div class="sub" style="font-size:16px;color:var(--ink);font-weight:600">${dlong(day)}</div>` + warnBox(routes, d.settings) + totalsTiles(routes);
-  if (zero) h += `<div class="warn"><b>${zero} order${zero > 1 ? 's have' : ' has'} a £0 cost in Cin7</b> (marked ⚠ below), so ${zero > 1 ? 'their' : 'its'} profit is overstated. Fix the product's average cost in Cin7.</div>`;
+  if (zero) h += `<div class="warn"><b>${zero} order${zero > 1 ? 's have' : ' has'} a £0 cost in Cin7</b> (marked below), so ${zero > 1 ? 'their' : 'its'} profit is overstated. Fix the product's average cost in Cin7.</div>`;
   for (const r of routes) {
     const orders = r.orders || [];
     h += `<div class="card"><div class="rhead"><div><h2 style="display:inline">${esc(r.code)}</h2><span class="pill ${r.rtype === 'London' ? 'lon' : ''}">${esc(r.rtype)}</span></div>
       <div class="sub">${esc(r.driver || 'No driver')} · ${esc(r.vehicle || 'no van')} · ${hm(r.start_at)}–${hm(r.close_at)} (${N(r.hrs).toFixed(1)} h) · ${N(r.miles)} miles${r.planned_dist ? ' <span class="flag" title="Track-POD didn\'t track the whole route, so this uses the planned distance">planned</span>' : ''}</div></div>
       <div class="scroll"><table><thead><tr><th>Order</th><th class="l hm">Customer</th><th>Goods</th><th class="hm">Carriage</th><th class="hm">Cost of goods</th><th>Profit</th></tr></thead><tbody>
-      ${orders.map(o => `<tr><td><b>${esc(o.no)}</b>${o.zero_cost ? '<span class="flag" title="£0 cost in Cin7">⚠ £0 cost</span>' : ''}${o.multi ? '<span class="flag" title="This order is on more than one day\'s route (part deliveries), so its full value shows on each">part delivery</span>' : ''}<div class="so">${o.missing ? 'Not found in Cin7' : esc(o.customer)}</div></td>
+      ${orders.map(o => `<tr><td><b>${esc(o.no)}</b>${o.zero_cost ? '<span class="flag" title="£0 cost in Cin7">£0 cost</span>' : ''}${o.multi ? '<span class="flag" title="This order is on more than one day\'s route (part deliveries), so its full value shows on each">part delivery</span>' : ''}<div class="so">${o.missing ? 'Not found in Cin7' : esc(o.customer)}</div></td>
         <td class="l hm">${o.missing ? '<span class="sub">Not found in Cin7</span>' : esc(o.customer)}</td><td>${gbp2(o.goods)}</td><td class="hm">${N(o.carriage) ? gbp2(o.carriage) : '<span class="sub">free</span>'}</td><td class="hm">${gbp2(o.cost)}</td><td>${gbp2(o.profit)}</td></tr>`).join('')}
       <tr class="sumrow"><td colspan="2" class="l">Gross profit (${N(r.drops)} drop${N(r.drops) === 1 ? '' : 's'}, incl. ${gbp2(r.carriage)} carriage)</td><td class="cs" colspan="3"></td><td><b style="color:var(--ink)">${gbp2(r.gross)}</b></td></tr>
       <tr class="sumrow"><td colspan="2" class="l">− Driver${r.drv_set ? '' : ' <span class="flag">not set</span>'}</td><td class="cs" colspan="3"></td><td>${r.drv_set ? gbp2(-N(r.c_driver)) : '–'}</td></tr>
@@ -248,7 +249,7 @@ function costs(){
     ${last && last.costs_set_by ? `<div class="sub" style="margin-top:6px">Last set by ${esc(last.costs_set_by)} on ${new Date(last.costs_set_at).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})}.</div>` : ''}
     <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:15px"><input type="checkbox" id="cEst" ${s.estimated ? 'checked' : ''} style="width:18px;height:18px"> These are estimates (shows a note on the screen)</label>
     <div class="ftitle">How they were worked out</div>
-    <textarea id="cBasis" rows="4" style="width:100%;background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:14px;padding:8px 10px;border-radius:10px">${esc(s.basis || '')}</textarea>
+    <textarea id="cBasis" rows="4" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:14px;padding:8px 10px;border-radius:10px">${esc(s.basis || '')}</textarea>
     <div class="ftitle">Drivers (cost per day out)</div>
     ${row('driver_default', 'Default day rate', 'Used for anyone without their own rate. Include employer NI and pension if you can.', s.driver_default)}
     ${[...drivers].sort().map(n => row('drivers.' + n, esc(n), '', (s.drivers || {})[n])).join('')}
