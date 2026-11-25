@@ -34,7 +34,7 @@ select,input{background:var(--panel);border:1px solid var(--line);border-radius:
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #app{display:none}
 </style>
-<script src="theme.js?v=20261125b"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -86,7 +86,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261125b';
+  const BUILD = '20261126001';
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\w+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !(document.activeElement && document.activeElement.matches('input,select'))) location.reload(); } catch(e){} }
   setInterval(check, 120000);

@@ -85,7 +85,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family
 @keyframes tsdpulse{50%{transform:scale(1.06)}}
 .bar .fill.hit{background:var(--good)}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="party"><canvas></canvas><div class="banner"><div class="big">TARGET HIT!</div><div class="sub"></div></div></div>
@@ -189,7 +189,7 @@ function renderTV(d, v){
       <div class="bar"><div class="fill${v.raw>=100?' hit':''}" style="width:${v.pctDone}%"></div><div class="pace" style="left:calc(${v.pacePos}% - 2px)"></div></div>
       <div style="display:flex;justify-content:space-between" class="line">
         ${v.ahead==null?'<span></span>':`<span class="${v.ahead>=0?'good':'bad'}" style="font-weight:600">${v.ahead>=0?'▲':'▼'} ${gbp(Math.abs(v.ahead))} ${v.ahead>=0?'ahead of':'behind'} pace</span>`}
-        <span class="muted">White line = where we should be today · ${gbp(Math.max(0,(v.target||0)-v.mtd))} to go</span>
+        <span class="muted">The marker shows where we should be today · ${gbp(Math.max(0,(v.target||0)-v.mtd))} to go</span>
       </div>
       ${(() => { const m = cmp(d); return m ? `<div class="line ${m.have ? (m.up?'good':'bad') : 'muted'}" style="margin-top:4px;font-weight:600">${m.line}</div>` : ''; })()}
     </div>
@@ -290,7 +290,7 @@ setTimeout(() => location.reload(), 6*60*60*1000); // pick up page updates a few
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it.
 (function(){
-  const BUILD = '20261105154936';
+  const BUILD = '20261126001';
   setInterval(async () => { try { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 120000);
 })();
 </script>

@@ -23,6 +23,7 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 .tile .k{color:var(--muted);font-size:15px;font-weight:600}
 .tile .n{font-family:var(--num);font-size:72px;line-height:1;margin:4px 0}
 .tile .s{color:var(--muted);font-size:14px}
+[data-go]{cursor:pointer;transition:border-color .15s,box-shadow .15s}.tile[data-go]:hover,.card[data-go]:hover{border-color:var(--muted);box-shadow:var(--shadow)}.row[data-go]:hover span{text-decoration:underline}
 .tile.bad{border-color:var(--bad)}.tile.bad .n{color:var(--bad)}.tile.good .n{color:var(--good)}.tile.y .n{color:var(--accent-text)}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-bottom:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
@@ -34,7 +35,7 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 .empty{color:var(--muted);padding:6px 0}.note{color:var(--muted);font-size:13px;margin-top:14px}
 .pill{display:inline-block;padding:1px 8px;border-radius:9px;background:var(--panel2);font-size:12px;color:var(--muted);margin-left:6px}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -67,6 +68,8 @@ async function refresh(){
     draw(j);
   } catch(x){ document.getElementById('upd').textContent = x.message; }
 }
+// 25 Nov (Denver): every box opens the screen behind it. The main page does the switching; opened on its own it just does nothing.
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (!g) return; e.stopPropagation(); try { window.parent.postMessage({ tsdGoto: { screen: g.dataset.go } }, '*'); } catch(x){} }, true);
 function draw(d){
   const mo = d.month || {}, wk = d.week || {}, a = d.attention || {}, b = d.bromham || {}, T = d.tasks || {open:0, overdue:0, people:[]};
   const tgt = N(mo.target), mtd = N(mo.mtd), wdT = N(mo.wd_total) || 1, wdD = N(mo.wd_done);
@@ -78,26 +81,26 @@ function draw(d){
   const off = d.off || [];
   const offNow = off.filter(o => o.now), offSoon = off.filter(o => !o.now);
   const offTxt = o => `<div class="row"><span><b>${esc(o.who || 'Note')}</b> <span class="m">${esc(o.kind)}${o.detail ? ' · ' + esc(o.detail) : ''}</span></span><span class="m">${o.start_date === o.end_date ? dshort(o.start_date) : dshort(o.start_date) + ' – ' + dshort(o.end_date)}</span></div>`;
-  const at = (n, label, extra) => n ? `<div class="row"><span>${label}</span><b>${extra || n}</b></div>` : '';
+  const at = (n, label, extra, go) => n ? `<div class="row"${go ? ` data-go="${go}"` : ''}><span>${label}</span><b>${extra || n}</b></div>` : '';
   document.getElementById('upd').textContent = new Date(d.today + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'}) + ' · updated ' + new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
   document.getElementById('out').innerHTML = `
   <div class="tiles">
-    <div class="tile ${diff >= 0 ? 'good' : 'y'}"><div class="k">This month so far</div><div class="n">${gbpk(mtd)}</div><div class="s">${pctT}% of ${gbpk(tgt)} target · ${diff >= 0 ? gbpk(diff) + ' ahead' : gbpk(-diff) + ' behind'} pace</div></div>
-    <div class="tile y"><div class="k">This week so far</div><div class="n">${gbpk(wGross)}</div><div class="s">Last week ${gbpk(pGross)}${wDiff == null ? '' : ' · ' + (wDiff >= 0 ? '+' : '') + wDiff + '%'} (week isn't finished)</div></div>
-    <div class="tile ${b.overdue_now ? 'bad' : 'good'}"><div class="k">Orders to go today · Bromham</div><div class="n">${N(b.to_send)}</div><div class="s">${N(b.sent_today)} sent so far · ${b.overdue_now ? b.overdue_now + ' overdue' : 'nothing overdue'}</div></div>
-    <div class="tile ${T.overdue ? 'bad' : 'good'}"><div class="k">Open team tasks</div><div class="n">${T.open}</div><div class="s">${T.overdue ? T.overdue + ' overdue' : 'None overdue'}</div></div>
+    <div class="tile ${diff >= 0 ? 'good' : 'y'}" data-go="company"><div class="k">This month so far</div><div class="n">${gbpk(mtd)}</div><div class="s">${pctT}% of ${gbpk(tgt)} target · ${diff >= 0 ? gbpk(diff) + ' ahead' : gbpk(-diff) + ' behind'} pace</div></div>
+    <div class="tile y" data-go="company"><div class="k">This week so far</div><div class="n">${gbpk(wGross)}</div><div class="s">Last week ${gbpk(pGross)}${wDiff == null ? '' : ' · ' + (wDiff >= 0 ? '+' : '') + wDiff + '%'} (week isn't finished)</div></div>
+    <div class="tile ${b.overdue_now ? 'bad' : 'good'}" data-go="pick"><div class="k">Orders to go today · Bromham</div><div class="n">${N(b.to_send)}</div><div class="s">${N(b.sent_today)} sent so far · ${b.overdue_now ? b.overdue_now + ' overdue' : 'nothing overdue'}</div></div>
+    <div class="tile ${T.overdue ? 'bad' : 'good'}" data-go="teamtasks"><div class="k">Open team tasks</div><div class="n">${T.open}</div><div class="s">${T.overdue ? T.overdue + ' overdue' : 'None overdue'}</div></div>
   </div>
   <div class="cols">
-    <div class="card"><h2>Month to date</h2>
+    <div class="card" data-go="company"><h2>Month to date</h2>
       <div class="bar"><div class="l">${gbpk(mtd)} of ${gbpk(tgt)}</div><div class="b"><i style="width:${Math.min(100, pctT)}%"></i><span class="pace" style="left:${Math.min(100, 100 * wdD / wdT)}%"></span></div><div class="v">${pctT}%</div></div>
       <div class="row"><span class="m">Working days done</span><b>${wdD} of ${wdT}</b></div>
       <div class="row"><span class="m">Where it lands at this pace</span><b class="${proj >= tgt ? 'good' : ''}">${gbpk(proj)}</b></div>
       <div class="row"><span class="m">New customers (this week)</span><b>${N(wk.new_customers) || '–'}</b></div>
-      <div class="note">White line = where you'd be if every working day were equal.</div></div>
-    <div class="card"><h2>Sales by site (this week)</h2>
+      <div class="note">The marker shows where you'd be if every working day were equal.</div></div>
+    <div class="card" data-go="company"><h2>Sales by site (this week)</h2>
       ${locs.length ? locs.map(l => `<div class="bar"><div class="l">${esc(l.name)}</div><div class="b"><i style="width:${100 * N(l.sales) / lmax}%"></i></div><div class="v">${gbpk(l.sales)}</div></div>`).join('') : '<div class="empty">No sales yet this week.</div>'}
       ${wk.dispatch ? `<div class="row"><span class="m">Went out late (week)</span><b class="${N(wk.dispatch.late) ? 'bad' : 'good'}">${N(wk.dispatch.late)} of ${N(wk.dispatch.measured)}</b></div>` : ''}</div>
-    <div class="card"><h2>Bromham orders</h2>
+    <div class="card" data-go="whdash"><h2>Bromham orders</h2>
       <div class="row"><span class="m">Sent today</span><b>${N(b.sent_today)}</b></div>
       <div class="row"><span class="m">Still to send</span><b>${N(b.to_send)}</b></div>
       <div class="row"><span class="m">Picked, waiting to go</span><b>${N(b.picked_waiting)}</b></div>
@@ -106,27 +109,27 @@ function draw(d){
   </div>
   <div class="cols">
     <div class="card"><h2>Needs attention</h2>
-      ${at(a.pos_overdue && a.pos_overdue.n, 'Purchase orders overdue', a.pos_overdue && a.pos_overdue.n + ' · ' + gbpk(a.pos_overdue.value))}
-      ${at(a.backorders && a.backorders.n, 'Backorders', a.backorders && a.backorders.n + ' · ' + gbpk(a.backorders.value))}
-      ${at(a.bills && a.bills.overdue, 'Supplier bills overdue', a.bills && gbpk(a.bills.overdue))}
-      ${at(a.bills && a.bills.this_week, 'Bills due this week', a.bills && gbpk(a.bills.this_week))}
-      ${at(a.claims && a.claims.n, 'Open claims', a.claims && a.claims.n + ' · ' + gbpk(a.claims.value))}
-      ${at(a.credits && a.credits.n, 'Credit notes (week)', a.credits && a.credits.n + ' · ' + gbpk(a.credits.value))}
-      ${at(a.quotes_new && a.quotes_new.n, 'New quotes (week)', a.quotes_new && a.quotes_new.n + ' · ' + gbpk(a.quotes_new.value))}
-      ${at(a.stock && (a.stock.out || a.stock.low), 'Stock out / low', a.stock && N(a.stock.out) + ' out · ' + N(a.stock.low) + ' low')}
+      ${at(a.pos_overdue && a.pos_overdue.n, 'Purchase orders overdue', a.pos_overdue && a.pos_overdue.n + ' · ' + gbpk(a.pos_overdue.value), 'purchasing')}
+      ${at(a.backorders && a.backorders.n, 'Backorders', a.backorders && a.backorders.n + ' · ' + gbpk(a.backorders.value), 'backorders')}
+      ${at(a.bills && a.bills.overdue, 'Supplier bills overdue', a.bills && gbpk(a.bills.overdue), 'finance')}
+      ${at(a.bills && a.bills.this_week, 'Bills due this week', a.bills && gbpk(a.bills.this_week), 'finance')}
+      ${at(a.claims && a.claims.n, 'Open claims', a.claims && a.claims.n + ' · ' + gbpk(a.claims.value), 'accounts')}
+      ${at(a.credits && a.credits.n, 'Credit notes (week)', a.credits && a.credits.n + ' · ' + gbpk(a.credits.value), 'accounts')}
+      ${at(a.quotes_new && a.quotes_new.n, 'New quotes (week)', a.quotes_new && a.quotes_new.n + ' · ' + gbpk(a.quotes_new.value), 'quotes')}
+      ${at(a.stock && (a.stock.out || a.stock.low), 'Stock out / low', a.stock && N(a.stock.out) + ' out · ' + N(a.stock.low) + ' low', 'stock')}
       ${(a.gone_quiet || []).length ? `<div class="note">Gone quiet: ${a.gone_quiet.map(g => esc(g.customer) + ' (' + gbpk(g.spend6m) + ')').join(', ')}</div>` : ''}</div>
-    <div class="card"><h2>Team tasks</h2>
+    <div class="card" data-go="teamtasks"><h2>Team tasks</h2>
       ${T.people.length ? T.people.map(p => `<div class="row"><span>${esc(p.name)}</span><span><b>${p.open}</b> open${p.overdue ? ` · <span class="bad">${p.overdue} overdue</span>` : ''}</span></div>`).join('') : '<div class="empty">No open tasks.</div>'}
-      <div class="note">Full detail is under Tasks &amp; Projects &gt; Team.</div></div>
-    <div class="card"><h2>Projects &amp; issues</h2>
+      <div class="note">Click to open Team tasks.</div></div>
+    <div class="card" data-go="projects"><h2>Projects &amp; issues</h2>
       ${(d.projects || []).length ? d.projects.map(p => `<div class="row"><span>${esc(p.title)}${p.owner ? ` <span class="pill">${esc(p.owner)}</span>` : ''}</span>${p.due ? `<span class="${p.late ? 'bad' : 'm'}">${dshort(p.due)}</span>` : ''}</div>`).join('') : '<div class="empty">No open projects.</div>'}
       ${(d.issues || []).length ? `<div class="note">Open issues</div>` + d.issues.map(p => `<div class="row"><span>${esc(p.title)}${p.owner ? ` <span class="pill">${esc(p.owner)}</span>` : ''}</span></div>`).join('') : ''}</div>
   </div>
   <div class="cols">
-    <div class="card"><h2>Who's off</h2>
+    <div class="card" data-go="board"><h2>Who's off</h2>
       ${offNow.length ? offNow.map(offTxt).join('') : '<div class="empty">Nobody off today.</div>'}
       ${offSoon.length ? `<div class="note">Coming up</div>` + offSoon.map(offTxt).join('') : ''}</div>
-    <div class="card"><h2>Help requests</h2>
+    <div class="card" data-go="supportall"><h2>Help requests</h2>
       ${(d.requests || []).length ? d.requests.map(r => `<div class="row"><span>${esc(r.title)} <span class="pill">${esc(r.by_name || '')}</span></span><span class="${r.status === 'new' ? 'bad' : 'm'}">${esc(r.status)} · ${ago(r.created_at)}</span></div>`).join('') : '<div class="empty">Nothing waiting.</div>'}</div>
   </div>`;
 }
@@ -135,7 +138,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110155715';
+  const BUILD = '20261126001';
   let newer = false;
   async function check(){
     try {

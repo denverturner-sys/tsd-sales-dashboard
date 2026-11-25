@@ -115,7 +115,7 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 details.sec>summary{list-style:none;cursor:pointer}
 .credit{font-size:13px;font-weight:600;background:rgba(255,122,107,.16);border:1px solid var(--bad);color:var(--ink);border-radius:6px;padding:6px 8px;margin:6px 0;line-height:1.35}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login">
@@ -303,7 +303,7 @@ TSDAuth.mount(t => { token = t; start(); });
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it (waits while a pop-up is open or someone is typing).
 (function(){
-  const BUILD = '20261105154936';
+  const BUILD = '20261126001';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;

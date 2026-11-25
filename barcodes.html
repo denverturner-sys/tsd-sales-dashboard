@@ -44,7 +44,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .pill{display:inline-block;background:var(--bg);border-radius:999px;padding:3px 10px;font-size:13px;color:var(--muted);margin:2px 4px 0 0}
 .bar{height:10px;background:var(--bg);border-radius:6px;overflow:hidden;margin:8px 0 4px}.bar i{display:block;height:100%;background:var(--accent)}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -182,7 +182,7 @@ if (token) refresh(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; refresh(); });
 </script>
 <script>
-(function(){ const BUILD = '20261105154936'; let newer = false;
+(function(){ const BUILD = '20261126001'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && view === 'home' && !document.activeElement?.matches('input,textarea,select')) location.reload(); } catch(e){} }, 120000);
 })();

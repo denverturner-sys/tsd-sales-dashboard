@@ -71,7 +71,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .ms .li input[type=checkbox]{width:18px;height:18px;flex:none;margin-top:2px;cursor:pointer}
 .ms .ln{font-size:12px;font-weight:700;color:var(--blue);margin:10px 0 2px}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -336,7 +336,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261110140615';
+  const BUILD = '20261126001';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement; return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

@@ -55,7 +55,7 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 #modal .daynav button:disabled{opacity:.35;cursor:default}
 #modal .daynav input[type=date]{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:14px;font-family:var(--body);color-scheme:dark}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div class="wrap">
@@ -186,7 +186,7 @@ async function load(){
   catch(e){ if (!document.getElementById('out').innerHTML) document.getElementById('upd').textContent = "Can't load right now. Check the connection."; }
 }
 load(); setInterval(load, 60000);
-(function(){ const BUILD='20261120140500'; setInterval(async () => { try { const t = await (await fetch(location.pathname + '?_=' + Date.now(), {cache:'no-store'})).text(); const m = t.match(/const BUILD='(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 300000); })();
+(function(){ const BUILD='20261126001'; setInterval(async () => { try { const t = await (await fetch(location.pathname + '?_=' + Date.now(), {cache:'no-store'})).text(); const m = t.match(/const BUILD='(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 300000); })();
 </script>
 </body>
 </html>

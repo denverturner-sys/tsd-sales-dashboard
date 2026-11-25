@@ -73,7 +73,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .f{display:grid;grid-template-columns:150px 150px 1fr;gap:8px;margin-bottom:8px}
 @media (max-width:700px){.f{grid-template-columns:1fr 1fr}.f .full{grid-column:1/-1}}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -158,7 +158,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105154936';
+  const BUILD = '20261126001';
   const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
