@@ -181,7 +181,7 @@ function poCard(p){
   const cl = clearsFor(recv).length;
   const part = (p.lines || []).some(l => l.received > 0);
   return `<button class="po ${cur && cur.po_id === p.po_id ? 'on' : ''}" data-id="${p.po_id}">
-    <div class="row"><span class="no">${esc(p.po_number)}</span><span>${p.expected ? (p.due === 'today' ? '<span class="badge b-today">Due today</span>' : p.due === 'overdue' ? `<span class="badge b-over">Due ${dshort(p.expected)}</span>` : 'Due ' + dshort(p.expected)) : 'No date'}</span></div>
+    <div class="row"><span class="no">${esc(p.po_number)}</span><span>${p.expected ? (p.due === 'today' ? '<span class="badge b-today">Due today</span>' : p.due === 'overdue' ? `<span class="badge b-over">Due ${dshort(p.expected)}</span>` : 'Due ' + dshort(p.expected)) : (p.order_date ? 'Raised ' + dshort(p.order_date) : 'No date')}</span></div>
     <div class="sup">${esc(p.supplier)}</div>
     <div class="row"><span>${((n) => n + ' line' + (n === 1 ? '' : 's'))((p.lines || []).filter(l => l.outstanding > 0).length)} · ${fmt(p.outstanding)} items to come</span><span>${part ? '<span class="badge b-part">Part received</span> ' : ''}${cl ? `<span class="badge b-clear">Clears ${cl} order${cl === 1 ? '' : 's'}</span>` : ''}</span></div>
   </button>`;
