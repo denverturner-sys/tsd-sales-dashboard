@@ -600,9 +600,9 @@ function mountSearch(){
   if (hasScreen('sell')) {
     pb = document.createElement('button'); pb.id = 'gsPlus'; pb.title = 'New quote or order'; pb.setAttribute('aria-label', 'New quote or order');
     pb.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
-    pm = document.createElement('div'); pm.id = 'gsMenu'; pm.innerHTML = '<button data-m="quote">Create new quote</button><button data-m="order">Create new order</button>';
+    pm = document.createElement('div'); pm.id = 'gsMenu'; pm.innerHTML = '<button data-m="quote">Create new quote</button><button data-m="order">Create new order</button><button data-m="task">Add a task</button>';
     pb.onclick = e => { e.stopPropagation(); pm.classList.toggle('open'); };
-    pm.onclick = e => { const m = e.target.dataset && e.target.dataset.m; if (!m) return; pm.classList.remove('open'); gotoNotif(0, 'sell', 'new:' + m, false); };
+    pm.onclick = e => { const m = e.target.dataset && e.target.dataset.m; if (!m) return; pm.classList.remove('open'); if (m === 'task') quickAddFromPlus(); else gotoNotif(0, 'sell', 'new:' + m, false); };
     document.addEventListener('click', () => pm.classList.remove('open'));
     document.body.appendChild(pb); document.body.appendChild(pm);
   }
@@ -819,6 +819,15 @@ function fitFrames(){
 window.addEventListener('resize', fitFrames);
 try { const ro = new ResizeObserver(fitFrames); ['tabs', 'subtabs'].forEach(i => { const e = document.getElementById(i); if (e) ro.observe(e); }); } catch(e){}
 window.openMyTasks = () => showScreen('sales', 'mytasks');
+// 25 Nov: quick-add a task straight from the + button next to search, without leaving whatever screen you're on (Coty's ask)
+async function quickAddFromPlus(){
+  const t = (window.prompt('What needs doing?') || '').trim(); if (!t) return;
+  try {
+    const r = await fetch(TASKS_API, {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + token}, body: JSON.stringify({action:'add', title: t})});
+    const j = await r.json(); if (!j.ok) throw new Error(j.error);
+    const f = document.querySelector('#pane-mytasks iframe'); if (f) f.contentWindow.location.reload(); load();
+  } catch(x) { alert(x.message || "Couldn't add it"); }
+}
 // quick-add from the My tasks box on My Sales
 const TASKS_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/tasks';
 async function quickAdd(e){
