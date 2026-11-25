@@ -75,7 +75,7 @@ label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
 .eb{flex:1;min-width:0} .et{font-size:15px;font-weight:600;line-height:1.35;word-wrap:break-word} .ed{font-size:14px;color:var(--ink);margin-top:2px;white-space:pre-wrap}
 .em{font-size:12px;color:var(--muted);margin-top:3px}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -164,7 +164,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261105225712';
+  const BUILD = '20261126001';
   const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

@@ -70,7 +70,7 @@ tr.flash td{background:rgba(238,209,7,.22)}
   .screen{display:none}
 }
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -276,7 +276,7 @@ if (token) boot(); else showLogin();
 TSDAuth.mount(t => { document.getElementById('login').style.display = 'none'; token = t; boot(); });
 </script>
 <script>
-(function(){ const BUILD = '20261110224349'; let newer = false;
+(function(){ const BUILD = '20261126001'; let newer = false;
   setInterval(async () => { try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); }
     if (newer && !busy && !document.activeElement?.matches('input,textarea,select') && !Object.keys(vals).length) location.reload(); } catch(e){} }, 120000);
 })();

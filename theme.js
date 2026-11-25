@@ -27,8 +27,9 @@
   var DARK = '--bg:#0D0E0F;--panel:#151718;--panel2:#1C1E21;--line:#2A2D31;--ink:#F1F1EF;--muted:#9A9EA3;' +
     '--good:#8FC3A3;--bad:#FF6A5C;--warn:#E9C46A;--blue:#9DB6DD;--accent-text:#F1F1EF;' +
     '--tint-good:rgba(143,195,163,.12);--tint-bad:rgba(255,106,92,.12);--tint-warn:rgba(233,196,106,.12);--tint-info:rgba(157,182,221,.12);--hover:#1E2023;--shadow:0 1px 2px rgba(0,0,0,.4);';
-  var FONTS = "--num:'Inter Tight','Inter','Segoe UI',Arial,sans-serif;--body:'Inter','Segoe UI',Arial,sans-serif;--mono:'JetBrains Mono',ui-monospace,Consolas,monospace;";
+  var FONTS = "--fig:'Bebas Neue','Oswald','Arial Narrow',Arial,sans-serif;--num:'Inter Tight','Inter','Segoe UI',Arial,sans-serif;--body:'Inter','Segoe UI',Arial,sans-serif;--mono:'JetBrains Mono',ui-monospace,Consolas,monospace;";
 
+  var FIG = ['.num.big', '.num.mid', '.big', '.mid', '.tile .v', '.tile .n', '.amt', '.qamt', '.stat b', '.mini b', '.funnel b', '.lv b', '.chip .v', '.clock', '.price .pv'];
   function css(p) {
     var dark = p.theme === 'dark' || (p.theme === 'device' && mq && mq.matches);
     var a = ACCENTS[p.accent] || ACCENTS.yellow;
@@ -37,6 +38,8 @@
       'body{font-family:var(--body);-webkit-font-smoothing:antialiased}' +
       // headings and big numbers were Bebas (tall, condensed, spaced out); Inter Tight wants tight spacing instead
       '.num,.title,h1,h2{letter-spacing:-.3px}' +
+      // 25 Nov (Denver): headline figures (month to date, tiles, big counts) go back to a tall condensed face for contrast with the text
+      FIG.map(function (x) { return ':root ' + x; }).join(',') + '{font-family:var(--fig)!important;font-weight:400!important;letter-spacing:.4px!important;line-height:1}' +
       (p.text === 'large' ? 'body{zoom:1.07}' : '') +
       (p.motion === false ? '*{transition:none!important;animation:none!important}' : '') +
       'button{transition:border-color .15s,box-shadow .15s,background .15s}' +
@@ -57,7 +60,7 @@
   // fonts (one request, shared by every page)
   if (!document.getElementById('tsd-fonts')) {
     var l = document.createElement('link'); l.id = 'tsd-fonts'; l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap';
+    l.href = 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap';
     (document.head || document.documentElement).appendChild(l);
   }
   apply();

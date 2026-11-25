@@ -103,15 +103,15 @@ form.add .in{flex:1;min-width:140px}
 .rate label{display:flex;gap:6px;align-items:center;font-size:13.5px}
 .rate input{width:56px}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 15px;border-radius:10px;font-weight:500;z-index:50;box-shadow:0 10px 30px rgba(0,0,0,.2)}
-.mdl{position:fixed;inset:0;background:rgba(10,10,10,.45);display:flex;align-items:flex-start;justify-content:center;padding:10vh 16px 16px;z-index:40}
-.mdl form{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.mdl{position:fixed;inset:0;background:rgba(10,10,10,.45);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px 16px;z-index:40}
+.mdl form{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:calc(94vh - 16px);overflow:auto}
 .mdl label{display:grid;gap:4px;font-size:12.5px;font-weight:600}
-.mdl .r{display:flex;justify-content:flex-end;gap:8px}
+.mdl .r{display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:-20px;background:var(--panel);margin:0 -20px -20px;padding:12px 20px 16px;border-top:1px solid var(--line)}   /* Save / Cancel always in view, however long the form */
 .mdl .g2b{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #app{display:none}
 </style>
-<script src="theme.js?v=20261125b"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -189,12 +189,13 @@ function renderBoards(el){
 }
 function peopleModal(){
   const d = document.createElement('div'); d.className = 'mdl';
-  const draw = () => { d.innerHTML = `<form style="max-width:720px"><h2>Who's in which department</h2><p class="sub" style="margin:0">Tick the departments each person belongs to. "Lead" can add rocks and enter that department's scorecard numbers.</p>
+  const draw = () => { const st0 = (d.querySelector('form') || {}).scrollTop || 0; d.innerHTML = `<form style="max-width:720px"><h2>Who's in which department</h2><p class="sub" style="margin:0">Tick the departments each person belongs to. "Lead" can add rocks and enter that department's scorecard numbers.</p>
     <div class="scroll"><table class="sc"><tr><th>Person</th>${Object.values(DEPT).map(l => `<th style="text-align:center">${esc(l)}</th>`).join('')}</tr>
     ${D.people.map(p => `<tr><td class="t"><b>${esc(p.name)}</b></td>${Object.keys(DEPT).map(k => `<td style="text-align:center"><label style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" data-e="${esc(p.email)}" data-d="${k}" ${p.depts.includes(k) ? 'checked' : ''}></label>
       ${p.depts.includes(k) ? `<label style="display:inline-flex;gap:4px;align-items:center;font-size:11.5px;margin-left:6px"><input type="checkbox" data-l="${esc(p.email)}" data-d="${k}" ${p.leads.includes(k) ? 'checked' : ''}> lead</label>` : ''}</td>`).join('')}</tr>`).join('')}</table></div>
     <div class="r"><button type="button" class="btn dark" data-x>Done</button></div></form>`;
     d.querySelector('[data-x]').onclick = () => { d.remove(); render(); };
+    d.querySelector('form').scrollTop = st0;   // ticking a box doesn't jump the list back to the top
     d.querySelectorAll('[data-e]').forEach(c => c.onchange = async () => { await act({ action: 'dept_set', email: c.dataset.e, dept: c.dataset.d, on: c.checked }); draw(); });
     d.querySelectorAll('[data-l]').forEach(c => c.onchange = async () => { await act({ action: 'dept_set', email: c.dataset.l, dept: c.dataset.d, on: true, lead: c.checked }); draw(); });
   };
@@ -372,7 +373,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261125b';
+  const BUILD = '20261126001';
   const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || document.querySelector('.mdl') || document.getElementById('clk'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\w+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }

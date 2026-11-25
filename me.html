@@ -150,6 +150,9 @@ body{background:var(--bg)}
 .lay{display:flex;align-items:flex-start}
 .side{width:var(--side-w);flex:0 0 var(--side-w);padding:18px 12px 24px max(12px,env(safe-area-inset-left,0px));position:sticky;top:var(--tb-h,103px);height:calc(100vh - var(--tb-h,103px));overflow-y:auto;border-right:1px solid var(--line);background:var(--bg)}
 .side.hide{display:none}
+/* 25 Nov: on laptop-size screens the menu floats over the screen instead of squeezing it (screens like Backorders need the full width) */
+.side.float{position:fixed;left:0;top:var(--tb-h,103px);z-index:880;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+#sideScrim{position:fixed;inset:var(--tb-h,103px) 0 0 0;z-index:870;background:rgba(10,10,10,.18);display:none}#sideScrim.on{display:block}
 .dcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 13px;display:flex;align-items:center;gap:11px;box-shadow:var(--shadow);margin-bottom:16px}
 .dcard .ic{width:34px;height:34px;border-radius:9px;background:var(--bar);color:#fff;display:grid;place-items:center;flex:0 0 34px}
 .dcard .ic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -267,7 +270,7 @@ button.tile{cursor:pointer} button.tile:hover{border-color:var(--muted)}
 }
 
 </style>
-<script src="theme.js?v=20261125223848"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login">
@@ -405,7 +408,10 @@ const LBL_IN = { sales: { company: 'Overview' } };
 let DEPTS = [];
 let NAV = null, SCREENS = new Map(), MEJ = null, CUR = { m: 'system', d: 'home', p: '@home' }, sideOpen = true;
 try { const s = JSON.parse(localStorage.getItem('tsd_nav') || 'null'); if (s && s.m) CUR = s; } catch(e){}
+const narrowScr = () => innerWidth < 1440 && innerWidth > 860;
+let wasNarrow = narrowScr();
 try { sideOpen = !(TSDTheme.prefs().sideCollapsed); } catch(e){}
+if (wasNarrow) sideOpen = false;
 const lbl = (id, d) => (LBL_IN[d] && LBL_IN[d][id]) || LBL[id] || (SCREENS.get(id) || {}).name || id;
 
 function buildNav(j){
@@ -460,7 +466,7 @@ function ensureShell(j){
     <div class="lay"><aside class="side" id="side"></aside>
       <div class="mainc" id="mainc"><div class="crumb" id="crumb"></div>
         <div id="salesPane" style="display:none"></div><div class="npane" id="homePane" style="display:none"></div><div class="npane" id="appearPane" style="display:none"></div><div class="npane" id="systemPane" style="display:none"></div>
-        ${frames.map(sc => `<div class="framepane" id="pane-${esc(sc.id)}" data-src="${esc(sc.url + (sc.url.includes('?') ? '&' : '?') + 'v=20261125223848')}"></div>`).join('')}
+        ${frames.map(sc => `<div class="framepane" id="pane-${esc(sc.id)}" data-src="${esc(sc.url + (sc.url.includes('?') ? '&' : '?') + 'v=20261126001')}"></div>`).join('')}
       </div></div>
     <nav class="bnav" id="bnav"></nav>`;
   document.getElementById('tbHome').onclick = () => go('system', 'home');
@@ -475,7 +481,7 @@ function ensureShell(j){
   mountHelp().then(mountSearch, mountSearch);
   mountBell();
   sysStatus();
-  window.addEventListener('resize', () => { measure(); fitFrames(); });
+  window.addEventListener('resize', () => { const n = narrowScr(); if (n !== wasNarrow) { wasNarrow = n; try { sideOpen = !n && !TSDTheme.prefs().sideCollapsed; } catch(e){ sideOpen = !n; } drawChrome(); } measure(); fitFrames(); });
 }
 // if someone's screens are changed on Users & access while they're logged in, rebuild the menu on the next refresh
 let navSig = '';
@@ -522,11 +528,13 @@ function drawChrome(){
   const dp = document.getElementById('tbDepts');
   dp.innerHTML = m === 'system' ? NAV.system.depts.map(x => `<button data-d="${x.key}" class="${x.key === dept.key ? 'on' : ''}">${esc(x.label)}</button>`).join('') : '';
   dp.querySelectorAll('button').forEach(b => b.onclick = () => go('system', b.dataset.d));
-  const side = document.getElementById('side'); side.classList.toggle('hide', !sideOpen);
+  const side = document.getElementById('side'); side.classList.toggle('hide', !sideOpen); side.classList.toggle('float', narrowScr() && sideOpen);
+  let scrim = document.getElementById('sideScrim'); if (!scrim) { scrim = document.createElement('div'); scrim.id = 'sideScrim'; document.body.appendChild(scrim); scrim.onclick = () => { sideOpen = false; drawChrome(); measure(); fitFrames(); }; }
+  scrim.classList.toggle('on', narrowScr() && sideOpen);
   side.innerHTML = `<div class="dcard"><div class="ic">${svg(dept.icon)}</div><div style="min-width:0"><b>${esc(dept.label)}</b><span>${esc(dept.desc)}</span></div><button class="col" id="sideHide" title="Hide menu" aria-label="Hide menu">${svg('side')}</button></div>
     ${dept.groups.map(g => `<div class="grp">${g.title ? `<h4>${esc(g.title)}</h4>` : ''}${g.items.map(id => `<button class="ni ${id === CUR.p ? 'on' : ''}" data-p="${esc(id)}"><span class="bul"></span>${esc(lbl(id, dept.key))}</button>`).join('')}</div>`).join('')}
     <div class="sfoot">${SCREENS.has('support') ? `<button class="ni ${CUR.p === 'support' ? 'on' : ''}" data-p="support">${svg('help')}My help requests</button>` : ''}<button class="ni" id="sideReport">${svg('flag')}Report a problem</button></div>`;
-  side.querySelectorAll('[data-p]').forEach(b => b.onclick = () => b.dataset.p === 'support' ? openSupport() : showPage(m, dept.key, b.dataset.p));
+  side.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { if (narrowScr()) sideOpen = false; b.dataset.p === 'support' ? openSupport() : showPage(m, dept.key, b.dataset.p); });
   document.getElementById('sideHide').onclick = () => { sideOpen = false; showPage(CUR.m, CUR.d, CUR.p); };
   document.getElementById('sideReport').onclick = () => openReport();
   const items = dept.groups.flatMap(g => g.items);
@@ -562,7 +570,8 @@ function fitFrames(){
 try { const ro = new ResizeObserver(() => { measure(); fitFrames(); }); setTimeout(() => { const t = document.getElementById('tb'); if (t) ro.observe(t); }, 500); } catch(e){}
 
 /* ---------- menus, toasts, small dialogs ---------- */
-function closeMnu(){ document.querySelectorAll('.mnu').forEach(x => x.remove()); }
+function closeMnu(){ document.querySelectorAll('.mnu:not(#gsMenu)').forEach(x => x.remove()); }   // the + menu is permanent: hide it, never remove it
+
 function mnuAt(anchor, html){
   closeMnu(); const r = anchor.getBoundingClientRect(), m = document.createElement('div'); m.className = 'mnu'; m.innerHTML = html; document.body.appendChild(m);
   const w = m.offsetWidth; m.style.top = (r.bottom + 8) + 'px'; m.style.left = Math.max(12, Math.min(r.right - w, innerWidth - w - 12)) + 'px'; return m;
@@ -601,18 +610,18 @@ async function renderHome(){
   const shortcuts = NAV.system.depts.filter(x => x.key !== 'home').map(x => ({ x, items: x.groups.flatMap(g => g.items).slice(0, 4) }));
   el.innerHTML = `<div class="ph"><div><h1>${hello}, ${esc(String(j.me.name).split(' ')[0])}</h1><p>${esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}</p></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b2" id="hAddT">Add a task</button>${SCREENS.has('sell') ? '<button class="b2 pri" id="hNew">New quote or order</button>' : ''}</div></div>
-    ${hasSales && hasT ? `<div class="tbar2"><div><div class="lbl">My sales this month</div><div class="amt">${gbp(d.mtd_sales)} <span style="color:var(--muted);font-weight:600;font-size:15px">of ${gbp(d.target)}</span></div></div><div class="bar2"><i style="width:${pctT}%"></i><b style="left:${pace}%"></b></div><div class="lbl">${pctT}% · on-track line at ${pace}%</div></div>` : ''}
+    ${hasSales && hasT ? `<div class="tbar2"><div><div class="lbl">My sales this month</div><div class="amt">${gbp(d.mtd_sales)} <span style="color:var(--muted);font-weight:600!important;font-size:15px;font-family:var(--body)!important;letter-spacing:0!important">of ${gbp(d.target)}</span></div></div><div class="bar2"><i style="width:${pctT}%"></i><b style="left:${pace}%"></b></div><div class="lbl">${pctT}% · on-track line at ${pace}%</div></div>` : ''}
     <div class="tiles">
       ${hasSales ? `<button class="tile" data-go="mysales"><div class="k">Sales today</div><div class="v">${gbp(d.today_sales)}</div><div class="s">${d.today_orders || 0} order${d.today_orders === 1 ? '' : 's'}</div></button>
       <button class="tile" data-go="mysales"><div class="k">My margin this month</div><div class="v">${pct(d.mtd_margin)}</div><div class="s">Target ${pct(d.margin_target)}</div></button>
-      <button class="tile" data-go="mysales"><div class="k">My live quotes</div><div class="v">${d.quotes ? d.quotes.count : 0}</div><div class="s">${d.quotes ? gbp(d.quotes.value) : ''}</div></button>` : ''}
+      <button class="tile" data-go="${hasScreen('quotes') ? 'quotes' : 'mysales'}"><div class="k">My live quotes</div><div class="v">${d.quotes ? d.quotes.count : 0}</div><div class="s">${d.quotes ? gbp(d.quotes.value) : ''}</div></button>` : ''}
       <button class="tile ${due.some(t => t.due_date < today) ? 'alert' : ''}" data-go="mytasks"><div class="k">My open tasks</div><div class="v">${tasks.length}</div><div class="s">${due.length ? due.length + ' due or overdue' : 'Nothing due today'}</div></button>
     </div>
     <div class="g2"><div>
       <section class="pnl"><div class="pnl-h"><h3>My tasks</h3><button data-go="mytasks">Open my tasks ›</button></div>
         ${tasks.length ? tasks.slice(0, 6).map(t => `<div class="li"><div class="gr">${t.priority === 2 ? '<b style="color:var(--bad)">Urgent · </b>' : t.priority === 1 ? '<b>High · </b>' : ''}${esc(t.title)}</div><div class="r ${t.due_date && t.due_date < today ? 'bad' : t.due_date === today ? 'strong' : ''}">${when(t)}</div></div>`).join('') : '<div class="emp">Nothing on your list.</div>'}
         <form class="qa" id="hQa"><input id="qtask" placeholder="Add a task…" maxlength="200"><button class="b2" type="submit">Add</button></form></section>
-      ${hasSales ? `<section class="pnl"><div class="pnl-h"><h3>Quotes to chase today</h3><button data-go="mysales">My sales ›</button></div>
+      ${hasSales ? `<section class="pnl"><div class="pnl-h"><h3>Quotes to chase today</h3><button data-go="${hasScreen('quotes') ? 'quotes' : 'mysales'}">${hasScreen('quotes') ? 'Quotes' : 'My sales'} ›</button></div>
         ${chase.length ? chase.map(q => `<div class="li"><div class="gr"><b>${esc(q.customer)}</b><div class="sb">${esc(q.quote)} · ${esc(q.stage)}${q.phone ? ' · ' + esc(q.phone) : ''}</div></div><div class="r strong">${gbp(q.value)}</div></div>`).join('') : '<div class="emp">Nothing due a chase today.</div>'}</section>` : ''}
     </div><div>
       ${SCREENS.has('board') ? `<section class="pnl"><div class="pnl-h"><h3>Today</h3><button data-go="board">Notices & updates ›</button></div><div id="hBoard"><div class="emp">Loading…</div></div></section>` : ''}
@@ -1489,7 +1498,7 @@ window.addEventListener('message', e => {
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page. If there is one, reload into it
 // (waits if someone has a pop-up open or is typing). So nobody ever needs a new link or a forced refresh.
 (function(){
-  const BUILD = '20261125223848';
+  const BUILD = '20261126001';
   const busy = () => { const m = document.getElementById('modal'); const a = document.activeElement;
     return (m && getComputedStyle(m).display !== 'none') || (a && a.matches && a.matches('input,textarea,select')); };
   let newer = false;

@@ -112,7 +112,7 @@ label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #msg{padding:40px;text-align:center;color:var(--muted)}
 </style>
-<script src="theme.js?v=20261125"></script>
+<script src="theme.js?v=20261126a"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -438,7 +438,7 @@ TSDAuth.mount(t => { token = t; start(); });
 </script>
 <script>
 (function(){
-  const BUILD = '20261117155930';
+  const BUILD = '20261126001';
   const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
   let newer = false;
   async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
