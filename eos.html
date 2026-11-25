@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tasks & Projects · Tiling Supplies Direct</title>
+<style>
+/* 25 Nov 2026: Department boards, Scorecard, Rocks & issues, Weekly meeting. One page, ?view=boards|scorecard|rocks|meeting. */
+:root{--bg:#F4F3EF;--panel:#FFFFFF;--panel2:#F6F5F1;--line:#E3E1DB;--ink:#151617;--muted:#6C6F73;--accent:#EBCB2D;--on-accent:#1A1600;--bad:#C2352B;--tint-bad:#FBEDEB;--body:Inter,'Segoe UI',Arial,sans-serif;--num:'Inter Tight',Inter,'Segoe UI',Arial,sans-serif;--mono:'JetBrains Mono',ui-monospace,Consolas,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1400px;margin:0 auto;padding:22px 22px 70px}
+h1{font:700 29px/1.1 var(--num);letter-spacing:-.5px;margin:0}
+h2{font:600 16px var(--num);margin:0}
+.sub{color:var(--muted);font-size:13.5px;margin:5px 0 0;max-width:80ch}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .08s,border-color .15s}
+.btn:hover{border-color:var(--muted);transform:translateY(-1px)}
+.btn.dark{background:var(--ink);color:var(--bg);border-color:transparent}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn.sm{height:28px;padding:0 10px;font-size:12.5px;border-radius:8px}
+.btn.ghost{background:transparent;box-shadow:none;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink);background:var(--panel2);transform:none}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.5;pointer-events:none}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 17px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ph .m{font-size:12.5px;color:var(--muted)}
+.empty{padding:16px 17px;color:var(--muted);font-size:13.5px}
+.k{font-size:11px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);white-space:nowrap}
+.pill.solid{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pill.bad{background:var(--tint-bad);border-color:transparent;color:var(--bad)}
+.pill.quiet{background:transparent;color:var(--muted)}
+.bar{height:6px;border-radius:6px;background:var(--line);overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:6px}
+.bar.off i{background:var(--bad)}
+.row{display:flex;align-items:center;gap:10px;padding:9px 17px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .g{flex:1;min-width:0}
+.row .s{font-size:12.5px;color:var(--muted)}
+input.in,select.in,textarea.in{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13.5px;min-width:0}
+textarea.in{width:100%;min-height:90px;resize:vertical;line-height:1.5}
+.err{color:var(--bad);font-size:13px;min-height:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:1250px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.grid4{grid-template-columns:1fr}.wrap{padding:16px 14px 70px}h1{font-size:24px}}
+.dcol .panel{margin-bottom:0;height:100%}
+.sec{padding:10px 17px 4px}
+.sec + .row{border-top:0}
+.ppl{display:flex;flex-wrap:wrap;gap:6px;padding:4px 17px 12px}
+.ppl span{font-size:12.5px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.ppl span b{font-weight:600}
+.ppl span.od{border-color:var(--bad);color:var(--bad)}
+table.sc{width:100%;border-collapse:collapse;font-size:13.5px}
+table.sc th{text-align:right;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--line);background:var(--panel2);white-space:nowrap}
+table.sc th:first-child,table.sc td:first-child{text-align:left}
+table.sc td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.sc tr:last-child td{border-bottom:0}
+table.sc td.t{white-space:normal;min-width:200px}
+table.sc td.t b{font-weight:600}
+table.sc td.t .s{font-size:12px;color:var(--muted)}
+table.sc td.miss{color:var(--bad);font-weight:600}
+table.sc td.now{background:var(--panel2)}
+table.sc td.cell{cursor:pointer}
+table.sc td.cell:hover{outline:1px solid var(--muted);outline-offset:-3px;border-radius:6px}
+table.sc td.cell.blank{color:var(--muted)}
+.scroll{overflow-x:auto}
+.rock{padding:13px 17px;border-bottom:1px solid var(--line)}
+.rock:last-child{border-bottom:0}
+.rock .h{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.rock .t{font-weight:600;font-size:14.5px}
+.rock .s{font-size:12.5px;color:var(--muted)}
+.ms{list-style:none;margin:8px 0 0;padding:0}
+.ms li{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:3px 0}
+.ms input[type=checkbox]{width:16px;height:16px;accent-color:var(--ink)}
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:2px}
+.seg button{border:0;background:transparent;padding:4px 10px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--panel);color:var(--ink);outline:1px solid var(--line)}
+.seg button.on.off{color:var(--bad)}
+.g2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}
+@media (max-width:1000px){.g2{grid-template-columns:1fr}}
+form.add{display:flex;gap:8px;flex-wrap:wrap;padding:12px 17px;border-top:1px solid var(--line);background:var(--panel2)}
+form.add .in{flex:1;min-width:140px}
+.mt{display:grid;grid-template-columns:240px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.mt{grid-template-columns:1fr}}
+.agenda button{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:transparent;text-align:left;padding:10px 15px;border-bottom:1px solid var(--line);cursor:pointer;font-weight:500}
+.agenda button:last-child{border-bottom:0}
+.agenda button.on{background:var(--ink);color:var(--bg)}
+.agenda button .m{font-size:12px;color:inherit;opacity:.7;font-family:var(--mono)}
+.clock{font:700 28px var(--mono);letter-spacing:-1px;padding:14px 15px 4px}
+.clock.over{color:var(--bad)}
+.mbody{padding:16px 18px}
+.issue{padding:12px 17px;border-bottom:1px solid var(--line)}
+.issue:last-child{border-bottom:0}
+.issue .h{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+.solve{display:grid;gap:8px;margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.solve .r{display:flex;gap:8px;flex-wrap:wrap}
+.solve .r .in{flex:1;min-width:140px}
+.rate{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rate label{display:flex;gap:6px;align-items:center;font-size:13.5px}
+.rate input{width:56px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 15px;border-radius:10px;font-weight:500;z-index:50;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.mdl{position:fixed;inset:0;background:rgba(10,10,10,.45);display:flex;align-items:flex-start;justify-content:center;padding:10vh 16px 16px;z-index:40}
+.mdl form{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.mdl label{display:grid;gap:4px;font-size:12.5px;font-weight:600}
+.mdl .r{display:flex;justify-content:flex-end;gap:8px}
+.mdl .g2b{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+#app{display:none}
+</style>
+<script src="theme.js?v=20261125b"></script>
+</head>
+<body>
+<div id="login"><div id="lerr"></div></div>
+<div id="app" class="wrap"></div>
+<script src="auth.js?v=20261125b"></script>
+<script src="activity.js?v=20261125b"></script>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/eos';
+const mem = {};
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DEPT = { sales: 'Sales & Marketing', ops: 'Operations', acc: 'Accounts', mg: 'Management' };
+const VIEW = (new URLSearchParams(location.search).get('view') || 'boards').toLowerCase();
+let token = store.get('tsd_me_token'), D = null, timer;
+const dmy = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+const wk = d => new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+const fmt = (v, u) => v == null ? '' : u === '£' ? '£' + Math.round(v).toLocaleString('en-GB') : u === '%' ? (+v).toFixed(v % 1 ? 1 : 0) + '%' : (+v).toLocaleString('en-GB');
+const miss = (m, v) => v != null && m.goal != null && (m.goal_dir === '<=' ? v > m.goal : v < m.goal);
+
+function showLogin(msg){ clearInterval(timer); document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
+async function api(body, qs){
+  const r = await fetch(API + (qs || ''), body ? { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) } : { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({})); if (body && !j.ok) throw new Error(j.error || "Couldn't save"); if (j.error) throw new Error(j.error); return j;
+}
+function toast(t){ const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2600); }
+async function refresh(){ try { D = await api(); render(); } catch(x){ if (x.message !== 'login' && !D) document.getElementById('app').innerHTML = `<div class="empty">${esc(x.message)}</div>`; } }
+function start(){ document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block'; refresh(); clearInterval(timer);
+  timer = setInterval(() => { const a = document.activeElement; if (!(a && a.matches('input,textarea,select')) && !document.querySelector('.mdl') && VIEW !== 'meeting') refresh(); }, 120000); }
+async function act(body, okMsg){ try { await api(body); if (okMsg) toast(okMsg); await refresh(); return true; } catch(x){ if (x.message !== 'login') toast(x.message); return false; } }
+const peopleOpts = (sel, blank) => (blank ? `<option value="">${blank}</option>` : '') + D.people.map(p => `<option value="${esc(p.email)}"${p.email === sel ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
+const deptOpts = sel => Object.entries(DEPT).map(([k, l]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${esc(l)}</option>`).join('');
+const nameOf = e => (D.people.find(p => p.email === String(e || '').toLowerCase()) || {}).name || '';
+
+function modal(title, fields, onSave, extra){
+  const d = document.createElement('div'); d.className = 'mdl';
+  d.innerHTML = `<form><h2>${esc(title)}</h2>${fields}<div class="err"></div><div class="r">${extra || ''}<button type="button" class="btn" data-x>Cancel</button><button class="btn dark" type="submit">Save</button></div></form>`;
+  document.body.appendChild(d);
+  const close = () => d.remove(); d.querySelector('[data-x]').onclick = close; d.onclick = e => { if (e.target === d) close(); };
+  const f = d.querySelector('form'); setTimeout(() => { const i = f.querySelector('input,textarea'); if (i) i.focus(); }, 30);
+  f.onsubmit = async e => { e.preventDefault(); const o = {}; new FormData(f).forEach((v, k) => o[k] = v); const b = f.querySelector('[type=submit]'); b.disabled = true;
+    try { await onSave(o); close(); } catch(x){ f.querySelector('.err').textContent = x.message; b.disabled = false; } };
+  return d;
+}
+
+/* ================= Department boards ================= */
+function renderBoards(el){
+  const admin = D.me.is_admin;
+  const load = e => D.load.find(l => l.email === e) || { open: 0, overdue: 0 };
+  const cols = Object.keys(DEPT).map(k => {
+    const ppl = D.people.filter(p => p.depts.includes(k));
+    const rocks = D.rocks.filter(r => r.department === k && r.status !== 'done');
+    const projs = D.projects.filter(p => p.department === k);
+    const iss = D.issues.filter(i => i.department === k && i.status === 'open');
+    const lead = ppl.filter(p => p.leads.includes(k)).map(p => p.name);
+    return `<div class="dcol"><section class="panel"><div class="ph"><h2>${esc(DEPT[k])}</h2><span class="m">${ppl.length} ${ppl.length === 1 ? 'person' : 'people'}</span></div>
+      <div class="sec k">People${lead.length ? ' · lead ' + esc(lead.join(', ')) : ''}</div>
+      <div class="ppl">${ppl.length ? ppl.map(p => { const l = load(p.email); return `<span class="${l.overdue ? 'od' : ''}" title="${l.open} open task${l.open === 1 ? '' : 's'}${l.overdue ? ', ' + l.overdue + ' overdue' : ''}"><b>${esc(p.name)}</b> · ${l.open}${l.overdue ? ' (' + l.overdue + ' late)' : ''}</span>`; }).join('') : '<span>Nobody yet</span>'}</div>
+      <div class="sec k">Rocks this quarter</div>
+      ${rocks.length ? rocks.map(r => `<div class="row"><div class="g"><div>${esc(r.title)}</div><div class="s">${esc(r.owner_name || 'No owner')}${r.due_date ? ' · due ' + dmy(r.due_date) : ''}</div></div><div class="bar ${r.status === 'off' ? 'off' : ''}" style="width:70px"><i style="width:${r.progress}%"></i></div></div>`).join('') : '<div class="empty">No rocks set.</div>'}
+      <div class="sec k">Projects</div>
+      ${projs.length ? projs.map(p => `<div class="row"><div class="g"><div>${esc(p.title)}</div><div class="s">${esc(p.owner_name || '')}${p.due_date ? ' · due ' + dmy(p.due_date) : ''}</div></div>${p.status === 'off_track' ? '<span class="pill bad">Off track</span>' : '<span class="pill quiet">On track</span>'}</div>`).join('') : '<div class="empty">No projects tagged to this department.</div>'}
+      <div class="sec k">Open issues</div>
+      ${iss.length ? iss.slice(0, 5).map(i => `<div class="row"><div class="g"><div>${esc(i.title)}</div><div class="s">${esc(i.owner_name || 'No owner yet')}</div></div>${i.on_agenda ? '<span class="pill solid">Monday</span>' : ''}</div>`).join('') + (iss.length > 5 ? `<div class="empty">+ ${iss.length - 5} more on Rocks & issues</div>` : '') : '<div class="empty">None.</div>'}
+    </section></div>`;
+  }).join('');
+  const untagged = D.projects.filter(p => !p.department);
+  el.innerHTML = `<div class="top"><div><h1>Department boards</h1><p class="sub">Each department at a glance: who's in it and how much is on their plate, this quarter's rocks, projects and open issues. Task counts only; what a task says stays with the person (managers see detail on Team tasks).</p></div>
+      ${admin ? '<button class="btn" id="ppl">Who\'s in which department</button>' : ''}</div>
+    <div class="grid4">${cols}</div>
+    ${admin && untagged.length ? `<section class="panel" style="margin-top:16px"><div class="ph"><h2>Projects without a department</h2><span class="m">Pick one so they show on the right board</span></div>
+      ${untagged.map(p => `<div class="row"><div class="g">${esc(p.title)}<div class="s">${esc(p.owner_name || '')}</div></div><select class="in" data-pd="${p.id}"><option value="">Choose…</option>${deptOpts('')}</select></div>`).join('')}</section>` : ''}`;
+  el.querySelectorAll('[data-pd]').forEach(s => s.onchange = () => s.value && act({ action: 'project_dept', id: +s.dataset.pd, department: s.value }, 'Project moved'));
+  const b = document.getElementById('ppl'); if (b) b.onclick = peopleModal;
+}
+function peopleModal(){
+  const d = document.createElement('div'); d.className = 'mdl';
+  const draw = () => { d.innerHTML = `<form style="max-width:720px"><h2>Who's in which department</h2><p class="sub" style="margin:0">Tick the departments each person belongs to. "Lead" can add rocks and enter that department's scorecard numbers.</p>
+    <div class="scroll"><table class="sc"><tr><th>Person</th>${Object.values(DEPT).map(l => `<th style="text-align:center">${esc(l)}</th>`).join('')}</tr>
+    ${D.people.map(p => `<tr><td class="t"><b>${esc(p.name)}</b></td>${Object.keys(DEPT).map(k => `<td style="text-align:center"><label style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" data-e="${esc(p.email)}" data-d="${k}" ${p.depts.includes(k) ? 'checked' : ''}></label>
+      ${p.depts.includes(k) ? `<label style="display:inline-flex;gap:4px;align-items:center;font-size:11.5px;margin-left:6px"><input type="checkbox" data-l="${esc(p.email)}" data-d="${k}" ${p.leads.includes(k) ? 'checked' : ''}> lead</label>` : ''}</td>`).join('')}</tr>`).join('')}</table></div>
+    <div class="r"><button type="button" class="btn dark" data-x>Done</button></div></form>`;
+    d.querySelector('[data-x]').onclick = () => { d.remove(); render(); };
+    d.querySelectorAll('[data-e]').forEach(c => c.onchange = async () => { await act({ action: 'dept_set', email: c.dataset.e, dept: c.dataset.d, on: c.checked }); draw(); });
+    d.querySelectorAll('[data-l]').forEach(c => c.onchange = async () => { await act({ action: 'dept_set', email: c.dataset.l, dept: c.dataset.d, on: true, lead: c.checked }); draw(); });
+  };
+  document.body.appendChild(d); draw();
+}
+
+/* ================= Scorecard ================= */
+function renderScorecard(el){
+  const admin = D.me.is_admin;
+  const tables = Object.keys(DEPT).map(k => {
+    const ms = D.measures.filter(m => m.department === k); if (!ms.length && !admin) return '';
+    return `<section class="panel"><div class="ph"><h2>${esc(DEPT[k])}</h2>${admin ? `<button class="btn sm" data-add="${k}">Add a measure</button>` : ''}</div>
+      ${ms.length ? `<div class="scroll"><table class="sc"><tr><th>Measure</th><th>Goal</th>${D.weeks.map((w, i) => `<th>${i === D.weeks.length - 1 ? 'This week' : wk(w)}</th>`).join('')}${admin ? '<th></th>' : ''}</tr>
+      ${ms.map(m => `<tr><td class="t"><b>${esc(m.title)}</b><div class="s">${esc(m.owner_name || 'No owner')}${m.auto ? ' · fills itself in' : ''}</div></td>
+        <td>${m.goal == null ? '<span class="pill quiet">Not set</span>' : (m.goal_dir === '<=' ? '≤ ' : '≥ ') + fmt(m.goal, m.unit)}</td>
+        ${m.weeks.map((c, i) => `<td class="${miss(m, c.v) ? 'miss' : ''} ${i === m.weeks.length - 1 ? 'now' : ''} ${m.can_enter ? 'cell' : ''} ${c.v == null ? 'blank' : ''}" ${m.can_enter ? `data-m="${m.id}" data-w="${c.w}"` : ''} title="${esc(c.note || '')}${c.by ? ' (' + esc(c.by) + ')' : ''}">${c.v == null ? (m.can_enter ? 'Add' : '–') : fmt(c.v, m.unit)}</td>`).join('')}
+        ${admin ? `<td><button class="btn sm ghost" data-edit="${m.id}">Edit</button></td>` : ''}</tr>`).join('')}</table></div>` : '<div class="empty">No measures yet.</div>'}</section>`;
+  }).join('');
+  el.innerHTML = `<div class="top"><div><h1>Scorecard</h1><p class="sub">A handful of weekly numbers per department. Red means it missed its goal. "This week" is live until Sunday night. Owners type their numbers in; the ones marked "fills itself in" come straight from the system.</p></div></div>${tables}`;
+  el.querySelectorAll('[data-m]').forEach(td => td.onclick = () => {
+    const m = D.measures.find(x => x.id === +td.dataset.m), c = m.weeks.find(x => x.w === td.dataset.w);
+    modal(`${m.title} · week of ${wk(td.dataset.w)}`, `<label>Number${m.unit ? ' (' + m.unit + ')' : ''}<input class="in" name="value" inputmode="decimal" value="${c.v ?? ''}" placeholder="Leave empty to clear"></label><label>Note (optional)<input class="in" name="note" maxlength="300" value="${esc(c.note || '')}"></label>`,
+      async o => { await api({ action: 'entry_save', measure_id: m.id, week_start: td.dataset.w, value: o.value.trim(), note: o.note }); await refresh(); });
+  });
+  el.querySelectorAll('[data-add]').forEach(b => b.onclick = () => measureModal({ department: b.dataset.add, goal_dir: '>=', unit: '' }));
+  el.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => measureModal(D.measures.find(x => x.id === +b.dataset.edit)));
+}
+function measureModal(m){
+  const d = modal(m.id ? 'Edit measure' : 'Add a measure', `<label>Measure<input class="in" name="title" maxlength="120" required value="${esc(m.title || '')}" placeholder="e.g. Orders out on the promised day"></label>
+    <div class="g2b"><label>Department<select class="in" name="department">${deptOpts(m.department)}</select></label><label>Owner<select class="in" name="owner">${peopleOpts(m.owner, 'No owner yet')}</select></label></div>
+    <div class="g2b"><label>Goal<input class="in" name="goal" inputmode="decimal" value="${m.goal ?? ''}"></label><label>Good when the number is<select class="in" name="goal_dir"><option value=">="${m.goal_dir !== '<=' ? ' selected' : ''}>at or above the goal</option><option value="<="${m.goal_dir === '<=' ? ' selected' : ''}>at or below the goal</option></select></label></div>
+    <label>Shown as<select class="in" name="unit"><option value=""${!m.unit ? ' selected' : ''}>A number</option><option value="£"${m.unit === '£' ? ' selected' : ''}>Pounds (£)</option><option value="%"${m.unit === '%' ? ' selected' : ''}>Percent (%)</option></select></label>
+    ${m.auto ? '<p class="sub" style="margin:0">This one fills itself in from the system each week.</p>' : ''}`,
+    async o => { await api({ action: 'measure_save', id: m.id, ...o }); await refresh(); },
+    m.id ? '<button type="button" class="btn danger" data-del style="margin-right:auto">Remove</button>' : '');
+  const del = d.querySelector('[data-del]'); if (del) del.onclick = async () => { if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = 'Tap again to remove'; return; } d.remove(); await act({ action: 'measure_delete', id: m.id }, 'Removed'); };
+}
+
+/* ================= Rocks & issues ================= */
+function rockCard(r){
+  const ms = r.milestones || [];
+  return `<div class="rock"><div class="h"><div style="min-width:0"><div class="t">${esc(r.title)}</div><div class="s">${esc(r.owner_name || 'No owner')}${r.due_date ? ' · due ' + dmy(r.due_date) : ''} · ${esc(r.quarter)}</div></div>
+      <div style="display:flex;gap:8px;align-items:center">${r.can_edit ? `<div class="seg" data-rs="${r.id}">${[['on', 'On track'], ['off', 'Off track'], ['done', 'Done']].map(([v, l]) => `<button type="button" data-v="${v}" class="${r.status === v ? 'on ' + v : ''}">${l}</button>`).join('')}</div>`
+        : `<span class="pill ${r.status === 'off' ? 'bad' : r.status === 'done' ? 'solid' : 'quiet'}">${r.status === 'off' ? 'Off track' : r.status === 'done' ? 'Done' : 'On track'}</span>`}
+        ${r.can_edit ? `<button class="btn sm ghost" data-re="${r.id}">Edit</button>` : ''}</div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:8px"><div class="bar ${r.status === 'off' ? 'off' : ''}" style="flex:1"><i style="width:${r.progress}%"></i></div><span class="s">${r.progress}%</span></div>
+    ${ms.length ? `<ul class="ms">${ms.map((x, i) => `<li><input type="checkbox" ${x.done ? 'checked' : ''} ${r.can_edit ? `data-mr="${r.id}" data-mi="${i}"` : 'disabled'}><span${x.done ? ' style="text-decoration:line-through;color:var(--muted)"' : ''}>${esc(x.t)}</span></li>`).join('')}</ul>` : ''}
+    ${r.notes ? `<div class="s" style="margin-top:6px">${esc(r.notes)}</div>` : ''}</div>`;
+}
+function renderRocks(el){
+  const admin = D.me.is_admin, leadOf = d => D.people.some(p => p.email === D.me.email && p.leads.includes(d));
+  const open = D.issues.filter(i => i.status === 'open'), solved = D.issues.filter(i => i.status === 'solved').slice(0, 6);
+  el.innerHTML = `<div class="top"><div><h1>Rocks & issues</h1><p class="sub">Rocks are the few things each department must get done this quarter (${esc(D.quarter)}). Issues are anything stuck or needing a decision: anyone can raise one, and they get worked through in the weekly meeting.</p></div></div>
+    <div class="g2"><div>${Object.keys(DEPT).map(k => { const rs = D.rocks.filter(r => r.department === k); if (!rs.length && !(admin || leadOf(k))) return '';
+      return `<section class="panel"><div class="ph"><h2>${esc(DEPT[k])}</h2><span class="m">${rs.filter(r => r.status === 'done').length} of ${rs.length} done</span></div>${rs.length ? rs.map(rockCard).join('') : '<div class="empty">No rocks yet.</div>'}
+        ${admin || leadOf(k) ? `<form class="add" data-ra="${k}"><input class="in" name="title" maxlength="160" placeholder="Add a rock for ${esc(DEPT[k])}" required><select class="in" name="owner" style="flex:0 1 160px">${peopleOpts(D.me.email)}</select><input class="in" type="date" name="due" style="flex:0 1 150px"><button class="btn dark" type="submit">Add</button></form>` : ''}</section>`; }).join('')}</div>
+    <div><section class="panel"><div class="ph"><h2>Open issues</h2><span class="m">${open.length}</span></div>
+      ${open.length ? open.map(i => `<div class="issue"><div class="h"><div style="min-width:0"><div style="font-weight:600">${esc(i.title)}</div><div class="s" style="font-size:12.5px;color:var(--muted)">${esc(i.department ? DEPT[i.department] : 'No department')} · raised by ${esc(i.raised_by || '?')}${i.owner_name ? ' · owner ' + esc(i.owner_name) : ''}</div>${i.notes ? `<div style="font-size:13px;margin-top:4px">${esc(i.notes)}</div>` : ''}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${admin ? `<button class="btn sm ${i.on_agenda ? 'dark' : ''}" data-ag="${i.id}" data-on="${i.on_agenda ? 0 : 1}">${i.on_agenda ? 'On Monday\'s list' : 'Add to Monday'}</button>` : (i.on_agenda ? '<span class="pill solid">Monday</span>' : '')}
+          ${i.can_edit ? `<button class="btn sm" data-sv="${i.id}">Solved</button>` : ''}</div></div></div>`).join('') : '<div class="empty">Nothing open.</div>'}
+      <form class="add" id="ia" style="display:grid;grid-template-columns:1fr;gap:8px"><input class="in" name="title" maxlength="200" placeholder="Raise an issue: what's stuck or needs deciding?" required>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><select class="in" name="department" style="flex:1">${'<option value="">Department…</option>' + deptOpts('')}</select><select class="in" name="owner" style="flex:1">${peopleOpts('', 'Owner (optional)')}</select><button class="btn dark" type="submit">Raise it</button></div></form></section>
+    ${solved.length ? `<section class="panel"><div class="ph"><h2>Recently solved</h2></div>${solved.map(i => `<div class="row"><div class="g"><div>${esc(i.title)}</div><div class="s">${esc(i.outcome || 'Solved')}</div></div></div>`).join('')}</section>` : ''}</div></div>`;
+  wireRocks(el);
+  el.querySelectorAll('[data-ra]').forEach(f => f.onsubmit = e => { e.preventDefault(); const o = Object.fromEntries(new FormData(f)); act({ action: 'rock_save', department: f.dataset.ra, ...o }, 'Rock added'); });
+  document.getElementById('ia').onsubmit = e => { e.preventDefault(); const o = Object.fromEntries(new FormData(e.target)); act({ action: 'issue_add', ...o }, 'Issue raised'); };
+  el.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => act({ action: 'issue_update', id: +b.dataset.ag, on_agenda: b.dataset.on === '1' }));
+  el.querySelectorAll('[data-sv]').forEach(b => b.onclick = () => solveModal(D.issues.find(i => i.id === +b.dataset.sv)));
+}
+function wireRocks(el){
+  el.querySelectorAll('[data-rs]').forEach(sg => sg.querySelectorAll('button').forEach(b => b.onclick = () => act({ action: 'rock_save', id: +sg.dataset.rs, status: b.dataset.v, ...(b.dataset.v === 'done' ? { progress: 100 } : {}) })));
+  el.querySelectorAll('[data-mr]').forEach(c => c.onchange = () => { const r = D.rocks.find(x => x.id === +c.dataset.mr); const ms = (r.milestones || []).map((x, i) => ({ ...x, done: i === +c.dataset.mi ? c.checked : x.done })); act({ action: 'rock_save', id: r.id, milestones: ms }); });
+  el.querySelectorAll('[data-re]').forEach(b => b.onclick = () => rockModal(D.rocks.find(x => x.id === +b.dataset.re)));
+}
+function rockModal(r){
+  const admin = D.me.is_admin;
+  const d = modal('Edit rock', `<label>Rock<input class="in" name="title" maxlength="160" value="${esc(r.title)}"></label>
+    <div class="g2b"><label>Owner<select class="in" name="owner">${peopleOpts(r.owner)}</select></label><label>Due<input class="in" type="date" name="due" value="${r.due_date || ''}"></label></div>
+    <label>Progress (%)<input class="in" name="progress" inputmode="numeric" value="${r.progress}"></label>
+    <label>Milestones (one per line)<textarea class="in" name="ms">${esc((r.milestones || []).map(x => (x.done ? '[x] ' : '') + x.t).join('\n'))}</textarea></label>
+    <label>Notes<textarea class="in" name="notes" style="min-height:60px">${esc(r.notes || '')}</textarea></label>`,
+    async o => { const ms = o.ms.split('\n').map(x => x.trim()).filter(Boolean).map(x => ({ t: x.replace(/^\[x\]\s*/i, ''), done: /^\[x\]/i.test(x) }));
+      await api({ action: 'rock_save', id: r.id, title: o.title, owner: o.owner, due: o.due, progress: o.progress, milestones: ms, notes: o.notes }); await refresh(); },
+    admin ? '<button type="button" class="btn danger" data-del style="margin-right:auto">Delete</button>' : '');
+  const del = d.querySelector('[data-del]'); if (del) del.onclick = async () => { if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = 'Tap again to delete'; return; } d.remove(); await act({ action: 'rock_delete', id: r.id }, 'Deleted'); };
+}
+function solveModal(i, meetingId){
+  modal('Solve: ' + i.title, `<label>What was decided<input class="in" name="outcome" maxlength="500" placeholder="e.g. Toby to book DPD collections at 3pm from Monday"></label>
+    <p class="sub" style="margin:0">Optional: turn it into a to-do for someone (due in a week).</p>
+    <div class="g2b"><label>To-do<input class="in" name="todo" maxlength="200"></label><label>For<select class="in" name="who">${peopleOpts(i.owner || '', 'Choose…')}</select></label></div>`,
+    async o => { if (o.todo && D.me.is_admin) await api({ action: 'todo_add', title: o.todo, owner: o.who, meeting_id: meetingId || null });
+      await api({ action: 'issue_update', id: i.id, solve: true, outcome: o.outcome }); toast('Solved'); await refresh(); });
+}
+
+/* ================= Weekly meeting ================= */
+const STEPS = [['good', 'Good news', 5], ['scorecard', 'Scorecard', 5], ['rocks', 'Rocks', 5], ['headlines', 'Headlines', 5], ['todos', 'Last week\'s to-dos', 5], ['issues', 'Issues', 60], ['wrap', 'Wrap up', 5]];
+let MT = { step: 'good', t0: Date.now(), spent: {} }, clockT;
+function renderMeeting(el){
+  if (!D.me.is_admin) { el.innerHTML = '<div class="empty">The weekly meeting is for admins.</div>'; return; }
+  const m = D.meeting, live = m && !m.ended_at;
+  if (!live) {
+    el.innerHTML = `<div class="top"><div><h1>Weekly meeting</h1><p class="sub">Same running order every week: good news, scorecard, rocks, headlines, last week's to-dos, then most of the time on issues, and a quick wrap up with a score out of 10. Everything links to the live scorecard, rocks and issues.</p></div><button class="btn pri" id="go">Start this week's meeting</button></div>
+      ${m ? `<section class="panel"><div class="ph"><h2>Last meeting</h2><span class="m">${esc(dmy(m.held_on))}</span></div><div class="mbody">${m.good_news ? `<div class="k">Good news</div><p>${esc(m.good_news)}</p>` : ''}${m.headlines ? `<div class="k">Headlines</div><p>${esc(m.headlines)}</p>` : ''}
+        ${Object.keys(m.ratings || {}).length ? `<div class="k">Ratings</div><p>${Object.entries(m.ratings).map(([k, v]) => esc(k) + ' ' + v).join(' · ')} (average ${(Object.values(m.ratings).reduce((a, b) => a + b, 0) / Object.values(m.ratings).length).toFixed(1)})</p>` : ''}</div></section>` : ''}`;
+    document.getElementById('go').onclick = async () => { try { const j = await api({ action: 'meeting_start' }); MT = { step: 'good', t0: Date.now(), spent: {} }; await refresh(); } catch(x){ toast(x.message); } };
+    return;
+  }
+  const cur = STEPS.find(s => s[0] === MT.step) || STEPS[0];
+  el.innerHTML = `<div class="top"><div><h1>Weekly meeting</h1><p class="sub">Started ${esc(new Date(m.started_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }))} · ${esc(dmy(m.held_on))}</p></div></div>
+    <div class="mt"><aside class="panel"><div class="clock" id="clk">0:00</div><div class="sub" style="padding:0 15px 10px">${esc(cur[1])} · ${cur[2]} min</div>
+      <div class="agenda">${STEPS.map(s => `<button data-st="${s[0]}" class="${s[0] === MT.step ? 'on' : ''}"><span>${esc(s[1])}</span><span class="m">${s[2]}m</span></button>`).join('')}</div></aside>
+    <section class="panel"><div class="ph"><h2>${esc(cur[1])}</h2><div style="display:flex;gap:8px">${MT.step !== 'wrap' ? '<button class="btn" id="next">Next</button>' : ''}</div></div><div class="mbody" id="mb"></div></section></div>`;
+  el.querySelectorAll('[data-st]').forEach(b => b.onclick = () => { MT.spent[MT.step] = (MT.spent[MT.step] || 0) + (Date.now() - MT.t0); MT.step = b.dataset.st; MT.t0 = Date.now(); render(); });
+  const nx = document.getElementById('next'); if (nx) nx.onclick = () => { const i = STEPS.findIndex(s => s[0] === MT.step); MT.spent[MT.step] = (MT.spent[MT.step] || 0) + (Date.now() - MT.t0); MT.step = STEPS[i + 1][0]; MT.t0 = Date.now(); render(); };
+  clearInterval(clockT); const tick = () => { const c = document.getElementById('clk'); if (!c) return clearInterval(clockT); const ms = (MT.spent[MT.step] || 0) + Date.now() - MT.t0, s = Math.floor(ms / 1000);
+    c.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); c.classList.toggle('over', s > cur[2] * 60); }; tick(); clockT = setInterval(tick, 1000);
+  const mb = document.getElementById('mb');
+  const saveText = (field) => { const t = mb.querySelector('textarea'); t.onchange = () => api({ action: 'meeting_save', id: m.id, [field]: t.value }).then(() => { m[field] = t.value; toast('Saved'); }).catch(x => toast(x.message)); };
+  if (MT.step === 'good') { mb.innerHTML = `<p class="sub" style="margin-top:0">One personal and one business bit of good news each.</p><textarea class="in">${esc(m.good_news || '')}</textarea>`; saveText('good_news'); }
+  if (MT.step === 'headlines') { mb.innerHTML = `<p class="sub" style="margin-top:0">Quick customer and staff news. Anything that needs discussing goes to Issues.</p><textarea class="in">${esc(m.headlines || '')}</textarea>`; saveText('headlines'); }
+  if (MT.step === 'scorecard') {
+    const ms = D.measures.filter(x => x.goal != null || x.weeks.some(w => w.v != null));
+    mb.innerHTML = ms.length ? `<p class="sub" style="margin-top:0">On or off goal only. Anything off goal: drop it to Issues, don't discuss it here.</p><div class="scroll"><table class="sc"><tr><th>Measure</th><th>Owner</th><th>Goal</th><th>Last week</th><th>This week</th><th></th></tr>
+      ${ms.map(x => { const lw = x.weeks[x.weeks.length - 2], tw = x.weeks[x.weeks.length - 1]; const off = miss(x, lw.v);
+        return `<tr><td class="t"><b>${esc(x.title)}</b><div class="s">${esc(DEPT[x.department])}</div></td><td>${esc(x.owner_name || '')}</td><td>${x.goal == null ? '' : (x.goal_dir === '<=' ? '≤ ' : '≥ ') + fmt(x.goal, x.unit)}</td><td class="${off ? 'miss' : ''}">${fmt(lw.v, x.unit) || '–'}</td><td class="now">${fmt(tw.v, x.unit) || '–'}</td><td>${off ? `<button class="btn sm" data-drop="Scorecard: ${esc(x.title)} off goal" data-dd="${x.department}">To issues</button>` : ''}</td></tr>`; }).join('')}</table></div>` : '<div class="empty">No scorecard numbers yet. Set measures up on Tasks & Projects > Scorecard.</div>';
+  }
+  if (MT.step === 'rocks') {
+    mb.innerHTML = D.rocks.length ? `<p class="sub" style="margin-top:0">Each owner: on track or off track. Off track drops to Issues.</p>` + D.rocks.filter(r => r.status !== 'done').map(r => `<div class="row" style="padding-left:0;padding-right:0"><div class="g"><div style="font-weight:600">${esc(r.title)}</div><div class="s">${esc(DEPT[r.department])} · ${esc(r.owner_name || '')} · ${r.progress}%</div></div>
+      <div class="seg" data-rs="${r.id}">${[['on', 'On track'], ['off', 'Off track'], ['done', 'Done']].map(([v, l]) => `<button type="button" data-v="${v}" class="${r.status === v ? 'on ' + v : ''}">${l}</button>`).join('')}</div>${r.status === 'off' ? `<button class="btn sm" data-drop="Rock off track: ${esc(r.title)}" data-dd="${r.department}">To issues</button>` : ''}</div>`).join('') : '<div class="empty">No rocks set. Add them on Tasks & Projects > Rocks & issues.</div>';
+    wireRocks(mb);
+  }
+  if (MT.step === 'todos') {
+    const prev = D.todos.filter(t => t.meeting_id !== m.id), mineNow = D.todos.filter(t => t.meeting_id === m.id);
+    const done = prev.filter(t => t.done).length;
+    mb.innerHTML = `<p class="sub" style="margin-top:0">Done or not done. ${prev.length ? `${done} of ${prev.length} done (${Math.round(done / prev.length * 100)}%).` : ''}</p>` +
+      (prev.length ? prev.map(t => `<div class="row" style="padding-left:0;padding-right:0"><input type="checkbox" data-td="${t.id}" ${t.done ? 'checked' : ''} style="width:17px;height:17px;accent-color:var(--ink)"><div class="g"><div${t.done ? ' style="text-decoration:line-through;color:var(--muted)"' : ''}>${esc(t.title)}</div><div class="s">${esc(t.owner_name || '')} · due ${dmy(t.due)}</div></div></div>`).join('') : '<div class="empty">No to-dos from earlier meetings.</div>') +
+      (mineNow.length ? `<div class="k" style="margin-top:14px">Added this meeting</div>` + mineNow.map(t => `<div class="row" style="padding-left:0;padding-right:0"><div class="g">${esc(t.title)}<div class="s">${esc(t.owner_name || '')}</div></div></div>`).join('') : '');
+    mb.querySelectorAll('[data-td]').forEach(c => c.onchange = () => act({ action: 'todo_done', id: +c.dataset.td, on: c.checked }));
+  }
+  if (MT.step === 'issues') {
+    const ag = D.issues.filter(i => i.status === 'open' && i.on_agenda), rest = D.issues.filter(i => i.status === 'open' && !i.on_agenda);
+    const card = i => `<div class="issue" style="padding-left:0;padding-right:0"><div class="h"><div style="min-width:0"><div style="font-weight:600">${esc(i.title)}</div><div style="font-size:12.5px;color:var(--muted)">${esc(i.department ? DEPT[i.department] : '')}${i.owner_name ? ' · ' + esc(i.owner_name) : ''} · raised by ${esc(i.raised_by || '?')}</div>${i.notes ? `<div style="font-size:13px;margin-top:4px">${esc(i.notes)}</div>` : ''}</div>
+      <div style="display:flex;gap:6px">${!i.on_agenda ? `<button class="btn sm" data-ag="${i.id}">Discuss</button>` : ''}<button class="btn sm dark" data-sv="${i.id}">Solve</button></div></div></div>`;
+    mb.innerHTML = `<p class="sub" style="margin-top:0">Pick the top three, then identify the real problem, discuss it, solve it. Every solve can become a to-do.</p>
+      <div class="k">Today's list (${ag.length})</div>${ag.length ? ag.map(card).join('') : '<div class="empty" style="padding-left:0">Nothing on the list yet: pick from below.</div>'}
+      <div class="k" style="margin-top:14px">Other open issues (${rest.length})</div>${rest.map(card).join('') || '<div class="empty" style="padding-left:0">None.</div>'}
+      <form class="add" id="qi" style="margin:12px -18px -16px"><input class="in" name="title" maxlength="200" placeholder="Raise a new issue" required><select class="in" name="department" style="flex:0 1 180px">${deptOpts('mg')}</select><button class="btn dark">Add</button></form>`;
+    mb.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => act({ action: 'issue_update', id: +b.dataset.ag, on_agenda: true }));
+    mb.querySelectorAll('[data-sv]').forEach(b => b.onclick = () => solveModal(D.issues.find(i => i.id === +b.dataset.sv), m.id));
+    document.getElementById('qi').onsubmit = e => { e.preventDefault(); const o = Object.fromEntries(new FormData(e.target)); act({ action: 'issue_add', on_agenda: true, ...o }, 'Added'); };
+  }
+  if (MT.step === 'wrap') {
+    const made = D.todos.filter(t => t.meeting_id === m.id), admins = D.people.filter(p => p.depts.includes('mg'));
+    mb.innerHTML = `<div class="k">To-dos from today (${made.length})</div>${made.length ? made.map(t => `<div class="row" style="padding-left:0;padding-right:0"><div class="g">${esc(t.title)}<div class="s">${esc(t.owner_name || '')} · due ${dmy(t.due)}</div></div></div>`).join('') : '<div class="empty" style="padding-left:0">None.</div>'}
+      <form id="nt" class="add" style="margin:10px 0;border-radius:10px;border:1px solid var(--line)"><input class="in" name="title" maxlength="200" placeholder="Add a to-do" required><select class="in" name="owner" style="flex:0 1 160px">${peopleOpts(D.me.email)}</select><button class="btn">Add</button></form>
+      <div class="k" style="margin-top:14px">Rate the meeting out of 10</div><div class="rate" style="margin:8px 0 14px">${(admins.length ? admins : D.people.filter(p => p.email === D.me.email)).map(p => `<label>${esc(p.name)} <input class="in" data-rt="${esc(p.name)}" inputmode="numeric" value="${(m.ratings || {})[p.name] ?? ''}"></label>`).join('')}</div>
+      <div class="k">Anything to note</div><textarea class="in" id="mn" style="min-height:60px">${esc(m.notes || '')}</textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn pri" id="end">End the meeting</button></div>`;
+    document.getElementById('nt').onsubmit = e => { e.preventDefault(); const o = Object.fromEntries(new FormData(e.target)); act({ action: 'todo_add', meeting_id: m.id, ...o }, 'To-do added'); };
+    document.getElementById('end').onclick = async () => { const ratings = {}; mb.querySelectorAll('[data-rt]').forEach(i => { if (i.value.trim()) ratings[i.dataset.rt] = +i.value; });
+      try { await api({ action: 'meeting_end', id: m.id, ratings, notes: document.getElementById('mn').value }); toast('Meeting ended'); clearInterval(clockT); await refresh(); } catch(x){ toast(x.message); } };
+  }
+  mb.querySelectorAll('[data-drop]').forEach(b => b.onclick = () => act({ action: 'issue_add', title: b.dataset.drop, department: b.dataset.dd, on_agenda: true }, 'Added to issues'));
+}
+
+function render(){
+  const el = document.getElementById('app'); if (!D) return;
+  if (VIEW === 'scorecard') return renderScorecard(el);
+  if (VIEW === 'rocks' || VIEW === 'issues') return renderRocks(el);
+  if (VIEW === 'meeting') return renderMeeting(el);
+  return renderBoards(el);
+}
+if (token) start(); else showLogin();
+TSDAuth.mount(t => { token = t; start(); });
+</script>
+<script>
+(function(){
+  const BUILD = '20261125b';
+  const busy = () => { const a = document.activeElement; return (a && a.matches && a.matches('input,textarea,select')) || document.querySelector('.mdl') || document.getElementById('clk'); };
+  let newer = false;
+  async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\w+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
+  setInterval(check, 120000);
+})();
+</script>
+</body>
+</html>

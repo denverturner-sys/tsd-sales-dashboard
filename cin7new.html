@@ -26,7 +26,7 @@ button,input,select,textarea{font-family:inherit;font-size:16px}
 input,select,textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px}
 textarea{min-height:90px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
-.btn{background:var(--accent);color:#262727;border:0;border-radius:10px;padding:13px 18px;font-weight:800;cursor:pointer}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:13px 18px;font-weight:800;cursor:pointer}
 .btn.full{width:100%;margin-top:12px}
 .btn.alt{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
 .btn.sm{padding:6px 12px;font-size:14px}
@@ -39,12 +39,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .msg{padding:10px 12px;border-radius:10px;margin-bottom:12px;font-weight:600}
 .msg.ok{background:rgba(125,219,152,.15);color:var(--good)} .msg.bad{background:rgba(255,122,107,.15);color:var(--bad)}
 .tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:800}
-.t-q{background:rgba(142,197,255,.18);color:var(--blue)} .t-ok{background:rgba(125,219,152,.18);color:var(--good)} .t-bad{background:rgba(255,122,107,.18);color:var(--bad)} .t-w{background:rgba(238,209,7,.2);color:var(--accent)}
+.t-q{background:rgba(142,197,255,.18);color:var(--blue)} .t-ok{background:rgba(125,219,152,.18);color:var(--good)} .t-bad{background:rgba(255,122,107,.18);color:var(--bad)} .t-w{background:rgba(238,209,7,.2);color:var(--accent-text)}
 .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .thumb{position:relative;width:86px;height:86px;border-radius:8px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
 .thumb img{width:100%;height:100%;object-fit:cover}
-.thumb button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:50%;width:22px;height:22px;cursor:pointer;line-height:1}
-.thumb i{position:absolute;left:3px;bottom:3px;background:var(--accent);color:#262727;font-style:normal;font-size:10px;font-weight:800;padding:0 5px;border-radius:4px}
+.thumb button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);color:var(--ink);border:0;border-radius:50%;width:22px;height:22px;cursor:pointer;line-height:1}
+.thumb i{position:absolute;left:3px;bottom:3px;background:var(--accent);color:var(--on-accent);font-style:normal;font-size:10px;font-weight:800;padding:0 5px;border-radius:4px}
 .file{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-top:6px}
 .file span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr{padding:10px 0;border-bottom:1px solid var(--line)} .tr:last-child{border-bottom:0}
@@ -52,13 +52,14 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 @media(max-width:520px){.row{grid-template-columns:1fr}}
 
 .wrap{max-width:1100px}
-.seg{display:flex;gap:6px;margin-bottom:12px}.seg button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer}.seg button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.seg{display:flex;gap:6px;margin-bottom:12px}.seg button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer}.seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 table{width:100%;border-collapse:collapse;font-size:14px}th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 4px}td{padding:4px;vertical-align:top;border-top:1px solid var(--line)}
 td input,td select{padding:7px;font-size:14px;min-width:70px}td input.w-s{width:90px}td input.w-m{width:150px}td input.w-l{width:260px}
 tr.bad td{background:rgba(255,122,107,.08)} .iss{color:var(--bad);font-size:12px;font-weight:700}
 .tbl{overflow-x:auto}.chk{width:20px;height:20px}
 .def{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;font-size:13px;color:var(--muted)}.def b{color:var(--ink)}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -99,7 +100,7 @@ function addDocs(list){ keepExtra(); if (document.getElementById('o_name')) oneK
 function rmDoc(i){ keepExtra(); if (document.getElementById('o_name')) oneKeep(); docs.splice(i, 1); render(); }
 function docsHtml(){ return `<div class="card"><div class="k">Datasheets, supplier info sheets, price lists or other documents (optional)</div>
   <input type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png" onchange="addDocs(this.files)">
-  ${docs.length ? `<div style="margin-top:6px">${docs.map((f, i) => `<div class="m" style="padding:2px 0">📄 ${esc(f.name)} <a href="#" onclick="rmDoc(${i});return false" style="color:var(--bad)">remove</a></div>`).join('')}</div>` : ''}
+  ${docs.length ? `<div style="margin-top:6px">${docs.map((f, i) => `<div class="m" style="padding:2px 0">${esc(f.name)} <a href="#" onclick="rmDoc(${i});return false" style="color:var(--bad)">remove</a></div>`).join('')}</div>` : ''}
   <div class="k">Anything else Claude should know (optional)</div>
   <textarea id="x_extra" rows="3" placeholder="e.g. pack sizes, what it replaces, dimensions, barcodes, anything not on the sheets" onchange="keepExtra()">${esc(extra)}</textarea>
   <div class="m" style="margin-top:4px">Saved with the new products. Claude reads these and the notes to check weights, dimensions, barcodes and names, so nothing gets missed. The notes also go on each product's internal note in Cin7.</div></div>`; }
@@ -139,7 +140,7 @@ function previewHtml(){
     <div class="tbl"><table><thead><tr><th></th><th>SKU</th><th>Name</th><th>Category</th><th>Brand</th><th>Revenue acct</th><th>Supplier code</th><th>Cost</th><th>Price (tier 1, ex VAT)</th><th>Margin</th><th>Barcode</th><th>Weight kg</th></tr></thead><tbody>
     ${rows.map((r, i) => `<tr class="${(r.issues || []).length ? 'bad' : ''}"><td><input type="checkbox" class="chk" ${r.on ? 'checked' : ''} onchange="rows[${i}].on=this.checked;render()"></td>
       <td><input class="w-s" value="${esc(r.sku)}" onchange="edit(${i},'sku',this.value)"></td>
-      <td><input class="w-l" value="${esc(r.name)}" onchange="edit(${i},'name',this.value)">${(r.issues || []).map(x => `<div class="iss">⚠ ${esc(x)}</div>`).join('')}</td>
+      <td><input class="w-l" value="${esc(r.name)}" onchange="edit(${i},'name',this.value)">${(r.issues || []).map(x => `<div class="iss">${esc(x)}</div>`).join('')}</td>
       <td><select onchange="edit(${i},'category',this.value)">${catOpts(r.category)}</select></td>
       <td><select onchange="edit(${i},'brand',this.value)">${brandOpts(r.brand)}</select></td>
       <td><select onchange="edit(${i},'revenue_account',this.value)">${accOpts(r.revenue_account)}</select></td>
@@ -182,7 +183,7 @@ function oneHtml(){
   const pr = money(one.cost); const hint = pr != null && !one.price ? '' : '';
   return `<div class="card"><div class="k">1 · Supplier</div><select id="o_sup" onchange="sup=this.value;oneKeep();loadSku()">${supOpts()}</select>
     ${skuInfo ? `<div class="m" style="margin-top:6px">${esc(supName())}'s SKUs usually look like <b>${esc(skuInfo.example || skuInfo.prefix)}</b>. Next free: <b>${esc(skuInfo.prefix + String(skuInfo.next).padStart(skuInfo.width, '0'))}</b></div>` : ''}
-    ${skuInfo && skuInfo.alts && skuInfo.alts.length > 1 ? `<div class="m" style="margin-top:4px">Other prefixes this supplier uses: ${skuInfo.alts.map((a, i) => `<a href="#" onclick="pickPrefix(${i});return false" style="color:var(--accent)">${esc(a.prefix)}</a>`).join(' · ')}</div>` : ''}</div>
+    ${skuInfo && skuInfo.alts && skuInfo.alts.length > 1 ? `<div class="m" style="margin-top:4px">Other prefixes this supplier uses: ${skuInfo.alts.map((a, i) => `<a href="#" onclick="pickPrefix(${i});return false" style="color:var(--accent-text)">${esc(a.prefix)}</a>`).join(' · ')}</div>` : ''}</div>
   <div class="card"><div class="k">2 · Product</div>
     <div class="k">Name</div><input id="o_name" value="${esc(one.name)}" placeholder="e.g. Ardex X32 Natural Stone Adhesive 20kg">
     <div class="row"><div><div class="k">Supplier's own code (optional)</div><input id="o_supplier_code" value="${esc(one.supplier_code)}" onchange="oneKeep();if(useSupSku)suggestSkuOne()"></div>

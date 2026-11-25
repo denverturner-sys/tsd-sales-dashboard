@@ -24,7 +24,7 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 .tile .k{color:var(--muted);font-size:15px;font-weight:600}
 .tile .n{font-family:var(--num);font-size:84px;line-height:1;margin:4px 0}
 .tile .s{color:var(--muted);font-size:14px}
-.tile.bad{border-color:var(--bad)}.tile.bad .n{color:var(--bad)}.tile.good .n{color:var(--good)}.tile.y .n{color:var(--accent)}
+.tile.bad{border-color:var(--bad)}.tile.bad .n{color:var(--bad)}.tile.good .n{color:var(--good)}.tile.y .n{color:var(--accent-text)}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
 .card h2{font-family:var(--num);font-size:26px;letter-spacing:.5px;margin:0 0 8px;font-weight:400}
@@ -40,21 +40,22 @@ h1{font-family:var(--num);font-size:42px;letter-spacing:1px;margin:0;line-height
 #modal .box{background:var(--panel);border-radius:14px;padding:20px;width:100%;max-width:720px;max-height:calc(100vh - 80px);overflow:auto}
 #modal h3{margin:0 0 2px;font-family:var(--num);font-weight:400;font-size:32px;letter-spacing:1px}
 #modal .close{position:sticky;top:0;float:right;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:14px}
-#modal .close:hover{border-color:var(--accent);color:var(--accent)}
+#modal .close:hover{border-color:var(--accent);color:var(--accent-text)}
 #modal .grp{margin-top:16px}
-#modal .grp h4{font-family:var(--num);font-weight:400;font-size:20px;letter-spacing:.5px;margin:0 0 6px;color:var(--accent)}
+#modal .grp h4{font-family:var(--num);font-weight:400;font-size:20px;letter-spacing:.5px;margin:0 0 6px;color:var(--accent-text)}
 #modal .orow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px}
 #modal .orow:first-of-type{border-top:0}
 #modal .orow b{font-weight:700}
 #modal .orow .t{color:var(--muted);font-size:13px;white-space:nowrap}
 #modal .orow a{color:inherit;text-decoration:none;cursor:pointer}
-#modal .orow a:hover{color:var(--accent);text-decoration:underline}
+#modal .orow a:hover{color:var(--accent-text);text-decoration:underline}
 #modal .daynav{display:flex;align-items:center;gap:8px;margin:6px 0 0}
 #modal .daynav button{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;font-family:var(--body)}
-#modal .daynav button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+#modal .daynav button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-text)}
 #modal .daynav button:disabled{opacity:.35;cursor:default}
 #modal .daynav input[type=date]{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:14px;font-family:var(--body);color-scheme:dark}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div class="wrap">

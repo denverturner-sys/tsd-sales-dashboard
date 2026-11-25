@@ -23,38 +23,38 @@ h2 .h{font-family:var(--body);font-size:14px;color:var(--muted);letter-spacing:0
 .sub{color:var(--muted);font-size:14px}
 .btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:inherit;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;transition:transform .08s ease,border-color .15s}
 .btn:hover{border-color:var(--muted)}.btn:active{transform:scale(.97)}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
-.btn.g{background:#1f3b2a;border-color:#2E9E6A;color:var(--good)}
-.btn.v{background:#1d2b45;border-color:#3d63a8;color:var(--blue)}
-.btn.r{background:#3a2020;border-color:#7a3a33;color:var(--bad)}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.g{background:var(--tint-good);border-color:var(--good);color:var(--good)}
+.btn.v{background:var(--tint-info);border-color:var(--blue);color:var(--blue)}
+.btn.r{background:var(--tint-bad);border-color:var(--bad);color:var(--bad)}
 .btn:disabled{opacity:.5;cursor:default}
-input,select{background:#1c1d1d;border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px 10px;border-radius:10px;color-scheme:dark}
+input,select{background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;padding:8px 10px;border-radius:10px;color-scheme:dark}
 .switch{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-radius:14px;padding:12px 16px;margin:14px 0;border:1px solid var(--line);background:var(--panel)}
-.switch.on{border-color:#2E9E6A;background:#1b2e23}.switch.off{border-color:var(--accent);background:rgba(238,209,7,.07)}
+.switch.on{border-color:var(--good);background:var(--tint-good)}.switch.off{border-color:var(--accent);background:rgba(238,209,7,.07)}
 .switch .t{flex:1;min-width:260px}.switch b{font-size:17px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
 .tile .k{color:var(--muted);font-size:13px;font-weight:600}.tile .n{font-family:var(--num);font-size:38px;line-height:1.05}
-.tile.warn .n{color:var(--accent)}.tile.bad .n{color:var(--bad)}
+.tile.warn .n{color:var(--accent-text)}.tile.bad .n{color:var(--bad)}
 .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
 .bar input[type=search]{flex:1;min-width:220px}
 .list{display:flex;flex-direction:column;gap:10px}
 .row{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:28px minmax(0,1.3fr) minmax(0,1fr);gap:12px;align-items:start}
 .row.back{border-color:var(--bad);box-shadow:inset 4px 0 0 var(--bad)}
-.row.am{box-shadow:inset 4px 0 0 #E5484D}.row.next{box-shadow:inset 4px 0 0 var(--accent)}
+.row.am{box-shadow:inset 4px 0 0 var(--bad)}.row.next{box-shadow:inset 4px 0 0 var(--accent)}
 .row .chk{width:20px;height:20px;margin-top:4px;accent-color:var(--accent)}
 .no{font-family:var(--num);font-size:24px;letter-spacing:.5px}
 .cust{font-weight:700;font-size:17px}
 .meta{color:var(--muted);font-size:14px}
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
 .tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--panel2);color:var(--muted)}
-.tag.am{background:#4a1418;color:#FFC2C4}.tag.next{background:#4a3f0b;color:#FFE77A}.tag.bo{background:#3d2a10;color:#FFB48A}.tag.web{background:#1d2b45;color:var(--blue)}.tag.van{background:#1d2b45;color:var(--blue)}
-.carrier{font-style:italic;color:#e6e6e6;font-size:14px}
+.tag.am{background:var(--tint-bad);color:var(--bad)}.tag.next{background:var(--tint-warn);color:var(--warn)}.tag.bo{background:var(--tint-warn);color:var(--warn)}.tag.web{background:var(--tint-info);color:var(--blue)}.tag.van{background:var(--tint-info);color:var(--blue)}
+.carrier{font-style:italic;color:var(--ink);font-size:14px}
 .note{background:rgba(238,209,7,.08);border-left:3px solid var(--accent);padding:4px 8px;font-size:13px;margin-top:4px;border-radius:4px}
-.backmsg{background:#3a2020;border:1px solid #7a3a33;color:#FFC2C4;border-radius:10px;padding:6px 10px;font-size:14px;margin:4px 0}
+.backmsg{background:var(--tint-bad);border:1px solid var(--bad);color:var(--bad);border-radius:10px;padding:6px 10px;font-size:14px;margin:4px 0}
 details.lines summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:4px}
-details.lines ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:#ddd}
-.sug{font-size:14px;margin-bottom:6px}.sug b{color:var(--accent)}.sug .why{color:var(--muted);font-size:12px;display:block}
+details.lines ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--ink)}
+.sug{font-size:14px;margin-bottom:6px}.sug b{color:var(--accent-text)}.sug .why{color:var(--muted);font-size:12px;display:block}
 .ctl{display:flex;flex-direction:column;gap:8px}
 .ctl select{width:100%}
 .ctl .btns{display:flex;gap:8px;flex-wrap:wrap}
@@ -68,10 +68,11 @@ details.lines ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:#ddd}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-start;justify-content:center;padding:40px 12px;overflow:auto;z-index:50}
 #modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:12px}
 #modal h3{margin:0;font-family:var(--num);font-size:28px;font-weight:400}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#262727;font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:60}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--on-accent);font-weight:700;padding:10px 16px;border-radius:10px;display:none;z-index:60}
 .ro{opacity:.85}
 @media (max-width:900px){.cols{grid-template-columns:1fr}.row{grid-template-columns:24px minmax(0,1fr)}.row .ctl{grid-column:1/-1}}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -149,7 +150,7 @@ function matches(o){
 function tagsOf(o){
   const t = [], g = GRP[o.grp];
   if (g) t.push(`<span class="tag ${g[1]}">${g[0]}</span>`);
-  if (o.backorder) t.push(o.ready === 'all' ? '<span class="tag bo" style="background:#1f3b2a;color:var(--good)">Backorder · stock in now</span>' : o.ready === 'some' ? '<span class="tag bo">Backorder · partial stock</span>' : '<span class="tag bo">Backordered</span>');
+  if (o.backorder) t.push(o.ready === 'all' ? '<span class="tag bo" style="background:var(--tint-good);color:var(--good)">Backorder · stock in now</span>' : o.ready === 'some' ? '<span class="tag bo">Backorder · partial stock</span>' : '<span class="tag bo">Backordered</span>');
   if (o.part_shipped) t.push('<span class="tag bo">Part sent already</span>');
   if (o.pick_started) t.push('<span class="tag">Pick started in Cin7</span>');
   if (o.web) t.push('<span class="tag web">Web</span>');
@@ -161,17 +162,17 @@ function info(o){
   return `<div><span class="no">${esc(o.no)}</span> <span class="meta">· ${when(o.arrived)}${o.ship_by ? ' · needed by ' + new Date(o.ship_by + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'}) : ''}</span> <a data-detail="${o.id}" style="cursor:pointer;text-decoration:underline;color:var(--blue);font-size:13px">Details</a></div>
     <div class="cust">${esc(o.customer)}</div>
     <div class="tags">${tagsOf(o)}</div>
-    ${o.sent_back ? `<div class="backmsg">↩ <b>Sent back by ${esc(o.sent_back.by || 'warehouse')}</b> ${hm(o.sent_back.at)}: ${esc(o.sent_back.reason || '')}${o.sent_back.note ? ' · “' + esc(o.sent_back.note) + '”' : ''}</div>` : ''}
+    ${o.sent_back ? `<div class="backmsg"><b>Sent back by ${esc(o.sent_back.by || 'warehouse')}</b> ${hm(o.sent_back.at)}: ${esc(o.sent_back.reason || '')}${o.sent_back.note ? ' · “' + esc(o.sent_back.note) + '”' : ''}</div>` : ''}
     ${o.carrier ? `<div class="carrier">Cin7: “${esc(o.carrier)}”</div>` : '<div class="carrier">Cin7: no delivery method</div>'}
-    <div class="meta">${esc([o.town, o.postcode].filter(Boolean).join(' · '))}${N(o.weight) ? ' · <b style="color:#fff">' + (Math.round(N(o.weight) * 10) / 10).toLocaleString('en-GB') + ' kg</b>' : ' · no weight'}${N(o.value) ? ' · ' + gbp(o.value) + ' ex VAT' : ''}${o.rep ? ' · ' + esc(o.rep === 'WooCommerce' ? 'Website' : o.rep) : ''}</div>
+    <div class="meta">${esc([o.town, o.postcode].filter(Boolean).join(' · '))}${N(o.weight) ? ' · <b style="color:var(--ink)">' + (Math.round(N(o.weight) * 10) / 10).toLocaleString('en-GB') + ' kg</b>' : ' · no weight'}${N(o.value) ? ' · ' + gbp(o.value) + ' ex VAT' : ''}${o.rep ? ' · ' + esc(o.rep === 'WooCommerce' ? 'Website' : o.rep) : ''}</div>
     ${o.notes ? `<div class="note">${esc(o.notes)}</div>` : ''}
-    ${lines.length ? `<details class="lines"><summary>${lines.length} line${lines.length === 1 ? '' : 's'}</summary><ul>${lines.map(l => `<li>${N(l.qty).toLocaleString('en-GB')}× ${esc(l.sku)} · ${esc(l.name)}${N(l.bo) ? ' <span style="color:#FFB48A">(' + N(l.bo) + ' on backorder)</span>' : ''}</li>`).join('')}</ul></details>` : ''}`;
+    ${lines.length ? `<details class="lines"><summary>${lines.length} line${lines.length === 1 ? '' : 's'}</summary><ul>${lines.map(l => `<li>${N(l.qty).toLocaleString('en-GB')}× ${esc(l.sku)} · ${esc(l.name)}${N(l.bo) ? ' <span style="color:var(--warn)">(' + N(l.bo) + ' on backorder)</span>' : ''}</li>`).join('')}</ul></details>` : ''}`;
 }
 function decideRow(o){
   const s = o.suggest || {};
   if (pickSvc[o.id] === undefined) pickSvc[o.id] = s.service_id || '';
   const ro = !D.me.office;
-  const sug = s.van ? `<b>🚐 Van</b>${s.courier ? ' <span class="meta">(or ' + esc(s.courier + ' ' + s.service) + ')</span>' : ''}` : s.courier ? `<b>${esc(s.courier + ' ' + s.service)}</b>` : '<span class="meta">No suggestion</span>';
+  const sug = s.van ? `<b>Van</b>${s.courier ? ' <span class="meta">(or ' + esc(s.courier + ' ' + s.service) + ')</span>' : ''}` : s.courier ? `<b>${esc(s.courier + ' ' + s.service)}</b>` : '<span class="meta">No suggestion</span>';
   return `<div class="row ${o.sent_back ? 'back' : (GRP[o.grp] || [])[1] || ''}" data-id="${o.id}">
     ${ro ? '<span></span>' : `<input type="checkbox" class="chk" data-tick="${o.id}" ${ticked.has(o.id) ? 'checked' : ''} title="Tick to release several at once">`}
     <div>${info(o)}</div>
@@ -179,24 +180,24 @@ function decideRow(o){
       <div class="sug">Suggested: ${sug}${s.why ? `<span class="why">${esc(s.why)}</span>` : ''}</div>
       ${ro ? '' : `<select data-svc="${o.id}">${svcOptions(pickSvc[o.id])}</select>
       <div class="btns">
-        <button class="btn ${s.van ? '' : 'g'}" data-a="release" data-id="${o.id}">✓ Release</button>
-        <button class="btn ${s.van ? 'y' : 'v'}" data-a="van" data-id="${o.id}">🚐 Van</button>
-        <button class="btn" data-a="hold" data-id="${o.id}">⏸ Hold</button>
+        <button class="btn ${s.van ? '' : 'g'}" data-a="release" data-id="${o.id}">Release</button>
+        <button class="btn ${s.van ? 'y' : 'v'}" data-a="van" data-id="${o.id}">Van</button>
+        <button class="btn" data-a="hold" data-id="${o.id}">Hold</button>
       </div>`}
     </div>
   </div>`;
 }
 function doneRow(o, kind){
   const ro = !D.me.office;
-  const what = kind === 'released' ? `🔒 <b>${esc([o.courier, o.service].filter(Boolean).join(' ') || 'Released')}</b>`
-    : kind === 'van' ? '🚐 <b>Van</b>' : `⏸ <b>${esc(o.hold_reason || 'On hold')}</b>`;
+  const what = kind === 'released' ? `<b>${esc([o.courier, o.service].filter(Boolean).join(' ') || 'Released')}</b>`
+    : kind === 'van' ? '<b>Van</b>' : `<b>${esc(o.hold_reason || 'On hold')}</b>`;
   return `<div class="done">
     <span class="no">${esc(o.no)}</span> <a data-detail="${o.id}" style="cursor:pointer;text-decoration:underline;color:var(--blue);font-size:12px">Details</a>
     <div class="grow"><div><b>${esc(o.customer)}</b> <span class="meta">${esc([o.town, o.postcode].filter(Boolean).join(' · '))}${N(o.weight) ? ' · ' + Math.round(N(o.weight)) + ' kg' : ''}</span></div>
       <div class="meta">${what} · ${esc(o.by || '')} ${when(o.updated_at)}${o.note ? ' · “' + esc(o.note) + '”' : ''}</div></div>
     ${ro ? '' : kind === 'hold'
       ? `<button class="btn" data-a="queue" data-id="${o.id}">Back to queue</button>`
-      : `<button class="btn" data-a="queue" data-id="${o.id}" title="${kind === 'van' ? 'Takes it off the van list and back to the queue' : 'Pulls it back from the warehouse'}">↶ Undo</button>`}
+      : `<button class="btn" data-a="queue" data-id="${o.id}" title="${kind === 'van' ? 'Takes it off the van list and back to the queue' : 'Pulls it back from the warehouse'}">Undo</button>`}
   </div>`;
 }
 function render(){
@@ -212,7 +213,7 @@ function render(){
   const back = all.filter(o => o.state === 'queued' && o.sent_back).length;
 
   $('sw').innerHTML = D.on
-    ? `<div class="switch on"><div class="t"><b>✓ Dispatch control is ON</b><div class="sub">Since ${when(D.since)}${D.switched_by ? ' (' + esc(D.switched_by) + ')' : ''}. The warehouse only sees released orders and can't change the courier or add to the van.</div></div>${D.me.office ? '<button class="btn r" id="swbtn">Switch off</button>' : ''}</div>`
+    ? `<div class="switch on"><div class="t"><b>Dispatch control is ON</b><div class="sub">Since ${when(D.since)}${D.switched_by ? ' (' + esc(D.switched_by) + ')' : ''}. The warehouse only sees released orders and can't change the courier or add to the van.</div></div>${D.me.office ? '<button class="btn r" id="swbtn">Switch off</button>' : ''}</div>`
     : `<div class="switch off"><div class="t"><b>Dispatch control is OFF</b><div class="sub">The warehouse works exactly as before. You can make decisions here now; they only take effect once it's switched on.</div></div>${D.me.office ? '<button class="btn y" id="swbtn">Switch on…</button>' : ''}</div>`;
   const allQueued = all.filter(o => o.state === 'queued');
   const allWaiting = allQueued.filter(o => o.backorder && o.ready !== 'all' && !o.sent_back).length;
@@ -227,10 +228,10 @@ function render(){
 
   const canBulk = D.me.office && ticked.size;
   $('main').innerHTML = `
-    <div class="bar"><input type="search" id="q" placeholder="🔍 Find: order number, customer, postcode, SKU…" value="${esc(query)}">
-      ${D.me.office ? `<button class="btn y" id="bulk" ${canBulk ? '' : 'disabled'}>✓ Release ticked (${ticked.size})</button>` : '<span class="sub">View only</span>'}</div>
+    <div class="bar"><input type="search" id="q" placeholder="Find: order number, customer, postcode, SKU…" value="${esc(query)}">
+      ${D.me.office ? `<button class="btn y" id="bulk" ${canBulk ? '' : 'disabled'}>Release ticked (${ticked.size})</button>` : '<span class="sub">View only</span>'}</div>
     <h2>Ready to decide <span class="n">${decideReady.length}</span> <span class="h">Oldest first. Anything sent back by the warehouse is at the top.</span></h2>
-    <div class="list">${decideReady.length ? decideReady.map(decideRow).join('') : '<div class="empty">Nothing waiting. 👌</div>'}</div>
+    <div class="list">${decideReady.length ? decideReady.map(decideRow).join('') : '<div class="empty">Nothing waiting. </div>'}</div>
     <details ${decideWaiting.length ? '' : 'style="display:none"'}><summary style="cursor:pointer;color:var(--muted);margin:14px 0 8px">Waiting on stock (${decideWaiting.length}) — backordered, not all in yet</summary>
     <div class="list">${decideWaiting.map(decideRow).join('')}</div></details>
     <h2>On hold <span class="n">${hold.length}</span> <span class="h">Backorders, waiting on the customer, credit…</span></h2>
@@ -244,12 +245,12 @@ function render(){
     <div class="log">${(D.log || []).map(l => `<div>${when(l.at)} · <b>${esc(l.by || '')}</b> ${esc(ACT[l.action] || l.action)} ${l.no ? '<b>' + esc(l.no) + '</b>' : ''}${l.detail ? ' · ' + esc(l.detail) : ''}</div>`).join('') || '<div>Nothing yet.</div>'}</div>`;
   wire();
 }
-const ACT = { released: 'released', van: 'sent to van', hold: 'held', queued: 'put back in the queue', sent_back: '↩ warehouse sent back', switch_on: 'switched dispatch control ON', switch_off: 'switched dispatch control OFF' };
+const ACT = { released: 'released', van: 'sent to van', hold: 'held', queued: 'put back in the queue', sent_back: 'warehouse sent back', switch_on: 'switched dispatch control ON', switch_off: 'switched dispatch control OFF' };
 
 function wire(){
   const q = $('q'); q.oninput = () => { query = q.value.trim(); const p = q.selectionStart; render(); const n = $('q'); n.focus(); try { n.setSelectionRange(p, p); } catch(e){} };
   document.querySelectorAll('[data-svc]').forEach(s => s.onchange = () => { pickSvc[s.dataset.svc] = s.value; });
-  document.querySelectorAll('[data-tick]').forEach(c => c.onchange = () => { c.checked ? ticked.add(c.dataset.tick) : ticked.delete(c.dataset.tick); const b = $('bulk'); if (b) { b.disabled = !ticked.size; b.textContent = `✓ Release ticked (${ticked.size})`; } });
+  document.querySelectorAll('[data-tick]').forEach(c => c.onchange = () => { c.checked ? ticked.add(c.dataset.tick) : ticked.delete(c.dataset.tick); const b = $('bulk'); if (b) { b.disabled = !ticked.size; b.textContent = `Release ticked (${ticked.size})`; } });
   document.querySelectorAll('[data-a]').forEach(b => b.onclick = () => act(b.dataset.a, b.dataset.id, b));
   document.querySelectorAll('[data-detail]').forEach(a => a.onclick = (e) => { e.preventDefault(); e.stopPropagation(); detailModal(a.dataset.detail); });
   const sw = $('swbtn'); if (sw) sw.onclick = switchModal;
@@ -297,14 +298,14 @@ async function detailModal(id){
         <td style="text-align:right${short ? ';color:var(--bad);font-weight:700' : ''}">${l.available != null ? N(l.available) : '—'}</td>
         <td class="meta">${l.next_delivery ? new Date(l.next_delivery + 'T12:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short'}) : ''}</td></tr>`;
     }).join('');
-    const badge = o && o.backorder ? (o.ready === 'all' ? '<span class="tag bo" style="background:#1f3b2a;color:var(--good)">Backorder · stock in now</span>'
+    const badge = o && o.backorder ? (o.ready === 'all' ? '<span class="tag bo" style="background:var(--tint-good);color:var(--good)">Backorder · stock in now</span>'
       : o.ready === 'some' ? '<span class="tag bo">Backorder · partial stock</span>' : '<span class="tag bo">Backorder · still short</span>') : '';
     modal(`<h3>${esc(d.no)}</h3>
       <div class="sub">${esc(d.customer)} · ${esc(d.address || [d.town, d.postcode].filter(Boolean).join(', '))}</div>
       <div class="tags">${badge}</div>
       <div class="meta">${esc(d.carrier || 'No delivery method')}${N(d.weight) ? ' · ' + (Math.round(N(d.weight) * 10) / 10) + ' kg' : ''}${d.value ? ' · ' + gbp(d.value) + ' ex VAT' : ''}${d.rep ? ' · ' + esc(d.rep) : ''}</div>
       ${d.notes ? `<div class="note">${esc(d.notes)}</div>` : ''}
-      ${d.sent_back ? `<div class="backmsg">↩ Sent back by ${esc(d.sent_back.by || 'warehouse')}: ${esc(d.sent_back.reason || '')}${d.sent_back.note ? ' · “' + esc(d.sent_back.note) + '”' : ''}</div>` : ''}
+      ${d.sent_back ? `<div class="backmsg">Sent back by ${esc(d.sent_back.by || 'warehouse')}: ${esc(d.sent_back.reason || '')}${d.sent_back.note ? ' · “' + esc(d.sent_back.note) + '”' : ''}</div>` : ''}
       <div style="overflow:auto;max-height:50vh"><table style="width:100%;border-collapse:collapse;font-size:13px">
         <thead><tr style="color:var(--muted);text-align:left"><th>SKU</th><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">B/O</th><th style="text-align:right">On hand</th><th style="text-align:right">On order</th><th style="text-align:right">Available</th><th>Next in</th></tr></thead>
         <tbody>${rows || '<tr><td colspan="8" class="empty">No lines</td></tr>'}</tbody>

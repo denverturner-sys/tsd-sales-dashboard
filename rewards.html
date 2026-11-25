@@ -42,18 +42,18 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;fl
 @media (max-width:860px){.cols{grid-template-columns:1fr}}
 .seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .seg button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:700;cursor:pointer}
-.seg button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .seg.tabs button{border-radius:10px;padding:9px 16px}
 input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
 textarea{width:100%;min-height:80px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--muted)}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.del{color:var(--bad);border-color:rgba(255,122,107,.5)}
 .btn:disabled{opacity:.5;cursor:default}
-.tier{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:2px 7px;color:#262727;letter-spacing:.4px}
+.tier{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:2px 7px;color:var(--on-accent);letter-spacing:.4px}
 .tier.Bronze{background:var(--bronze)} .tier.Silver{background:var(--silver)} .tier.Gold{background:var(--gold)}
 .bar{height:10px;border-radius:6px;background:var(--panel2);overflow:hidden;display:flex}
 .bar span{display:block;height:100%}
@@ -63,13 +63,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .funnel span{font-size:12px;color:var(--muted)}
 @media (max-width:600px){.funnel{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .ms{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)} .ms:last-child{border-bottom:0}
-.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;color:#262727;font-weight:900;font-size:16px;line-height:1;padding:0}
+.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;color:var(--on-accent);font-weight:900;font-size:16px;line-height:1;padding:0}
 .tick.on{background:var(--good);border-color:var(--good)}
 .tick:disabled{cursor:default}
 .mt{flex:1;min-width:0;font-weight:600;line-height:1.35}
 .ms.done .mt{color:var(--muted);text-decoration:line-through}
 .mm{font-size:12px;color:var(--muted);margin-top:3px;font-weight:400;text-decoration:none;display:flex;gap:10px;flex-wrap:wrap}
-.mm .late{color:var(--bad);font-weight:700} .mm .soon{color:var(--accent);font-weight:700}
+.mm .late{color:var(--bad);font-weight:700} .mm .soon{color:var(--accent-text);font-weight:700}
 .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
 .bc{background:var(--panel2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border:1px solid transparent}
 .bc.declined{opacity:.55}
@@ -78,7 +78,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .bs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .bs div{background:var(--panel);border-radius:8px;padding:7px 8px}
 .bs b{display:block;font-size:15px} .bs span{font-size:11px;color:var(--muted)}
-.bnote{font-size:13px;color:#ddd;white-space:pre-wrap;line-height:1.4}
+.bnote{font-size:13px;color:var(--ink);white-space:pre-wrap;line-height:1.4}
 .bact{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .bact select{padding:6px 8px;font-size:13px}
 .sh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
@@ -112,6 +112,7 @@ label.l{font-size:12px;color:var(--muted);display:block;margin:0 0 3px}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #msg{padding:40px;text-align:center;color:var(--muted)}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -198,7 +199,7 @@ function chart(){
     g += `<text x="${x + w / 2}" y="${H - 8}" font-size="11" fill="#B9BCBC" text-anchor="middle">${lbl}</text>`;
   });
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Trade account web sales by month">${g}</svg>
-    <div class="legend"><span><i style="background:#8EC5FF"></i>All trade accounts</span><span><i style="background:#EED107"></i>Beta customers (once switched on)</span></div>`;
+    <div class="legend"><span><i style="background:#8EC5FF"></i>All trade accounts</span><span><i style="background:var(--accent)"></i>Beta customers (once switched on)</span></div>`;
 }
 
 function renderOverview(el){
@@ -257,7 +258,7 @@ function creditCard(){
 function msRow(m){
   const today = new Date().toISOString().slice(0, 10);
   const due = m.due ? (m.due < today && !m.done ? `<span class="late">was due ${day(m.due)}</span>` : (Math.abs(new Date(m.due) - new Date()) < 7 * 864e5 && !m.done ? `<span class="soon">due ${day(m.due)}</span>` : `due ${m.due_label || day(m.due)}`)) : (m.due_label ? `due ${esc(m.due_label)}` : '');
-  return `<div class="ms ${m.done ? 'done' : ''}"><button class="tick ${m.done ? 'on' : ''}" data-ms="${m.id}" ${D.me.is_admin ? '' : 'disabled'} aria-label="${m.done ? 'Mark not done' : 'Mark done'}">${m.done ? '✓' : ''}</button>
+  return `<div class="ms ${m.done ? 'done' : ''}"><button class="tick ${m.done ? 'on' : ''}" data-ms="${m.id}" ${D.me.is_admin ? '' : 'disabled'} aria-label="${m.done ? 'Mark not done' : 'Mark done'}">${m.done ? '' : ''}</button>
     <div class="mt">${esc(m.title)}<div class="mm">${due ? `<span>${due}</span>` : ''}${m.owner ? `<span>${esc(m.owner)}</span>` : ''}${m.done && m.done_at ? `<span>done ${day(m.done_at)}</span>` : ''}</div></div>
     ${D.me.is_admin && tab === 'plan' ? `<button class="btn sm del" data-msrm="${m.id}">Remove</button>` : ''}</div>`;
 }

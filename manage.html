@@ -37,12 +37,12 @@ td.l,th.l{text-align:left}
 td.name{font-weight:700}
 .seen{font-size:12px;color:var(--muted)}
 .seen.old{color:var(--bad)}
-input[type=checkbox]{width:20px;height:20px;accent-color:#EED107;cursor:pointer}
-.adm{color:var(--accent);font-size:13px;font-weight:700}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
+.adm{color:var(--accent-text);font-size:13px;font-weight:700}
 input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px}
 textarea{width:100%;min-height:60px;resize:vertical}
 .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 13px;font-weight:700;cursor:pointer}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.sm{padding:4px 9px;font-size:13px}
 .btn.del{color:var(--bad);border-color:rgba(255,122,107,.5)}
 .add{display:grid;grid-template-columns:170px 1fr 150px 120px auto;gap:8px}
@@ -53,13 +53,13 @@ textarea{width:100%;min-height:60px;resize:vertical}
 .ph b{font-size:18px}
 .task{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
 .task:last-child{border-bottom:0}
-.tick{width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;color:#262727;font-weight:900;line-height:1}
+.tick{width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;color:var(--on-accent);font-weight:900;line-height:1}
 .tick.on{background:var(--good);border-color:var(--good)}
 .tb{flex:1;min-width:0} .tt{font-weight:600;word-wrap:break-word} .done .tt{text-decoration:line-through;color:var(--muted)}
 .meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
-.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent);font-weight:700}
+.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent-text);font-weight:700}
 .pri{display:inline-block;font-size:10px;font-weight:800;border-radius:4px;padding:1px 5px;margin-right:5px;vertical-align:2px}
-.pri.p2{background:var(--bad);color:#262727} .pri.p1{background:var(--accent);color:#262727}
+.pri.p2{background:var(--bad);color:var(--on-accent)} .pri.p1{background:var(--accent);color:var(--on-accent)}
 .by{color:var(--blue)}
 .empty{color:var(--muted);font-size:14px;padding:6px 0}
 .log{font-size:13px;color:var(--muted);line-height:1.7}
@@ -74,19 +74,20 @@ textarea{width:100%;min-height:60px;resize:vertical}
 .filters input[type=search]{min-width:220px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-weight:700;font-size:13px;cursor:pointer}
-.chip.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.chip.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 tr.pick{cursor:pointer} tr.pick:hover td{background:var(--panel2)} tr.sel td{background:rgba(238,209,7,.12)}
 td.n{font-family:var(--num);font-size:20px;letter-spacing:.5px}
-td.z{color:#6b6e6e}
+td.z{color:var(--muted)}
 .feed td{white-space:normal;vertical-align:top;text-align:left}
 .feed td.t{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums}
 .kind{display:inline-block;font-size:10px;font-weight:800;border-radius:4px;padding:1px 6px;letter-spacing:.5px}
-.kind.change{background:var(--accent);color:#262727} .kind.click{border:1px solid var(--line);color:var(--muted)}
-.kind.view{border:1px solid var(--blue);color:var(--blue)} .kind.login{background:var(--blue);color:#262727}
+.kind.change{background:var(--accent);color:var(--on-accent)} .kind.click{border:1px solid var(--line);color:var(--muted)}
+.kind.view{border:1px solid var(--blue);color:var(--blue)} .kind.login{background:var(--blue);color:var(--on-accent)}
 .res.ok{color:var(--good);font-weight:700} .res.bad{color:var(--bad);font-weight:700}
 .dt{font-size:12px;color:var(--muted);margin-top:2px}
 .ref{font-weight:700;white-space:nowrap}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -191,7 +192,7 @@ function renderEmails(){
   const all = [...D.people, ...(D.extras || [])];
   document.getElementById('app').innerHTML = `
   <header><div><div class="title">Emails</div>
-    <div class="sub">Tick who gets which email. It takes effect from the next one that goes out. Task emails (new task, due today, overdue) always go to whoever has the task and can't be turned off.${D.quote_chase_live ? '' : ' <b style="color:var(--accent)">Quote follow-ups aren\'t switched on yet: ticks are saved ready for when it is.</b>'}</div></div></header>
+    <div class="sub">Tick who gets which email. It takes effect from the next one that goes out. Task emails (new task, due today, overdue) always go to whoever has the task and can't be turned off.${D.quote_chase_live ? '' : ' <b style="color:var(--accent-text)">Quote follow-ups aren\'t switched on yet: ticks are saved ready for when it is.</b>'}</div></div></header>
   <div class="card scroll"><table>
     <tr><th class="l">Person</th>${E.map(e => `<th title="${esc(e.note)}">${esc(e.name)}<div style="font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px">${esc(e.when)}</div></th>`).join('')}</tr>
     ${D.people.map(p => `<tr><td class="l name">${esc(p.name)}${p.is_admin ? ' <span class="adm">admin</span>' : ''}</td>
@@ -260,7 +261,7 @@ function renderTasks(){
 }
 function row(t){
   const done = t.status === 'done';
-  return `<div class="task ${done ? 'done' : ''}"><button class="tick ${done ? 'on' : ''}" data-done="${t.id}" data-on="${done ? 0 : 1}">${done ? '✓' : ''}</button>
+  return `<div class="task ${done ? 'done' : ''}"><button class="tick ${done ? 'on' : ''}" data-done="${t.id}" data-on="${done ? 0 : 1}">${done ? '' : ''}</button>
     <div class="tb"><div class="tt">${t.priority ? `<span class="pri p${t.priority}">${t.priority === 2 ? 'URGENT' : 'HIGH'}</span>` : ''}${esc(t.title)}</div>
       <div class="meta">${dueTxt(t)}<span>${done ? 'done ' + dmy(t.done_at) : onList(t.created_at)}</span><span class="by">${t.added_by ? 'added by ' + esc(t.added_by) : 'their own'}</span></div></div>
     <button class="btn sm" data-edit="${t.id}">Edit</button></div>`;
@@ -370,7 +371,7 @@ function renderActivity(){
         <td>${esc(r.screen || '')}</td>
         <td><span class="kind ${r.kind}">${({ change: 'CHANGE', click: 'CLICK', view: 'SCREEN', login: 'LOGIN' })[r.kind]}</span> ${what(r)}${extra(r)}</td>
         <td class="ref">${esc(r.ref || '')}</td>
-        <td>${r.kind === 'change' ? (r.ok ? '<span class="res ok">✓ worked</span>' : `<span class="res bad">✗ failed</span><div class="dt">${esc(r.err || '')}</div>`) : ''}</td></tr>`).join('')}</table></div>
+        <td>${r.kind === 'change' ? (r.ok ? '<span class="res ok">worked</span>' : `<span class="res bad">failed</span><div class="dt">${esc(r.err || '')}</div>`) : ''}</td></tr>`).join('')}</table></div>
       ${A.rows.length > shown ? `<button class="btn" id="amore" style="margin-top:10px">Show more (${A.rows.length - shown} more)</button>` : ''}
       ${A.total > A.rows.length ? `<div class="sub" style="margin-top:8px">Showing the latest ${A.rows.length} of ${A.total}. Pick a person or a type to narrow it down.</div>` : ''}`
       : '<div class="empty">Nothing matches.</div>'}</div>`;

@@ -49,6 +49,7 @@ svg text{font-family:var(--body);fill:var(--muted);font-size:12px}
 #msg{padding:40px;text-align:center;color:var(--muted);font-size:18px}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -161,8 +162,8 @@ function custCard(c){
   const mmax = Math.max(1, ...mons.map(m => Number(m.total) || 0));
   const mbars = mons.map(m => { const e = Number(m.existing)||0, n = Number(m.new)||0, a = Number(m.anon)||0, h = v => (v/mmax*100).toFixed(1);
     return `<div style="flex:1;text-align:center"><div style="height:110px;display:flex;flex-direction:column-reverse;align-items:center"><div style="width:62%;display:flex;flex-direction:column-reverse;height:100%;justify-content:flex-start">
-      <div style="height:${h(e)}%;background:#8EC5FF" title="Existing ${gbp(e)}"></div><div style="height:${h(n)}%;background:#7DDB98" title="New ${gbp(n)}"></div><div style="height:${h(a)}%;background:#6B6E6E" title="Cash sales ${gbp(a)}"></div></div></div>
-      <div class="sub" style="margin-top:4px">${mon(m.m + '-01')}${m.m === mons.at(-1).m ? '*' : ''}</div><div class="sub"><span style="color:#8EC5FF">${gbpk(e)}</span> · <span style="color:#7DDB98">${gbpk(n)}</span></div></div>`; }).join('');
+      <div style="height:${h(e)}%;background:#8EC5FF" title="Existing ${gbp(e)}"></div><div style="height:${h(n)}%;background:var(--good)" title="New ${gbp(n)}"></div><div style="height:${h(a)}%;background:var(--muted)" title="Cash sales ${gbp(a)}"></div></div></div>
+      <div class="sub" style="margin-top:4px">${mon(m.m + '-01')}${m.m === mons.at(-1).m ? '*' : ''}</div><div class="sub"><span style="color:var(--blue)">${gbpk(e)}</span> · <span style="color:var(--good)">${gbpk(n)}</span></div></div>`; }).join('');
   const top = (c.top || []).slice(0, 10).map(t => `<tr><td>${esc(t.name).slice(0, 38)}</td><td><span style="color:${(BK[t.bucket]||['','#fff'])[1]}">${(BK[t.bucket]||[''])[0]}</span></td><td class="r">${t.orders}</td><td class="r"><b>${gbp(t.wb)}</b></td></tr>`).join('');
   return `<style>.ct{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}.ct td,.ct th{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left}.ct th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700}.ct .r{text-align:right}</style>
   <div class="card" style="margin-top:12px">
@@ -174,7 +175,7 @@ function custCard(c){
       <div><table class="ct"><tr><th>Customers</th><th class="r">People</th><th class="r">Orders</th><th class="r">Sales</th><th class="r">Share</th></tr>${rows}</table>
         ${shift}</div>
       <div><div class="k" style="margin-top:4px">By month</div><div style="display:flex;gap:6px;margin-top:8px;align-items:flex-end">${mbars}</div>
-        <div class="legend"><span><i style="background:#8EC5FF"></i>Existing</span><span><i style="background:#7DDB98"></i>New</span><span><i style="background:#6B6E6E"></i>Cash sales (no name)</span><span>* month so far</span></div></div>
+        <div class="legend"><span><i style="background:#8EC5FF"></i>Existing</span><span><i style="background:var(--good)"></i>New</span><span><i style="background:var(--muted)"></i>Cash sales (no name)</span><span>* month so far</span></div></div>
     </div>
     <div class="k" style="margin-top:14px">Biggest named customers at WB</div>
     <table class="ct"><tr><th>Customer</th><th></th><th class="r">Orders</th><th class="r">WB sales</th></tr>${top}</table>
@@ -198,7 +199,7 @@ function dayChart(d){
   const bars = days.map((x, i) => { const v = Number(x.sales) || 0, X = P.l + i * bw + bw * .15, w = bw * .7;
     const lbl = new Date(x.d + 'T12:00:00').getDate();
     return (x.sales != null ? `<rect x="${X}" y="${y(v)}" width="${w}" height="${Math.max(0, H - P.b - y(v))}" rx="2" fill="${dt && v >= dt ? '#7DDB98' : '#EED107'}"><title>${x.d}: ${gbp(v)}</title></rect>` : '')
-      + `<text x="${X + w/2}" y="${H - 8}" text-anchor="middle" ${x.d === d.today ? 'style="fill:#fff;font-weight:700"' : ''}>${lbl}</text>`; }).join('');
+      + `<text x="${X + w/2}" y="${H - 8}" text-anchor="middle" ${x.d === d.today ? 'style="fill:var(--ink);font-weight:700"' : ''}>${lbl}</text>`; }).join('');
   const tl = dt ? `<line x1="${P.l}" x2="${W - P.r}" y1="${y(dt)}" y2="${y(dt)}" stroke="#fff" stroke-width="2" stroke-dasharray="6 4"/>` : '';
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Daily sales this month">${axis(max, W, H, P)}${bars}${tl}</svg>`;
 }
@@ -244,13 +245,13 @@ function trendCard(d){
   months += `<text x="${P.l + 2}" y="${H - 10}">Opened ${t0.getDate()} ${t0.toLocaleDateString('en-GB',{month:'short'})}</text>`;
   const daily = f.hist.filter(h => h.d !== d.today);
   const dots = daily.map(h => `<circle cx="${X(h.x).toFixed(1)}" cy="${Y(h.v).toFixed(1)}" r="${h.v > max ? 4 : 2.5}" fill="${h.v > max ? '#fff' : '#8EC5FF'}"><title>${new Date(h.d + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short', day:'numeric', month:'short'})}: ${gbp(h.v)}</title></circle>`
-    + (h.v > max ? `<text x="${X(h.x) + 6}" y="${Y(h.v) + 4}" style="fill:#fff">${gbpk(h.v)}</text>` : '')).join('');
+    + (h.v > max ? `<text x="${X(h.x) + 6}" y="${Y(h.v) + 4}" style="fill:var(--ink)">${gbpk(h.v)}</text>` : '')).join('');
   const tod = f.hist.find(h => h.d === d.today);
   const todDot = tod ? `<circle cx="${X(tod.x)}" cy="${Y(tod.v)}" r="4" fill="none" stroke="#fff" stroke-width="1.5"><title>Today so far: ${gbp(tod.v)}</title></circle>` : '';
   const band = f.fut.length && f.sd ? `<path d="${path([{x:lastX, v:f.at(lastX) + f.sd}, ...f.fut.map(q => ({x:q.x, v:q.v + f.sd}))])}L${[...f.fut].reverse().map(q => `${X(q.x).toFixed(1)},${Y(Math.max(0, q.v - f.sd)).toFixed(1)}`).join('L')}L${X(lastX).toFixed(1)},${Y(Math.max(0, f.at(lastX) - f.sd)).toFixed(1)}Z" fill="#EED107" opacity=".12"/>` : '';
   const trendPast = `<path d="${path([{x:0, v:f.at(0)}, {x:lastX, v:f.at(lastX)}])}" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 5" fill="none" opacity=".5"/>`;
   const proj = f.fut.length ? `<path d="${path([{x:lastX, v:f.at(lastX)}, ...f.fut])}" stroke="#fff" stroke-width="2.5" stroke-dasharray="8 6" fill="none"/>` : '';
-  const todayLine = `<line x1="${X(lastX)}" x2="${X(lastX)}" y1="${P.t}" y2="${H - P.b}" stroke="#B9BCBC" stroke-width="1"/><text x="${X(lastX) + 4}" y="${P.t + 10}" style="fill:#fff">Projection →</text>`;
+  const todayLine = `<line x1="${X(lastX)}" x2="${X(lastX)}" y1="${P.t}" y2="${H - P.b}" stroke="#B9BCBC" stroke-width="1"/><text x="${X(lastX) + 4}" y="${P.t + 10}" style="fill:var(--ink)">Projection →</text>`;
   const avgLine = `<path d="${path(f.roll)}" stroke="#EED107" stroke-width="3" fill="none" stroke-linejoin="round"/>`;
   const perDay = f.at(lastX), wk = f.b * 7;
   const dir = Math.abs(wk) < 15 ? 'roughly flat so far' : (wk > 0 ? `rising about <b class="good">${gbp(wk)}</b> a day every week` : `falling about <b class="bad">${gbp(-wk)}</b> a day every week`);
@@ -269,7 +270,7 @@ function monthChart(ms){
   const bars = ms.map((m, i) => { const v = Number(m.sales) || 0, X = P.l + i * bw + bw * .2, w = bw * .6;
     const prev = i ? Number(ms[i-1].sales) : null, ch = prev && !m.partial ? (v - prev) / prev : null;
     return `<rect x="${X}" y="${y(v)}" width="${w}" height="${Math.max(0, H - P.b - y(v))}" rx="3" fill="${m.partial ? '#474949' : '#EED107'}"><title>${mon(m.m)}: ${gbp(v)}</title></rect>
-      <text x="${X + w/2}" y="${y(v) - 6}" text-anchor="middle" style="fill:#fff;font-weight:700">${gbpk(v)}${ch != null ? ` <tspan style="fill:${ch >= 0 ? '#7DDB98' : '#FF7A6B'}">${ch >= 0 ? '+' : ''}${Math.round(ch*100)}%</tspan>` : ''}</text>
+      <text x="${X + w/2}" y="${y(v) - 6}" text-anchor="middle" style="fill:var(--ink);font-weight:700">${gbpk(v)}${ch != null ? ` <tspan style="fill:${ch >= 0 ? '#7DDB98' : '#FF7A6B'}">${ch >= 0 ? '+' : ''}${Math.round(ch*100)}%</tspan>` : ''}</text>
       ${m.target ? `<line x1="${X - 4}" x2="${X + w + 4}" y1="${y(m.target)}" y2="${y(m.target)}" stroke="#fff" stroke-width="3"/>` : ''}
       <text x="${X + w/2}" y="${H - 8}" text-anchor="middle">${mon(m.m)}${m.partial ? ' (so far)' : m.opened ? ' (from ' + new Date(m.opened + 'T12:00:00').getDate() + 'th)' : ''}</text>`; }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Sales month on month">${axis(max, W, H, P)}${bars}</svg>`;

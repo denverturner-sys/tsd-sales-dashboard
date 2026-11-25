@@ -34,21 +34,21 @@ input,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var
 textarea{width:100%;min-height:70px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
 .btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}
-.btn.y{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.y{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.del{color:var(--bad);border-color:rgba(255,122,107,.5)}
 .task{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
 .task:last-child{border-bottom:0}
-.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:#262727;font-weight:900;font-size:16px;line-height:1}
+.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);background:transparent;cursor:pointer;flex:none;margin-top:1px;color:var(--on-accent);font-weight:900;font-size:16px;line-height:1}
 .tick.on{background:var(--good);border-color:var(--good)}
 .tb{flex:1;min-width:0}
 .tt{font-size:16px;font-weight:600;line-height:1.3;word-wrap:break-word}
 .done .tt{text-decoration:line-through;color:var(--muted)}
 .meta{font-size:13px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
-.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent);font-weight:700}
-.notes{font-size:14px;color:#ddd;margin-top:6px;white-space:pre-wrap;line-height:1.4}
+.meta .late{color:var(--bad);font-weight:700} .meta .today{color:var(--accent-text);font-weight:700}
+.notes{font-size:14px;color:var(--ink);margin-top:6px;white-space:pre-wrap;line-height:1.4}
 .pri{display:inline-block;font-size:11px;font-weight:800;border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:2px}
-.pri.p2{background:var(--bad);color:#262727} .pri.p1{background:var(--accent);color:#262727}
+.pri.p2{background:var(--bad);color:var(--on-accent)} .pri.p1{background:var(--accent);color:var(--on-accent)}
 .tag{display:inline-block;font-size:11px;font-weight:700;border:1px solid var(--blue);color:var(--blue);border-radius:999px;padding:1px 8px}
 .acts{display:flex;gap:6px;flex:none}
 .empty{color:var(--muted);padding:10px 0}
@@ -60,13 +60,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 #msg{padding:40px;text-align:center;color:var(--muted)}
 .ms h3{margin:0 0 2px;font-size:16px}
 .ms .lock{color:var(--good);font-weight:700;font-size:13px}
-.ms .day{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin:12px 0 4px}
+.ms .day{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent-text);margin:12px 0 4px}
 .ms .ev{display:flex;gap:10px;padding:5px 0;font-size:14px}.ms .ev .t{color:var(--muted);flex:none;width:92px}
 .ms .li{padding:5px 0;font-size:14px;display:flex;gap:8px}.ms .li .imp{color:var(--bad);font-weight:800}
 .ms .calnav{display:flex;gap:8px;align-items:center;margin:10px 0}.ms .calnav b{flex:1;text-align:center;font-size:15px}
 .ms .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.ms .ch{font-size:11px;text-align:center;color:var(--muted);font-weight:700;text-transform:uppercase}
 .ms .cd{min-height:46px;border:1px solid var(--line);border-radius:6px;padding:3px 5px;cursor:pointer;background:var(--panel2);display:flex;flex-direction:column;justify-content:space-between}
-.ms .cd b{font-size:13px}.ms .cd.off{opacity:.4}.ms .cd.today{border-color:var(--accent)}.ms .cd.sel{background:var(--accent);color:#262727}.ms .cd .dot{font-size:10px;color:var(--blue);letter-spacing:1px}.ms .cd.sel .dot{color:#262727}
+.ms .cd b{font-size:13px}.ms .cd.off{opacity:.4}.ms .cd.today{border-color:var(--accent)}.ms .cd.sel{background:var(--accent);color:var(--on-accent)}.ms .cd .dot{font-size:10px;color:var(--blue);letter-spacing:1px}.ms .cd.sel .dot{color:var(--on-accent)}
 .ms .msadd{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.ms .msadd input,.ms .msadd select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}.ms .msadd #msti{flex:1;min-width:180px}
 .ms .li input[type=checkbox]{width:18px;height:18px;flex:none;margin-top:2px;cursor:pointer}
 .ms .ln{font-size:12px;font-weight:700;color:var(--blue);margin:10px 0 2px}
@@ -74,12 +74,13 @@ table.ol{width:100%;border-collapse:collapse}table.ol th{font-size:11px;letter-s
 table.ol td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:middle}table.ol tr:hover td{background:var(--panel2)}table.ol tr.clk{cursor:pointer}
 .dv{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:12px 0}.dv .k{font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}@media(max-width:700px){.dv{grid-template-columns:1fr}}
 .dn{background:rgba(238,209,7,.12);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin:8px 0}.tot{margin-left:auto;width:260px;margin-top:10px}.tot div{display:flex;justify-content:space-between;padding:3px 0}.tot .g{border-top:2px solid var(--line);font-weight:800;font-size:17px;margin-top:4px;padding-top:6px}.r{text-align:right}
-.bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.bar input{flex:1;min-width:200px}.st{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--line)}.st.BACKORDERED{background:var(--accent);color:#262727}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.bar input{flex:1;min-width:200px}.st{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--line)}.st.BACKORDERED{background:var(--accent);color:var(--on-accent)}
 .pbtn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:13px}.pbtn:hover{border-color:var(--accent)}
 a.trk{color:var(--blue,#35D0C5);font-weight:700;text-decoration:none;white-space:nowrap}a.trk:hover{text-decoration:underline}
 #pv{width:100%;height:62vh;border:0;background:#fff;border-radius:8px}.on{color:var(--good)}.off{color:var(--bad)}
 @media(max-width:700px){table.ol .hm{display:none}}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -161,7 +162,7 @@ async function load(){
 function draw(){
   const stn = document.getElementById('stn'); if (stn) stn.innerHTML = ['dispatch', 'office'].map(p => D.online[p] ? `<b class="on">● ${PR[p]} connected</b>` : `<b class="off">● ${PR[p]} not connected</b>`).join(' &nbsp; ') + ' <span class="sub">(you can still print from this screen)</span>';
   document.getElementById('list').innerHTML = D.orders.length ? `<table class="ol"><tr><th>Order</th><th>Date</th><th>Customer</th><th class="hm">Site</th><th>Status</th><th>Tracking</th>${D.can_price ? '<th class="r hm">Ex VAT</th>' : ''}<th></th></tr>` +
-    D.orders.map(o => `<tr class="clk" data-row="${o.id}"><td><b>${esc(o.no)}</b>${o.ref ? `<div class="sub">Web #${esc(o.ref)}</div>` : ''}${o.prints ? `<div class="sub" title="Last printed ${esc(when(o.prints.at))} by ${esc(o.prints.by)} (${esc(PN[o.prints.printer] || o.prints.printer)})">🖨 printed${o.prints.n > 1 ? ' ×' + o.prints.n : ''} · ${esc(o.prints.by)}</div>` : ''}</td><td>${dmy(o.date)}</td><td>${esc(o.customer)}</td><td class="hm">${esc(o.location)}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span></td><td>${trackLinks(o.parcels, o.postcode, false)}</td>${D.can_price ? `<td class="r hm">${gbp(o.total)}</td>` : ''}<td class="r"><button class="pbtn" data-o="${o.id}">Print…</button></td></tr>`).join('') + '</table>' + (D.orders.length >= 100 ? '<div class="sub" style="margin-top:8px">Showing the latest 100. Search to narrow it down.</div>' : '') : '<div class="empty">No orders match.</div>';
+    D.orders.map(o => `<tr class="clk" data-row="${o.id}"><td><b>${esc(o.no)}</b>${o.ref ? `<div class="sub">Web #${esc(o.ref)}</div>` : ''}${o.prints ? `<div class="sub" title="Last printed ${esc(when(o.prints.at))} by ${esc(o.prints.by)} (${esc(PN[o.prints.printer] || o.prints.printer)})">printed${o.prints.n > 1 ? ' ×' + o.prints.n : ''} · ${esc(o.prints.by)}</div>` : ''}</td><td>${dmy(o.date)}</td><td>${esc(o.customer)}</td><td class="hm">${esc(o.location)}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span></td><td>${trackLinks(o.parcels, o.postcode, false)}</td>${D.can_price ? `<td class="r hm">${gbp(o.total)}</td>` : ''}<td class="r"><button class="pbtn" data-o="${o.id}">Print…</button></td></tr>`).join('') + '</table>' + (D.orders.length >= 100 ? '<div class="sub" style="margin-top:8px">Showing the latest 100. Search to narrow it down.</div>' : '') : '<div class="empty">No orders match.</div>';
   document.querySelectorAll('a.trk').forEach(a => a.onclick = e => { e.stopPropagation(); if (a.dataset.pf) trackPalletforce(a.dataset.pf, a.dataset.pfPc); });
   document.querySelectorAll('[data-o]').forEach(b => b.onclick = e => { e.stopPropagation(); printDlg(D.orders.find(o => o.id === b.dataset.o)); });
   document.querySelectorAll('tr[data-row]').forEach(r => r.onclick = () => openOrder({ id: r.dataset.row }));
@@ -240,9 +241,9 @@ function printDlg(o){
   const full = (D.orders || []).find(x => x.id === o.id), pr = o.prints || (full && full.prints);
   const st = ['dispatch', 'office'].map(p => D.online[p] ? `<span class="on">● ${PR[p]} connected</span>` : `<span class="off">● ${PR[p]} not connected</span>`).join(' &nbsp; ');
   modal(`<h3 style="margin:0">${esc(o.no)} · ${esc(o.customer)}</h3><div class="sub">${st}</div>
-    ${pr ? `<div class="sub" style="color:var(--ink);margin-top:6px">🖨 Already printed ${pr.n > 1 ? pr.n + ' times' : 'once'}. Last: ${esc(when(pr.at))} by ${esc(pr.by)}.</div>` : ''}
+    ${pr ? `<div class="sub" style="color:var(--ink);margin-top:6px">Already printed ${pr.n > 1 ? pr.n + ' times' : 'once'}. Last: ${esc(when(pr.at))} by ${esc(pr.by)}.</div>` : ''}
     ${docs.map(([d, n, h]) => `<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap"><div style="flex:1;min-width:130px"><b>${n}</b> <span class="sub">${h}</span></div>
-      <button class="pbtn" data-pv="${d}">View / print here</button><button class="pbtn" data-q="${d}" data-p="dispatch" style="border-color:var(--accent)">🖨 Dispatch</button><button class="pbtn" data-q="${d}" data-p="office" style="border-color:var(--accent)">🖨 Office</button></div>`).join('')}
+      <button class="pbtn" data-pv="${d}">View / print here</button><button class="pbtn" data-q="${d}" data-p="dispatch" style="border-color:var(--accent)">Dispatch</button><button class="pbtn" data-q="${d}" data-p="office" style="border-color:var(--accent)">Office</button></div>`).join('')}
     <div id="perr" class="sub"></div><div class="row"><button class="btn" onclick="closeModal()">Close</button></div>`);
   document.querySelectorAll('[data-pv]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Loading…'; try { const j = await api('?doc=' + b.dataset.pv + '&id=' + o.id); preview(o, j, b.dataset.pv); } catch(x){ document.getElementById('perr').textContent = x.message; b.disabled = false; b.textContent = 'View / print here'; } });
   document.querySelectorAll('[data-q]').forEach(b => b.onclick = async () => { b.disabled = true; try { const pr = b.dataset.p;

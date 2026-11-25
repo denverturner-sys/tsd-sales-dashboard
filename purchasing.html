@@ -32,14 +32,14 @@ nav#tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)
 nav#tabs button{background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:700;cursor:pointer}
 nav#tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
 nav#tabs .n{background:var(--line);color:var(--ink);border-radius:999px;padding:1px 7px;font-size:12px;margin-left:6px}
-nav#tabs .n.hot{background:var(--accent);color:#262727}
+nav#tabs .n.hot{background:var(--accent);color:var(--on-accent)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
 .tile{background:var(--panel);border-radius:12px;padding:14px 16px;cursor:pointer;border:2px solid transparent;display:flex;flex-direction:column;gap:4px}
 .tile:hover{border-color:var(--line)}
 .tile .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
 .tile .v{font-family:var(--num);font-size:46px;line-height:1}
 .tile .h{font-size:13px;color:var(--muted)}
-.tile.hot{border-color:var(--accent)} .tile.hot .v{color:var(--accent)}
+.tile.hot{border-color:var(--accent)} .tile.hot .v{color:var(--accent-text)}
 .tile.red .v{color:var(--bad)} .tile.green .v{color:var(--good)}
 .sec{background:var(--panel);border-radius:14px;padding:14px 16px;margin-bottom:16px}
 .sec h2{margin:0 0 10px;font-family:var(--num);font-weight:400;font-size:26px;letter-spacing:1px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
@@ -50,13 +50,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
 td.r,th.r{text-align:right;white-space:nowrap}
 tr.click{cursor:pointer} tr.click:hover td{background:rgba(255,255,255,.03)}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap;margin:1px 3px 1px 0}
-.t-in{background:var(--good);color:#262727} .t-nopo{background:var(--bad);color:#262727} .t-over{background:transparent;border:1px solid var(--bad);color:var(--bad)}
+.t-in{background:var(--good);color:var(--on-accent)} .t-nopo{background:var(--bad);color:var(--on-accent)} .t-over{background:transparent;border:1px solid var(--bad);color:var(--bad)}
 .t-po{background:transparent;border:1px solid var(--blue);color:var(--blue)} .t-snz{background:transparent;border:1px solid var(--muted);color:var(--muted)}
-.t-a{background:var(--accent);color:#262727} .t-b{background:var(--ink);color:#262727} .t-c{background:var(--line);color:var(--ink)} .t-d{background:transparent;border:1px solid var(--line);color:var(--muted)}
-.muted{color:var(--muted)} .bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--accent)}
+.t-a{background:var(--accent);color:var(--on-accent)} .t-b{background:var(--ink);color:var(--bg)} .t-c{background:var(--line);color:var(--ink)} .t-d{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.muted{color:var(--muted)} .bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--accent-text)}
 .btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
-.btn:hover{border-color:var(--muted)} .btn.go{background:var(--accent);color:#262727;border-color:var(--accent)} .btn.sm{padding:4px 8px;font-size:12px}
-.btn.on{background:var(--ink);color:#262727;border-color:var(--ink)}
+.btn:hover{border-color:var(--muted)} .btn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)} .btn.sm{padding:4px 8px;font-size:12px}
+.btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 input.txt,select,textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
 input.txt:focus,textarea:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
@@ -82,7 +82,7 @@ input[type=date]{color-scheme:dark}
 .tlegend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:4px 0 8px}.tlegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .tcat{background:var(--panel2);border-radius:10px;padding:10px 12px}.tcat .n{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tsegs{display:flex;gap:6px;flex-wrap:wrap}.tsegs button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;cursor:pointer}.tsegs button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.tsegs{display:flex;gap:6px;flex-wrap:wrap}.tsegs button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;cursor:pointer}.tsegs button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .up{color:var(--good)}.dn{color:var(--bad)}
 .tfind{position:relative;max-width:520px}.tfind .res{position:absolute;left:0;right:0;top:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;z-index:20;max-height:320px;overflow:auto}
 .tfind .res div{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line)}.tfind .res div:hover{background:var(--line)}
@@ -93,12 +93,12 @@ input[type=date]{color-scheme:dark}
 #modal h3{margin:0;font-family:var(--num);font-weight:400;font-size:30px;letter-spacing:1px}
 #modal .row{display:flex;gap:10px;justify-content:flex-end}
 #modal .err{color:var(--bad);font-size:13px;min-height:16px}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #login form{background:var(--panel);border-radius:14px;padding:28px 24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
 #login img{height:50px;align-self:flex-start}
 #login input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px}
-#login button{background:var(--accent);color:#262727;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
+#login button{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer}
 #lerr{color:var(--bad);font-size:14px;min-height:18px}
 #msg{color:var(--muted);padding:40px;text-align:center;font-size:18px}
 footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
@@ -110,20 +110,21 @@ footer{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.6}
 .ring.flash{animation:flash 1.2s ease-in-out 3}
 @keyframes flash{50%{box-shadow:0 0 0 6px rgba(238,209,7,.45)}}
 .ring h2{margin:0 0 4px;font-family:var(--num);font-weight:400;font-size:26px;letter-spacing:1px;display:flex;gap:8px;align-items:center}
-.ring h2 .n{font-family:var(--body);font-size:13px;background:var(--accent);color:#262727;border-radius:999px;padding:1px 8px;font-weight:700}
+.ring h2 .n{font-family:var(--body);font-size:13px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:1px 8px;font-weight:700}
 .ri{background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;flex-direction:column;gap:5px;border-left:5px solid var(--accent)}
 .ri .t{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
 .ri .t b{font-size:16px}
 td a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:14px;display:block;margin-top:2px}
 .ri a.tel{color:var(--blue);font-weight:700;text-decoration:none;font-size:15px}
 .ri .acts .btn{padding:8px 11px}
-.who{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.4px;padding:2px 8px;border-radius:999px;background:var(--blue);color:#262727;margin-right:4px}
+.who{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.4px;padding:2px 8px;border-radius:999px;background:var(--blue);color:var(--on-accent);margin-right:4px}
 .who.me{background:var(--accent)}
 .who.none{background:transparent;border:1px dashed var(--line);color:var(--muted)}
 .rang{color:var(--good);font-weight:600}
 .filters .lab{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:6px}
 a.solink{color:inherit;text-decoration:underline dotted;cursor:pointer}a.solink:hover{color:var(--accent,#2563eb)}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login">
@@ -327,7 +328,7 @@ function renderTrends(){
   const L = D[trList] || [];
   const tbl = L.length ? `<table><tr><th>Product</th><th>Supplier</th><th class="r">Last 4 wks</th><th class="r">4 wks before</th><th class="r">Change</th><th class="r">Available</th><th class="r">On order</th></tr>
     ${L.map(r => { const c = chg(r.now_r, r.prev_r), oneoff = (trList === 'falling' ? r.prev_n : r.now_n) <= 2;
-      return `<tr class="cl" style="cursor:pointer" onclick="openTrend(${esc(JSON.stringify(r.sku))})"><td><b>${esc(r.sku)}</b> ${esc(r.name)}${oneoff ? `<div class="sub">⚠ ${trList === 'falling' ? r.prev_n : r.now_n} order line${(trList === 'falling' ? r.prev_n : r.now_n) === 1 ? '' : 's'}: probably a one-off big order</div>` : ''}</td><td class="sub">${esc(r.supplier || '')}</td>
+      return `<tr class="cl" style="cursor:pointer" onclick="openTrend(${esc(JSON.stringify(r.sku))})"><td><b>${esc(r.sku)}</b> ${esc(r.name)}${oneoff ? `<div class="sub">${trList === 'falling' ? r.prev_n : r.now_n} order line${(trList === 'falling' ? r.prev_n : r.now_n) === 1 ? '' : 's'}: probably a one-off big order</div>` : ''}</td><td class="sub">${esc(r.supplier || '')}</td>
         <td class="r">${nf(r.now_q)}<div class="sub">${kf(r.now_r)} · ${r.now_n} lines</div></td><td class="r">${nf(r.prev_q)}<div class="sub">${kf(r.prev_r)} · ${r.prev_n} lines</div></td>
         <td class="r">${c == null ? '<b class="up">new</b>' : `<b class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '+' : ''}${c}%</b>`}</td><td class="r">${r.avail == null ? '–' : nf(r.avail)}</td><td class="r">${r.on_order ? nf(r.on_order) : '–'}</td></tr>`; }).join('')}</table>` : '<div class="empty">Nothing here.</div>';
   return head + prod + `
@@ -355,7 +356,7 @@ function productTrend(P){
       <div class="tile" style="cursor:default"><div class="k">Weeks of cover</div><div class="v ${cover != null && cover < 3 ? 'dn' : ''}">${cover == null ? '–' : nf(cover)}</div><div class="h">${ord ? nf(ord) + ' on order' : 'nothing on order'}</div></div>
     </div>
     <div class="tlegend"><span><i style="background:var(--accent)"></i>Bromham</span><span><i style="background:var(--blue)"></i>Wootton Bassett</span><span>Units sold per week</span></div>${wChart}
-    <div class="tlegend" style="margin-top:14px"><span><i style="background:#8A8F8F"></i>Sage (Jul 25 – Jun 26)</span><span><i style="background:var(--accent)"></i>Cin7 (Jul 26 on; July starts on the 7th)</span><span>Units sold per month</span></div>${mChart}
+    <div class="tlegend" style="margin-top:14px"><span><i style="background:var(--muted)"></i>Sage (Jul 25 – Jun 26)</span><span><i style="background:var(--accent)"></i>Cin7 (Jul 26 on; July starts on the 7th)</span><span>Units sold per month</span></div>${mChart}
     ${yoy.length ? `<div class="sub" style="margin-top:6px">Vs same month last year: ${yoy.map(y => `${moLbl(y.m)} ${nf(y.now)}${y.ly != null ? ` vs ${nf(y.ly)} ${y.ly > 0 ? `<b class="${y.now >= y.ly ? 'up' : 'dn'}">(${y.now >= y.ly ? '+' : ''}${Math.round((y.now - y.ly) / y.ly * 100)}%)</b>` : ''}` : ''}`).join(' · ')}</div>` : ''}
     ${(P.customers || []).length ? `<div class="k" style="margin-top:14px;font-weight:700">Who's buying it (last 90 days)</div><table><tr><th>Customer</th><th class="r">Units</th><th class="r">Last bought</th></tr>${P.customers.map(c => `<tr><td>${esc(c.customer)}</td><td class="r">${nf(c.qty)}</td><td class="r">${wkLbl(c.last)}</td></tr>`).join('')}</table>` : ''}</div>`;
 }
@@ -395,7 +396,7 @@ function render(){
   document.getElementById('app').innerHTML = `
     <header><div class="l"><img src="${LOGO}" alt="TSD"><div><div class="title">${SVC() ? 'Backorders' : 'Purchasing'}</div>
       <div class="sub">Orders synced ${hm(M.synced.sales)} · stock ${hm(M.synced.stock)} · POs ${hm(M.synced.pos)} · ${esc(me?.name || '')}</div></div></div>
-      <div class="hr">${locPick}${SVC() ? '' : '<a class="btn" style="text-decoration:none;display:inline-block" href="cin7new.html">➕ New Cin7 product</a>'}<button class="btn" onclick="refresh(true)">Refresh</button></div></header>
+      <div class="hr">${locPick}${SVC() ? '' : '<a class="btn" style="text-decoration:none;display:inline-block" href="cin7new.html">New Cin7 product</a>'}<button class="btn" onclick="refresh(true)">Refresh</button></div></header>
     <nav id="tabs">${tabs.map(([id,label,n,hot]) => `<button class="${id===tab?'on':''}" onclick="setTab('${id}')">${label}${n != null ? `<span class="n ${hot?'hot':''}">${n}</span>` : ''}</button>`).join('')}</nav>
     ${body}
     <footer>${M.summary.lines_pending > 200 ? `<b class="warn">Cin7 order history is still loading (${M.summary.lines_pending} orders to go), so sales rates, cover and dead stock will firm up once that finishes.</b><br>` : ''}Backorders come from Cin7 orders marked Backordered. Stock is per site and refreshes every 15 minutes, POs every 10. Suggested orders use the last 8 weeks of Cin7 sales blended with the same months last year from Sage, aiming for ${S[loc]?.cover_weeks ?? 4} weeks' cover plus ${S[loc]?.lead_weeks ?? 1} week lead time.</footer>`;
@@ -436,7 +437,7 @@ function claimCard(c){
   const live = c.status === 'open' || c.status === 'chasing';
   return `<div class="sec" style="margin-bottom:10px;background:var(--panel2)">
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">
-      <div><span class="tag ${k[1] === 'red' ? 'red' : ''}" style="${k[1] === 'red' ? 'background:var(--bad);color:#262727' : 'border:1px solid var(--line)'}">${k[0]}</span>
+      <div><span class="tag ${k[1] === 'red' ? 'red' : ''}" style="${k[1] === 'red' ? 'background:var(--bad);color:var(--on-accent)' : 'border:1px solid var(--line)'}">${k[0]}</span>
         <b>${c.qty ? (+c.qty).toLocaleString('en-GB') + '× ' : ''}${esc(c.sku || '')}</b> ${esc(c.name || '')}</div>
       <div>${val != null ? `<b>${gbp2(val)}</b> · ` : ''}<span class="tag" style="border:1px solid var(--line)">${CS[c.status] || c.status}</span></div>
     </div>
@@ -595,16 +596,16 @@ function ringBox(wide){
     return `<div class="ri">
       <div class="t"><b>${soLink(b.no)}</b><span class="muted">${ago(b.seen_at)}</span></div>
       <div><b>${esc(b.customer)}</b>${b.contact && b.contact !== b.customer ? ` <span class="muted">· ${esc(b.contact)}</span>` : ''}</div>
-      ${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}">📞 ${esc(b.phone)}</a>` : '<span class="muted">No phone on the order</span>'}
+      ${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}">${esc(b.phone)}</a>` : '<span class="muted">No phone on the order</span>'}
       <div class="muted" style="font-size:13px">${lines} ${tags}</div>
       ${b.owner ? `<div>${whoTag(b.owner)}${b.attempts ? `<span class="muted">${b.attempts} no answer${b.attempts > 1 ? 's' : ''}, last ${hm(b.last_attempt_at)} ${esc(b.last_attempt_by || '')}</span>` : ''}</div>` : ''}
-      <div class="acts"><button class="btn go" onclick="boContact('${b.id}','contacted','${esc(b.no)}')">✓ Rang them</button>
+      <div class="acts"><button class="btn go" onclick="boContact('${b.id}','contacted','${esc(b.no)}')">Rang them</button>
         <button class="btn" onclick="boContact('${b.id}','no_answer','${esc(b.no)}')">No answer</button>
         <button class="btn sm" onclick="addNote('${b.id}','${esc(b.no)}')">Note</button></div>
     </div>`;
   };
   return `<div class="ring ${list.length ? 'hot' : ''}" ${wide ? 'style="position:static;max-height:none;margin-bottom:16px"' : ''}>
-    <h2>🔔 New backorders${list.length ? `<span class="n">${list.length}</span>` : ''}</h2>
+    <h2>New backorders${list.length ? `<span class="n">${list.length}</span>` : ''}</h2>
     <div class="muted" style="font-size:13px">Ring the customer as soon as one lands here, then tick it off. It moves to <b>Rung</b> with your name on it.</div>
     ${list.length ? `<div ${wide ? 'class="cards" style="margin-top:4px"' : ''}>${list.map(item).join('')}</div>` : '<div class="empty" style="margin-top:8px">All caught up. New backorders appear here within a minute or two of being authorised in Cin7.</div>'}
   </div>`;
@@ -635,16 +636,16 @@ function boTable(list, compact){
   return `<table><thead><tr><th>Order</th><th>Customer</th><th class="r">Age</th><th>Backordered lines</th>${compact ? '' : '<th>Follow-up</th><th></th>'}</tr></thead><tbody>
   ${list.map(b => {
     const lines = b.lines.map(l => { const [c,t] = FLAG[l.flag] || ['t-po','']; return `<div class="ln"><b>${n1(l.bo)}×</b><span class="s">${esc(l.sku)}</span><span>${esc(l.name || '')}</span><span class="tag ${c}">${l.flag==='other_site' ? 'Wrong depot' : t}</span>${otherBit(l, b)}${l.flag==='on_po'||l.flag==='overdue' ? `<span class="muted">${(l.pos||[]).map(p => esc(p.po) + (p.expected ? ' due ' + dmy(p.expected) : '')).join(', ') || 'on order ' + n1(l.on_order)}</span>` : ''}</div>`; }).join('');
-    const fu = `<div style="margin-bottom:3px">${whoTag(b.owner)}${b.contacted_at ? `<span class="rang">✓ Rung ${dmy(b.contacted_at)} ${hm(b.contacted_at)}${b.contacted_by ? ' · ' + esc(b.contacted_by) : ''}</span>` : `<span class="bad">Not rung yet</span>${b.attempts ? ` <span class="muted">(${b.attempts} no answer)</span>` : ''}`}</div>${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
+    const fu = `<div style="margin-bottom:3px">${whoTag(b.owner)}${b.contacted_at ? `<span class="rang">Rung ${dmy(b.contacted_at)} ${hm(b.contacted_at)}${b.contacted_by ? ' · ' + esc(b.contacted_by) : ''}</span>` : `<span class="bad">Not rung yet</span>${b.attempts ? ` <span class="muted">(${b.attempts} no answer)</span>` : ''}`}</div>${b.note ? `<div class="note">${esc(b.note)}</div>` : ''}<div class="muted">${b.customer_updated ? 'Customer updated ' + dmy(b.customer_updated) : '<span class="bad">Customer not updated</span>'}${b.snoozed ? ' · <span class="tag t-snz">Snoozed to ' + dmy(b.next_check) + '</span>' : ''}${b.by ? ' · ' + esc(b.by) : ''}</div>`;
     const open = openBo === b.id;
     return `<tr class="click" onclick="openBo = openBo === '${b.id}' ? null : '${b.id}'; ${compact ? "boFilter='all';boSearch='" + esc(b.no) + "';setTab('backorders')" : 'render()'}">
-      <td><b>${soLink(b.no)}</b>${b.forced || b.pinned ? `<div><span class="tag t-snz" title="${b.pinned ? 'Added by hand' : 'Cin7 no longer shows this as backordered but it is not fully shipped'}">${b.pinned ? 'Added by hand' : esc(String(b.sx_status || '').toLowerCase()) + ' · ' + esc(String(b.ship_status || '').toLowerCase())}</span></div>` : ''}<div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div>${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}" onclick="event.stopPropagation()">📞 ${esc(b.phone)}</a>` : ''}</td>
+      <td><b>${soLink(b.no)}</b>${b.forced || b.pinned ? `<div><span class="tag t-snz" title="${b.pinned ? 'Added by hand' : 'Cin7 no longer shows this as backordered but it is not fully shipped'}">${b.pinned ? 'Added by hand' : esc(String(b.sx_status || '').toLowerCase()) + ' · ' + esc(String(b.ship_status || '').toLowerCase())}</span></div>` : ''}<div class="muted">${esc(b.location)}</div></td><td>${esc(b.customer)}<div class="muted">${esc(b.rep || '')}</div>${b.phone ? `<a class="tel" href="tel:${esc(String(b.phone).replace(/[^+\d]/g,''))}" onclick="event.stopPropagation()">${esc(b.phone)}</a>` : ''}</td>
       <td class="r">${b.age}d<div class="muted">${dmy(b.order_date)}</div></td><td class="lines">${lines}</td>
       ${compact ? '' : `<td class="fu">${fu}</td><td onclick="event.stopPropagation()"><div class="acts">
         <select onchange="if(this.value){snooze('${b.id}', +this.value);this.value=''}"><option value="">Remind me in…</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option><option value="14">14 days</option></select>
         ${b.snoozed ? `<button class="btn sm" onclick="snooze('${b.id}', null)">Un-snooze</button>` : ''}
         ${b.owner === me?.name ? `<button class="btn sm" onclick="boContact('${b.id}','unclaim','${esc(b.no)}')">Let go</button>` : `<button class="btn sm" onclick="boContact('${b.id}','claim','${esc(b.no)}')">${b.owner ? 'Take over' : 'Mine'}</button>`}
-        ${b.contacted_at ? `<button class="btn sm" onclick="custUpdated('${b.id}')">Customer updated</button>` : `<button class="btn sm go" onclick="boContact('${b.id}','contacted','${esc(b.no)}')">✓ Rang them</button>`}
+        ${b.contacted_at ? `<button class="btn sm" onclick="custUpdated('${b.id}')">Customer updated</button>` : `<button class="btn sm go" onclick="boContact('${b.id}','contacted','${esc(b.no)}')">Rang them</button>`}
         <button class="btn sm" onclick="addNote('${b.id}','${esc(b.no)}')">Note</button>
         ${SVC() || !(b.forced || b.pinned) ? '' : `<button class="btn sm" onclick="unpinOrder('${b.id}','${esc(b.no)}')">Take off list</button>`}</div></td>`}</tr>
       ${open && !compact ? `<tr class="detail"><td colspan="6">${boDetail(b)}</td></tr>` : ''}`;

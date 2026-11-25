@@ -27,7 +27,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body)
 #tabs{position:sticky;top:0;z-index:20;background:var(--bg);padding-bottom:10px;max-width:none;padding-left:max(16px, calc((100% - 1600px) / 2 + 16px));padding-right:max(16px, calc((100% - 1600px) / 2 + 16px));box-shadow:0 6px 12px -8px rgba(0,0,0,.6)}
 #tabs a{color:var(--muted);text-decoration:none;font-weight:700;font-size:15px;padding:9px 16px;border:1px solid var(--line);border-radius:999px}
 #tabs a:hover{color:var(--ink);border-color:var(--muted)}
-#tabs a.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+#tabs a.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .wrap{max-width:1600px;margin:0 auto;padding:14px 16px 40px}
 header{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}
 header img{height:44px}
@@ -49,7 +49,7 @@ th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)
 th:first-child,td:first-child{text-align:left}
 td{padding:6px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);font-variant-numeric:tabular-nums}
 td.big{font-family:var(--num);font-size:24px;line-height:1}
-.g{color:var(--good)} .b{color:var(--bad)} .y{color:var(--accent)} .m{color:var(--muted)}
+.g{color:var(--good)} .b{color:var(--bad)} .y{color:var(--accent-text)} .m{color:var(--muted)}
 .pos{font-size:13px;line-height:1.5;background:rgba(142,197,255,.08);border-radius:8px;padding:6px 9px}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;text-transform:uppercase;border:1px solid var(--line);color:var(--muted)}
 .price{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;background:rgba(238,209,7,.08);border-radius:8px;padding:7px 10px}.price .pv{font-family:var(--num);font-size:26px;line-height:1}.price .pl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700}.price a{color:var(--blue);font-size:12px;margin-left:auto}
@@ -57,6 +57,7 @@ td.big{font-family:var(--num);font-size:24px;line-height:1}
 .empty{color:var(--muted);padding:20px 4px;font-size:16px}
 footer{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.6}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <script>
@@ -93,7 +94,7 @@ function card(p){
   const rows = SITES.filter(s => lv[s] || s === 'Bromham').map(s => { const l = lv[s] || {};
     const av = +l.available || 0;
     return `<tr><td>${s}</td><td class="big">${n(l.on_hand ?? 0)}</td><td>${n(l.allocated ?? 0)}</td><td class="big ${av > 0 ? 'g' : av < 0 ? 'b' : 'm'}">${n(l.available ?? 0)}</td><td>${n(l.on_order ?? 0)}${l.next ? `<div class="m" style="font-size:12px">next ${dmy(l.next)}</div>` : ''}</td></tr>`; }).join('');
-  const pos = (p.pos || []).slice(0, 4).map(o => `<div>📦 <b>${n(o.qty)}</b> on ${esc(o.po)} · ${esc(o.supplier || '')}${o.location && o.location !== 'Bromham' ? ' · ' + esc(o.location) : ''} · ${o.expected ? 'due ' + dmy(o.expected) : '<span class="m">no date</span>'}</div>`).join('');
+  const pos = (p.pos || []).slice(0, 4).map(o => `<div><b>${n(o.qty)}</b> on ${esc(o.po)} · ${esc(o.supplier || '')}${o.location && o.location !== 'Bromham' ? ' · ' + esc(o.location) : ''} · ${o.expected ? 'due ' + dmy(o.expected) : '<span class="m">no date</span>'}</div>`).join('');
   return `<div class="p ${cls}">
     <div class="top"><span class="sku">${esc(p.sku)}</span>${p.status && p.status !== 'Active' ? `<span class="tag">${esc(p.status)}</span>` : ''}</div>
     <div class="pr">${p.web && p.web.image ? `<img src="${esc(p.web.image)}" alt="" loading="lazy" onerror="this.remove()">` : ''}<div><div class="nm">${esc(p.name)}</div>${p.web && p.web.summary ? `<div class="sum">${esc(p.web.summary)}</div>` : ''}</div></div>

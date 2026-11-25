@@ -40,30 +40,31 @@ header img{height:44px}
 .st{border-radius:10px;padding:10px 12px;background:rgba(255,255,255,.04)}
 .st .h{font-weight:700;font-size:17px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .st .d{font-size:14px;color:var(--muted);margin-top:3px;line-height:1.45}
-.o.good .st .h{color:var(--good)} .o.go .st .h{color:var(--blue)} .o.wait .st .h{color:var(--accent)} .o.bad .st .h{color:var(--bad)}
+.o.good .st .h{color:var(--good)} .o.go .st .h{color:var(--blue)} .o.wait .st .h{color:var(--accent-text)} .o.bad .st .h{color:var(--bad)}
 .parcel{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;margin-top:6px}
 .tn{font-family:ui-monospace,Consolas,monospace;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 7px}
 .btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block;white-space:nowrap}
 .btn:hover{border-color:var(--muted)}
-.btn.go{background:var(--accent);color:#262727;border-color:var(--accent)}
+.btn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .acts{display:flex;gap:6px;flex-wrap:wrap}
 details{font-size:13px}
 details summary{cursor:pointer;color:var(--muted);font-weight:600}
 .ln{display:flex;gap:8px;line-height:1.5;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .ln .q{min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
 .ln .s{color:var(--muted);min-width:90px}
-.bo{color:var(--accent);font-weight:600}
+.bo{color:var(--accent-text);font-weight:600}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;text-transform:uppercase;border:1px solid var(--line);color:var(--muted)}
 .empty{color:var(--muted);padding:20px 4px;font-size:16px}
 footer{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.6}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 #login form{background:var(--panel);border-radius:14px;padding:28px 24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
 #login img{height:50px;align-self:flex-start}
 #login input{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:16px}
-#login button{background:var(--accent);color:#262727;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer;font-size:16px}
+#login button{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer;font-size:16px}
 #lerr{color:var(--bad);font-size:14px;min-height:18px}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login">
@@ -176,13 +177,13 @@ function stage(o){
 
   // collections
   if (o.collection) {
-    if (shipped || /collected/i.test(ct)) return {cls:'good', h:'✓ Collected', d: /collected/i.test(ct) ? esc(ct) : 'Marked as shipped in Cin7.'};
+    if (shipped || /collected/i.test(ct)) return {cls:'good', h:'Collected', d: /collected/i.test(ct) ? esc(ct) : 'Marked as shipped in Cin7.'};
     if (o.pick === 'PICKED' || o.pick === 'PARTIALLY PICKED') return {cls:'go', h:'Ready to collect', d:`From ${esc(o.location || 'Bromham')}. Picked and waiting at the trade counter.`};
   }
 
   // our own van (Track-POD)
   if (v) {
-    if (vanDone) return {cls:'good', h:'✓ Delivered by our van', d:`${dmy(v.date)}${v.driver ? ' · ' + esc(v.driver) : ''}${v.signed_by ? ' · signed by ' + esc(v.signed_by) : ''}${v.photo ? ' · photo taken' : ''}`, ps};
+    if (vanDone) return {cls:'good', h:'Delivered by our van', d:`${dmy(v.date)}${v.driver ? ' · ' + esc(v.driver) : ''}${v.signed_by ? ' · signed by ' + esc(v.signed_by) : ''}${v.photo ? ' · photo taken' : ''}`, ps};
     if (vanFailed) {
       const rest = shipped ? (ps.length ? 'The rest has gone by courier, see below.' : 'Cin7 shows the rest as sent.') : 'The rest still needs sending.';
       return {cls: shipped ? 'go' : 'bad', h: v.status_id === 4 ? 'Van: part delivered' : `Van: ${esc(v.status)}`, d:`${dmy(v.date)}${v.driver ? ' · ' + esc(v.driver) : ''}${v.signed_by ? ' · signed by ' + esc(v.signed_by) : ''}. ${rest}`, ps};
@@ -191,7 +192,7 @@ function stage(o){
       ? `Route ${esc(v.route || '')}${v.driver ? ' · ' + esc(v.driver) : ''}${v.eta ? ' · ETA about ' + hm(v.eta) : ''}`
       : 'Booked for that day. Not on a route yet, so no ETA.'};
   }
-  if (/own ?van/i.test(ct) && (shipped || part)) return {cls:'good', h:'✓ Sent on our van', d: esc(ct)};
+  if (/own ?van/i.test(ct) && (shipped || part)) return {cls:'good', h:'Sent on our van', d: esc(ct)};
   if (/direct/i.test(ct)) return {cls:'go', h:'Going direct from the supplier', d: esc(ct)};
 
   if (shipped && ps.length) return {cls:'go', h:`Sent with ${esc(ps[0].courier || 'courier')}`, d:`${ps[0].when ? dmy(ps[0].when) + ' · ' : ''}${ps[0].service ? esc(ps[0].service) : ''}`, ps};
@@ -212,7 +213,7 @@ function customerLine(o, s){
   if (p && /palletforce/i.test(p.courier || '')) return `Your order ${o.no} went out${p.when ? ' on ' + dmy(p.when) : ''} with Palletforce. Track it at ${trackUrl(p.courier, p.n, o.postcode)} using tracking number ${p.n} and the delivery postcode${o.postcode ? ' (' + o.postcode + ')' : ''}.`;
   if (p) return `Your order ${o.no} went out${p.when ? ' on ' + dmy(p.when) : ''} with ${p.courier || 'our courier'}. Tracking number ${p.n}: ${trackUrl(p.courier, p.n, o.postcode)}`;
   const strip = t => String(t).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
-  return `Order ${o.no}: ${strip(s.h).replace('✓ ', '')}${s.d ? '. ' + strip(s.d) : ''}`;
+  return `Order ${o.no}: ${strip(s.h).replace('', '')}${s.d ? '. ' + strip(s.d) : ''}`;
 }
 
 function card(o, i){

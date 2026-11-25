@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Checklists & SOPs · Tiling Supplies Direct</title>
+<style>
+/* 25 Nov 2026: Checklists & SOPs. The documents live in the company shared folder; this screen lists them, shows the key steps,
+   and links to the full document. Search and Ask Bob use the same list. */
+:root{--bg:#F4F3EF;--panel:#FFFFFF;--panel2:#F6F5F1;--line:#E3E1DB;--ink:#151617;--muted:#6C6F73;--accent:#EBCB2D;--bad:#C2352B;--body:Inter,'Segoe UI',Arial,sans-serif;--num:'Inter Tight',Inter,'Segoe UI',Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:22px 22px 60px}
+h1{font:700 30px/1.1 var(--num);letter-spacing:-.5px;margin:0}
+.sub{color:var(--muted);font-size:14px;margin:6px 0 0;max-width:70ch}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.bar input{flex:1;min-width:220px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-size:15px}
+.bar input:focus{outline:none;border-color:var(--ink)}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--panel);color:var(--ink);outline:1px solid var(--line)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 15px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:none;color:var(--ink);transition:transform .08s,border-color .15s}
+.btn:hover{border-color:var(--muted);transform:translateY(-1px)}
+.btn.dark{background:var(--ink);color:var(--bg);border-color:transparent}
+.btn.danger{color:var(--bad)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.ph{padding:13px 18px;border-bottom:1px solid var(--line);font:600 15px var(--num);display:flex;gap:10px;align-items:baseline}
+.ph span{font:600 13px var(--body);color:var(--muted)}
+.row{display:flex;gap:14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--panel2)}
+.row .t{font-weight:600}
+.row .s{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.row .g{flex:1;min-width:0}
+.row .r{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.empty{padding:28px 18px;color:var(--muted)}
+.empty b{color:var(--ink)}
+.doc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.doc h2{font:700 24px/1.2 var(--num);letter-spacing:-.3px;margin:4px 0 6px}
+.doc .meta{font-size:13px;color:var(--muted)}
+.doc .sum{margin:14px 0;font-size:15.5px;max-width:70ch}
+.doc ol{margin:8px 0 18px;padding-left:22px;max-width:75ch}
+.doc ol li{margin:6px 0}
+.doc .k{font-size:11px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-top:16px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+form.ed{display:grid;gap:12px}
+form.ed label{font-size:13px;font-weight:600;display:grid;gap:5px}
+form.ed input,form.ed select,form.ed textarea{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 11px;font-weight:400}
+form.ed textarea{min-height:90px;resize:vertical}
+form.ed .hint{font-weight:400;color:var(--muted);font-size:12.5px}
+.err{color:var(--bad);font-size:13.5px;min-height:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:700px){.g2{grid-template-columns:1fr}.wrap{padding:16px 14px 60px}h1{font-size:25px}}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
+#app{display:none}
+</style>
+<script src="theme.js?v=20261125"></script>
+</head>
+<body>
+<div id="login"><div id="lerr"></div></div>
+<div id="app" class="wrap"></div>
+<script src="auth.js?v=20261125"></script>
+<script src="activity.js?v=20261125"></script>
+<script>
+const API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/sops';
+const mem = {};
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] || null; } }, del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } } };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DEPT = { all: 'Everyone', home: 'Home', sales: 'Sales & Marketing', ops: 'Operations', acc: 'Accounts', tp: 'Tasks & Projects', mg: 'Management' };
+let token = store.get('tsd_me_token'), S = { list: [], can: false, q: '', dept: '', view: null, editing: null };
+let OPEN = (new URLSearchParams(location.search).get('open') || '').trim();
+
+function showLogin(msg){ document.getElementById('app').style.display = 'none'; document.getElementById('login').style.display = 'flex'; const e = document.getElementById('lerr'); if (e) e.textContent = msg || ''; }
+async function api(qs, body){
+  const r = await fetch(API + (qs || ''), body ? { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) } : { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+  if (r.status === 401) { token = null; store.del('tsd_me_token'); showLogin('Please log in again.'); throw new Error('login'); }
+  const j = await r.json().catch(() => ({})); if (!j.ok) throw new Error(j.error || "Couldn't load"); return j;
+}
+async function start(){
+  document.getElementById('login').style.display = 'none'; document.getElementById('app').style.display = 'block';
+  try { const j = await api(); S.list = j.sops; S.can = j.can_edit; } catch(x){ if (x.message === 'login') return; document.getElementById('app').innerHTML = `<div class="empty">${esc(x.message)}</div>`; return; }
+  if (OPEN) { S.view = S.list.find(s => s.id === OPEN) || null; OPEN = ''; }
+  render();
+}
+function steps(t){
+  const lines = String(t || '').split(/\n+/).map(x => x.replace(/^\s*(\d+[.)]|[-*•])\s*/, '').trim()).filter(Boolean);
+  return lines.length ? `<ol>${lines.map(l => `<li>${esc(l)}</li>`).join('')}</ol>` : '';
+}
+function render(){
+  const el = document.getElementById('app');
+  if (S.editing) return renderEdit(el);
+  if (S.view) {
+    const s = S.view;
+    el.innerHTML = `<div class="top"><button class="btn" id="back">‹ All SOPs</button></div>
+      <article class="doc"><div class="meta">${esc(DEPT[s.department] || 'Everyone')}${s.owner ? ' · owner ' + esc(s.owner) : ''}</div>
+        <h2>${esc(s.title)}</h2>
+        <div class="meta">Last updated ${new Date(s.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}${s.updated_by ? ' by ' + esc(s.updated_by) : ''}</div>
+        ${s.summary ? `<div class="sum">${esc(s.summary)}</div>` : ''}
+        ${s.steps ? `<div class="k">Key steps</div>${steps(s.steps)}` : ''}
+        <div class="acts">${s.link ? `<a class="btn dark" href="${esc(s.link)}" target="_blank" rel="noopener">Open the full document ↗</a>` : '<span class="meta">No document linked yet.</span>'}
+          ${S.can ? '<button class="btn" id="edit">Edit</button><button class="btn danger" id="del">Remove</button>' : ''}</div>
+        <div class="err" id="err"></div></article>`;
+    document.getElementById('back').onclick = () => { S.view = null; render(); };
+    if (S.can) {
+      document.getElementById('edit').onclick = () => { S.editing = { ...s }; render(); };
+      document.getElementById('del').onclick = e => { const b = e.target; if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'Tap again to remove'; return; }
+        api('', { action: 'delete', id: s.id }).then(() => { S.list = S.list.filter(x => x.id !== s.id); S.view = null; render(); }).catch(x => document.getElementById('err').textContent = x.message); };
+    }
+    return;
+  }
+  const words = S.q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = S.list.filter(s => (!S.dept || s.department === S.dept) && words.every(w => [s.title, s.summary, s.keywords, s.steps].join(' ').toLowerCase().includes(w)));
+  const groups = Object.keys(DEPT).map(k => [k, hits.filter(s => s.department === k)]).filter(([, l]) => l.length);
+  el.innerHTML = `<div class="top"><div><h1>Checklists & SOPs</h1><p class="sub">How we do things, step by step. Open one for the key steps and a link to the full document in the shared folder. You can also type what you're looking for into Search or ask Bob.</p></div>
+      ${S.can ? '<button class="btn dark" id="add">Add an SOP</button>' : ''}</div>
+    <div class="bar"><input id="q" placeholder="Search SOPs" value="${esc(S.q)}" autocomplete="off">
+      <div class="seg">${[['', 'All'], ...Object.entries(DEPT).filter(([k]) => S.list.some(s => s.department === k))].map(([k, l]) => `<button data-d="${k}" class="${S.dept === k ? 'on' : ''}">${esc(l)}</button>`).join('')}</div></div>
+    ${!S.list.length ? `<div class="panel"><div class="empty"><b>No SOPs yet.</b><br>${S.can ? 'Add the first one with “Add an SOP”. Give it a title, the department it belongs to, a short summary, the key steps, and the link to the full document in the shared folder.' : 'They\'ll appear here as they\'re written.'}</div></div>`
+      : groups.length ? groups.map(([k, l]) => `<section class="panel"><div class="ph">${esc(DEPT[k])} <span>${l.length}</span></div>${l.map(s => `<div class="row" data-id="${esc(s.id)}"><div class="g"><div class="t">${esc(s.title)}</div>${s.summary ? `<div class="s">${esc(s.summary)}</div>` : ''}</div><div class="r">${s.link ? 'Document ↗' : ''}</div></div>`).join('')}</section>`).join('')
+      : '<div class="panel"><div class="empty">Nothing matches that search.</div></div>'}`;
+  const q = document.getElementById('q');
+  q.oninput = () => { S.q = q.value; const p = q.selectionStart; render(); const n = document.getElementById('q'); n.focus(); n.setSelectionRange(p, p); };
+  el.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { S.dept = b.dataset.d; render(); });
+  el.querySelectorAll('.row').forEach(r => r.onclick = () => { S.view = S.list.find(s => s.id === r.dataset.id); render(); window.scrollTo(0, 0); });
+  const a = document.getElementById('add'); if (a) a.onclick = () => { S.editing = { department: 'all' }; render(); };
+}
+function renderEdit(el){
+  const s = S.editing;
+  el.innerHTML = `<div class="top"><div><h1>${s.id ? 'Edit SOP' : 'Add an SOP'}</h1><p class="sub">Keep the steps short: one per line. The full document stays in the shared folder; paste its link so people can open it.</p></div></div>
+    <form class="ed doc" id="f">
+      <label>Title<input name="title" maxlength="160" required value="${esc(s.title)}" placeholder="e.g. Booking in a pallet delivery"></label>
+      <div class="g2"><label>Department<select name="department">${Object.entries(DEPT).map(([k, l]) => `<option value="${k}"${s.department === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+        <label>Owner<input name="owner" maxlength="80" value="${esc(s.owner)}" placeholder="Who keeps it up to date"></label></div>
+      <label>Summary<textarea name="summary" maxlength="1200" placeholder="What it's for and when to use it, in a sentence or two">${esc(s.summary)}</textarea></label>
+      <label>Key steps<span class="hint">One step per line</span><textarea name="steps" maxlength="8000" style="min-height:160px">${esc(s.steps)}</textarea></label>
+      <label>Search words<input name="keywords" maxlength="400" value="${esc(s.keywords)}" placeholder="Other words people might search for, e.g. pallet goods in delivery"></label>
+      <label>Link to the full document<input name="link" maxlength="1000" value="${esc(s.link)}" placeholder="https://… (in SharePoint / OneDrive: Share › Copy link)"></label>
+      <div class="err" id="err"></div>
+      <div class="acts"><button type="button" class="btn" id="cancel">Cancel</button><button class="btn dark" type="submit">Save</button></div>
+    </form>`;
+  document.getElementById('cancel').onclick = () => { S.editing = null; render(); };
+  document.getElementById('f').onsubmit = async e => {
+    e.preventDefault(); const f = new FormData(e.target), body = { action: 'save', id: s.id };
+    for (const [k, v] of f.entries()) body[k] = v;
+    const btn = e.target.querySelector('[type=submit]'); btn.disabled = true;
+    try { const j = await api('', body); const i = S.list.findIndex(x => x.id === j.sop.id); if (i >= 0) S.list[i] = j.sop; else S.list.push(j.sop);
+      S.editing = null; S.view = j.sop; render(); }
+    catch(x){ document.getElementById('err').textContent = x.message; btn.disabled = false; }
+  };
+}
+if (token) start(); else showLogin();
+TSDAuth.mount(t => { token = t; start(); });
+</script>
+<script>
+(function(){
+  const BUILD = '20261125';
+  const busy = () => { const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); };
+  let newer = false;
+  async function check(){ try { if (!newer) { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); newer = !!(m && m[1] !== BUILD); } if (newer && !busy()) location.reload(); } catch(e){} }
+  setInterval(check, 120000);
+})();
+</script>
+</body>
+</html>

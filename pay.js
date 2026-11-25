@@ -11,17 +11,17 @@ window.TSDPay = (function () {
 
   if (!document.getElementById('pp-css')) {
     const st = document.createElement('style'); st.id = 'pp-css';
-    st.textContent = `.pp{background:var(--panel2,#3B3C3C);border:1px solid var(--line,#474949);border-radius:10px;padding:12px 14px;margin:10px 0}
-    .pp .k{font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted,#B9BCBC)}
+    st.textContent = `.pp{background:var(--panel2,var(--panel2));border:1px solid var(--line,var(--line));border-radius:10px;padding:12px 14px;margin:10px 0}
+    .pp .k{font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted,var(--muted))}
     .pp .big{font-size:20px;font-weight:800}.pp .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .pp .lk{border-top:1px solid var(--line,#474949);padding:9px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .pp .b{background:var(--panel,#323333);color:var(--ink,#fff);border:1px solid var(--line,#474949);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer;font-size:13px}.pp .b:hover{border-color:var(--accent,#EED107)}
-    .pp .b.y{background:var(--accent,#EED107);color:#262727;border-color:var(--accent,#EED107)}.pp .b:disabled{opacity:.5;cursor:default}
-    .pp .tg{font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;background:var(--line,#474949)}.pp .tg.open{background:#8EC5FF;color:#262727}.pp .tg.paid{background:#7DDB98;color:#262727}
-    .pp .sm{font-size:12px;color:var(--muted,#B9BCBC)}.pp .er{color:#FF7A6B;font-weight:600;margin-top:6px}
+    .pp .lk{border-top:1px solid var(--line,var(--line));padding:9px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .pp .b{background:var(--panel,var(--panel));color:var(--ink,var(--ink));border:1px solid var(--line,var(--line));border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer;font-size:13px}.pp .b:hover{border-color:var(--accent,var(--accent))}
+    .pp .b.y{background:var(--accent,var(--accent));color:var(--on-accent);border-color:var(--accent,var(--accent))}.pp .b:disabled{opacity:.5;cursor:default}
+    .pp .tg{font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;background:var(--line,var(--line))}.pp .tg.open{background:#8EC5FF;color:var(--on-accent)}.pp .tg.paid{background:var(--good);color:var(--on-accent)}
+    .pp .sm{font-size:12px;color:var(--muted,var(--muted))}.pp .er{color:var(--bad);font-weight:600;margin-top:6px}
     #ppm{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:14px;z-index:90}
-    #ppm .bx{background:var(--panel,#323333);color:var(--ink,#fff);border-radius:14px;padding:18px;width:100%;max-width:760px;max-height:92vh;overflow:auto}
-    #ppm input{width:100%;background:var(--bg,#262727);color:var(--ink,#fff);border:1px solid var(--line,#474949);border-radius:8px;padding:9px;margin:3px 0 8px;font:inherit}
+    #ppm .bx{background:var(--panel,var(--panel));color:var(--ink,var(--ink));border-radius:14px;padding:18px;width:100%;max-width:760px;max-height:92vh;overflow:auto}
+    #ppm input{width:100%;background:var(--bg,var(--bg));color:var(--ink,var(--ink));border:1px solid var(--line,var(--line));border-radius:8px;padding:9px;margin:3px 0 8px;font:inherit}
     #ppm iframe{width:100%;height:340px;border:0;background:#fff;border-radius:8px}`;
     document.head.appendChild(st);
   }
@@ -76,14 +76,14 @@ window.TSDPay = (function () {
       const b = document.getElementById('ppdr'); b.disabled = true; msg('Creating the draft…');
       try {
         const r = await call(o.token, 'msgraph', { action: 'mail_draft', sale_id: o.saleId, to: document.getElementById('ppto').value.trim(), subject: document.getElementById('ppsu').value, html: e.html });
-        msg(`Done. It's in your Outlook Drafts folder, ready to check and send.${r.web_link ? ` <a href="${esc(r.web_link)}" target="_blank" rel="noopener" style="color:var(--blue,#8EC5FF);font-weight:700">Open it ↗</a>` : ''}`);
+        msg(`Done. It's in your Outlook Drafts folder, ready to check and send.${r.web_link ? ` <a href="${esc(r.web_link)}" target="_blank" rel="noopener" style="color:var(--blue,var(--blue));font-weight:700">Open it ↗</a>` : ''}`);
         if (e.link_id) call(o.token, 'sell', { action: 'emailed', id: e.link_id }).then(() => o.onChange && o.onChange()).catch(() => {});
       } catch (x) {
         const d = x.data || {};
         if (d.need === 'mail' || d.connected === false || /not connected|isn't connected|Not available/i.test(x.message)) {
-          msg(`<span style="color:var(--bad,#FF7A6B)">${esc(d.need === 'mail' ? 'Outlook drafts aren\'t switched on for you yet.' : x.message)}</span> <button class="b" id="ppcn">Connect Outlook drafts</button><div class="sm" style="margin-top:4px">It opens Microsoft's sign-in in a new tab. Bob only creates drafts. It never reads your emails. When you're back, press Create draft again. Or use Copy email for now.</div>`);
+          msg(`<span style="color:var(--bad,var(--bad))">${esc(d.need === 'mail' ? 'Outlook drafts aren\'t switched on for you yet.' : x.message)}</span> <button class="b" id="ppcn">Connect Outlook drafts</button><div class="sm" style="margin-top:4px">It opens Microsoft's sign-in in a new tab. Bob only creates drafts. It never reads your emails. When you're back, press Create draft again. Or use Copy email for now.</div>`);
           const cn = document.getElementById('ppcn'); if (cn) cn.onclick = async () => { try { const s = await call(o.token, 'msgraph', { action: 'start', mail: true }); window.open(s.url, '_blank'); } catch (z) { msg(esc(z.message)); } };
-        } else msg(`<span style="color:var(--bad,#FF7A6B)">${esc(x.message)}</span>`);
+        } else msg(`<span style="color:var(--bad,var(--bad))">${esc(x.message)}</span>`);
         b.disabled = false;
       }
     };
@@ -102,7 +102,7 @@ window.TSDPay = (function () {
       ${s.links.map(l => `<div class="lk"><span class="tg ${l.status}">${l.status === 'open' ? 'Waiting for payment' : l.status === 'paid' ? 'PAID' : 'Switched off'}</span><b>${gbp(l.amount)}</b>
         <span class="sm" style="flex:1;min-width:150px">${l.status === 'paid' ? 'Paid ' + esc(when(l.paid_at)) + (l.paid_email ? ' · ' + esc(l.paid_email) : '') : 'Made ' + esc(when(l.created_at)) + ' by ' + esc(l.created_by_name || '')}${l.emailed_at ? ' · emailed ' + esc(when(l.emailed_at)) : ''}</span>
         ${l.status === 'open' ? `<button class="b" data-cp="${esc(l.url)}">Copy link</button><button class="b" data-em="${l.id}">Email</button><button class="b" data-cx="${l.id}">Switch off</button>` : ''}
-        ${l.status === 'paid' ? `<button class="b y" data-pk="1">🖨 Pick sheet to Dispatch</button>` : ''}</div>`).join('')}
+        ${l.status === 'paid' ? `<button class="b y" data-pk="1">Pick sheet to Dispatch</button>` : ''}</div>`).join('')}
       ${paid.length && s.due <= 0 ? '<div class="sm" style="margin-top:6px">Card payments are recorded in Cin7 by the overnight job once the Stripe payout has been reconciled in Xero. Bob doesn\'t add them itself.</div>' : ''}
       <div id="pper" class="er"></div></div>`;
     const err = t => el.querySelector('#pper').textContent = t || '';

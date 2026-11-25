@@ -31,15 +31,15 @@ header img{height:44px}
 .tile .k{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
 .tile .v{font-family:var(--num);font-size:38px;letter-spacing:.5px;line-height:1.05;margin-top:2px}
 .tile .s{font-size:13px;color:var(--muted)}
-.tile.bad .v{color:var(--bad)} .tile.acc .v{color:var(--accent)} .tile.good .v{color:var(--good)}
+.tile.bad .v{color:var(--bad)} .tile.acc .v{color:var(--accent-text)} .tile.good .v{color:var(--good)}
 nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
 nav.tabs button{background:var(--panel);color:var(--ink);border:2px solid transparent;border-radius:999px;padding:9px 16px;font-weight:700;font-size:15px;cursor:pointer}
-nav.tabs button.on{border-color:var(--accent);color:var(--accent)}
+nav.tabs button.on{border-color:var(--accent);color:var(--accent-text)}
 nav.tabs .n{display:inline-block;background:var(--panel2);border-radius:999px;padding:0 8px;margin-left:6px;font-size:13px;color:var(--muted)}
 .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 .bar input[type=search]{flex:1;min-width:220px;max-width:520px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px}
 .chip{background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer}
-.chip.on{color:#262727;background:var(--accent);border-color:var(--accent)}
+.chip.on{color:var(--on-accent);background:var(--accent);border-color:var(--accent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:10px}
 @media (max-width:600px){.grid{grid-template-columns:minmax(0,1fr)}}
 .card{background:var(--panel);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:7px;border-left:6px solid var(--line)}
@@ -54,8 +54,8 @@ nav.tabs .n{display:inline-block;background:var(--panel2);border-radius:999px;pa
 .btns{display:flex;gap:6px;flex-wrap:wrap}
 .btn{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--muted)}
-.btn.go{background:var(--accent);color:#262727;border-color:var(--accent)}
-.btn.ok{background:var(--good);color:#262727;border-color:var(--good)}
+.btn.go{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.ok{background:var(--good);color:var(--on-accent);border-color:var(--good)}
 .btn.red{border-color:var(--bad);color:var(--bad)}
 .btn:disabled{opacity:.5;cursor:default}
 details{font-size:13px}
@@ -65,7 +65,7 @@ table.inv td{padding:3px 4px;border-bottom:1px solid rgba(255,255,255,.06)}
 table.inv td.r{text-align:right;font-variant-numeric:tabular-nums}
 .late{color:var(--bad);font-weight:700}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;text-transform:uppercase;border:1px solid var(--line);color:var(--muted);margin-right:4px}
-.tag.red{border-color:var(--bad);color:var(--bad)} .tag.amber{border-color:var(--accent);color:var(--accent)} .tag.green{border-color:var(--good);color:var(--good)}
+.tag.red{border-color:var(--bad);color:var(--bad)} .tag.amber{border-color:var(--accent);color:var(--accent-text)} .tag.green{border-color:var(--good);color:var(--good)}
 .rows{background:var(--panel);border-radius:12px;overflow:hidden}
 .row{display:grid;grid-template-columns:110px minmax(0,1fr) 110px 120px 140px;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
@@ -78,8 +78,8 @@ h2 .n{font-family:var(--body);font-size:14px;color:var(--muted);letter-spacing:0
 .explain{font-size:14px;color:var(--muted);margin:0 0 10px;line-height:1.5;max-width:1000px}
 .empty{color:var(--muted);padding:18px 4px;font-size:15px}
 footer{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#262727;border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20;gap:12px;align-items:center}
-#toast button{background:#262727;color:var(--accent);border:0;border-radius:6px;padding:6px 10px;font-weight:700;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 16px;font-weight:600;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:20;gap:12px;align-items:center}
+#toast button{background:var(--bg);color:var(--accent-text);border:0;border-radius:6px;padding:6px 10px;font-weight:700;cursor:pointer}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:30}
 #modal .box{background:var(--panel);border-radius:14px;padding:20px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px;max-height:90vh;overflow:auto}
 #modal h3{margin:0;font-family:var(--num);font-weight:400;font-size:28px;letter-spacing:1px}
@@ -89,6 +89,7 @@ footer{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6}
 #modal .err{color:var(--bad);font-size:14px;min-height:16px}
 #login{min-height:100vh;display:none;align-items:center;justify-content:center;padding:16px}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"></div>
@@ -119,7 +120,7 @@ const k = v => { v = +v || 0; return Math.abs(v) >= 1000 ? '£' + (v / 1000).toL
 const dmy = s => s ? new Date(String(s).slice(0,10) + 'T12:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'2-digit'}) : '';
 const dshort = s => s ? new Date(String(s).slice(0,10) + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) : '';
 const ago = s => { if (!s) return ''; const m = Math.round((Date.now() - new Date(s)) / 60000); return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m/60)} h ago` : `${Math.round(m/1440)} days ago`; };
-const ACT = {no_answer:'📞 No answer', spoke:'💬 Spoke', promised:'🤝 Promised to pay', reminder:'✉ Reminder sent', stop_flag:'🛑 Flagged for stop', note:'📝 Note'};
+const ACT = {no_answer:'No answer', spoke:'Spoke', promised:'Promised to pay', reminder:'Reminder sent', stop_flag:'Flagged for stop', note:'Note'};
 function toast(t, undo){ const e = document.getElementById('toast'); e.innerHTML = esc(t) + (undo ? ' <button id="tu">Undo</button>' : ''); e.style.display = 'flex';
   if (undo) document.getElementById('tu').onclick = () => { e.style.display = 'none'; undo(); };
   clearTimeout(e._t); e._t = setTimeout(() => e.style.display = 'none', undo ? 6000 : 3500); }
@@ -183,7 +184,7 @@ function invoiceHtml(){
       <div style="text-align:right">${btn}</div></div>`;
   let h = `<p class="explain">Orders that have gone out (shipped or collected) but haven't been invoiced in Cin7. <b>Invoice</b> authorises the invoice in Cin7, exactly like pressing it in Cin7, and Cin7 sends it to Xero. Invoice date is today; the due date follows the customer's terms in Cin7.</p>`;
   h += `<div class="bar"><b>Ready to invoice</b><span class="sub">${ready.length} orders · ${gbp(ready.reduce((a, o) => a + (+o.value || 0), 0))} ex VAT</span>${ready.length > 1 ? '<button class="btn go" id="invall">Invoice all ready</button>' : ''}</div>`;
-  h += ready.length ? `<div class="rows">${ready.map(o => row(o, `<button class="btn go" data-inv="${o.id}">Invoice</button>`)).join('')}</div>` : '<div class="empty">Nothing waiting. Every shipped order is invoiced. ✓</div>';
+  h += ready.length ? `<div class="rows">${ready.map(o => row(o, `<button class="btn go" data-inv="${o.id}">Invoice</button>`)).join('')}</div>` : '<div class="empty">Nothing waiting. Every shipped order is invoiced. </div>';
   if (part.length) {
     h += `<h2>Part shipped / part invoiced<span class="n">${part.length}</span></h2><p class="explain">Some of the order has gone, the rest is still to come. Invoice what's been sent in Cin7 (the system leaves these alone so nothing gets invoiced twice).</p>`;
     h += `<div class="rows">${part.map(o => row(o, '<span class="sub">Invoice in Cin7</span>')).join('')}</div>`;
@@ -213,10 +214,10 @@ function creditHtml(){
   const q = ccQ.toLowerCase();
   let list = all.filter(d => ccFilter === 'all' ? true : ccFilter === 'stop' ? d.stop_flagged : d.bucket === ccFilter);
   if (q) list = all.filter(d => (d.name || '').toLowerCase().includes(q) || (d.invoices || []).some(i => String(i.number).toLowerCase().includes(q)));
-  const F = [['due', 'To chase'], ['promised', 'Promised'], ['later', 'Chased, waiting'], ['stop', '🛑 Flagged'], ['all', 'Everyone']];
+  const F = [['due', 'To chase'], ['promised', 'Promised'], ['later', 'Chased, waiting'], ['stop', 'Flagged'], ['all', 'Everyone']];
   let h = `<p class="explain">Customers with overdue invoices, biggest first. Log every call with a button; the customer then drops off <b>To chase</b> until they're due again (no answer: 2 working days, spoke: 5, promised: the day after the date they gave). Unused credit on the account is shown so you can allocate it in Xero before chasing.</p>
     <div class="bar"><input type="search" id="ccq" placeholder="Search customer or invoice number" value="${esc(ccQ)}">${F.map(([id, n]) => `<button class="chip ${!q && ccFilter === id ? 'on' : ''}" data-f="${id}">${n} ${counts[id] || 0}</button>`).join('')}</div>`;
-  if (!list.length) return h + `<div class="empty">${q ? 'No match.' : ccFilter === 'due' ? 'Nobody to chase right now. ✓' : 'Nobody here.'}</div>`;
+  if (!list.length) return h + `<div class="empty">${q ? 'No match.' : ccFilter === 'due' ? 'Nobody to chase right now. ' : 'Nobody here.'}</div>`;
   h += '<div class="grid">' + list.map(d => {
     const col = d.stop_flagged ? 'red' : d.oldest_days > 60 ? 'red' : d.oldest_days > 30 ? 'amber' : 'blue';
     const inv = d.invoices || [];
@@ -224,17 +225,17 @@ function creditHtml(){
       <div class="top"><div class="name">${esc(d.name)}</div><div class="amt" style="color:var(--bad)">${gbp(d.overdue)}</div></div>
       ${flagTag(d.name)}
       <div class="meta">${d.n_overdue} overdue invoice${d.n_overdue === 1 ? '' : 's'} · oldest <b class="${d.oldest_days > 60 ? 'late' : ''}">${d.oldest_days} days</b> late · total owed ${gbp(d.owed)}</div>
-      <div class="meta">${d.contact ? esc(d.contact) + ' · ' : ''}${d.phone ? `<a href="tel:${esc(d.phone.replace(/\s/g,''))}">📞 ${esc(d.phone)}</a>` : ''}${d.mobile && d.mobile !== d.phone ? ` · <a href="tel:${esc(d.mobile.replace(/\s/g,''))}">📱 ${esc(d.mobile)}</a>` : ''}${d.email ? ` · <a href="mailto:${esc(d.email)}">${esc(d.email)}</a>` : ''}${!d.phone && !d.mobile && !d.email ? '<span class="late">No phone or email in Xero</span>' : ''}</div>
-      ${+d.credit > 0 ? `<div class="warn">💡 They've got <b>${gbp(d.credit)}</b> of unused credit. Allocate it in Xero first, it may clear some of this.</div>` : ''}
+      <div class="meta">${d.contact ? esc(d.contact) + ' · ' : ''}${d.phone ? `<a href="tel:${esc(d.phone.replace(/\s/g,''))}">${esc(d.phone)}</a>` : ''}${d.mobile && d.mobile !== d.phone ? ` · <a href="tel:${esc(d.mobile.replace(/\s/g,''))}">${esc(d.mobile)}</a>` : ''}${d.email ? ` · <a href="mailto:${esc(d.email)}">${esc(d.email)}</a>` : ''}${!d.phone && !d.mobile && !d.email ? '<span class="late">No phone or email in Xero</span>' : ''}</div>
+      ${+d.credit > 0 ? `<div class="warn">They've got <b>${gbp(d.credit)}</b> of unused credit. Allocate it in Xero first, it may clear some of this.</div>` : ''}
       ${d.last ? `<div class="last"><b>${ACT[d.last.action] || esc(d.last.action)}</b> · ${esc(d.last.by || '')} ${ago(d.last.at)}${d.promised_date ? ` · promised <b>${dshort(d.promised_date)}</b>` : ''}${d.next_date ? ` · chase again ${dshort(d.next_date)}` : ''}${d.last.note ? `<br>“${esc(d.last.note)}”` : ''}</div>` : ''}
       <details><summary>Overdue invoices (${inv.length})</summary><table class="inv">${inv.map(i => `<tr><td>${esc(i.number)}</td><td>${esc(i.ref || '')}</td><td>due ${dmy(i.due)}</td><td class="r ${i.days > 60 ? 'late' : ''}">${i.days}d</td><td class="r">${gbp(i.amount)}</td></tr>`).join('')}</table></details>
       <div class="btns">
-        <button class="btn" data-c="no_answer" data-id="${d.contact_id}">📞 No answer</button>
-        <button class="btn" data-c="spoke" data-id="${d.contact_id}">💬 Spoke</button>
-        <button class="btn ok" data-c="promised" data-id="${d.contact_id}">🤝 Promised</button>
-        <button class="btn" data-c="reminder" data-id="${d.contact_id}">✉ Reminder</button>
-        <button class="btn" data-c="note" data-id="${d.contact_id}">📝 Note</button>
-        <button class="btn red" data-c="stop_flag" data-id="${d.contact_id}">🛑 Flag stop</button>
+        <button class="btn" data-c="no_answer" data-id="${d.contact_id}">No answer</button>
+        <button class="btn" data-c="spoke" data-id="${d.contact_id}">Spoke</button>
+        <button class="btn ok" data-c="promised" data-id="${d.contact_id}">Promised</button>
+        <button class="btn" data-c="reminder" data-id="${d.contact_id}">Reminder</button>
+        <button class="btn" data-c="note" data-id="${d.contact_id}">Note</button>
+        <button class="btn red" data-c="stop_flag" data-id="${d.contact_id}">Flag stop</button>
       </div></div>`;
   }).join('') + '</div>';
   return h;
@@ -307,12 +308,12 @@ function reconHtml(){
     const list = rc[id] || [];
     const total = list.reduce((a, r) => a + Math.abs(+r.amount || 0), 0);
     h += `<h2>${name}<span class="n">${list.length} · ${gbp0(total)}</span></h2><p class="explain">${explain}</p>`;
-    if (!list.length) { h += '<div class="empty">Nothing here. ✓</div>'; continue; }
+    if (!list.length) { h += '<div class="empty">Nothing here. </div>'; continue; }
     h += '<div class="grid">' + list.map(r => `<div class="card amber">
       <div class="top"><div class="name">${esc(r.name)}</div><div class="amt">${gbp(Math.abs(r.amount))}</div></div>
       ${id === 'allocate' ? `<div class="meta">Owes ${gbp(r.owed)} · has ${gbp(r.credit)} credit</div>` : r.n ? `<div class="meta">${r.n} item${r.n === 1 ? '' : 's'}</div>` : ''}
       <details><summary>Show items (${(r.items || []).length})</summary><table class="inv">${(r.items || []).map(i => `<tr><td>${i.kind === 'invoice' ? esc(i.number || 'Invoice') : i.kind === 'credit' ? esc(i.number || 'Credit note') : i.kind === 'overpay' ? 'Overpayment' : 'Prepayment'}</td><td>${esc(i.ref || '')}</td><td>${dmy(i.date)}</td><td class="r">${gbp(i.amount)}</td></tr>`).join('')}</table></details>
-      <div class="btns"><button class="btn ok" data-done="${esc(r.key)}" data-name="${esc(r.name)}">✓ ${okText}</button></div></div>`).join('') + '</div>';
+      <div class="btns"><button class="btn ok" data-done="${esc(r.key)}" data-name="${esc(r.name)}">${okText}</button></div></div>`).join('') + '</div>';
   }
   return h;
 }
@@ -343,7 +344,7 @@ function limitsHtml(){
   const list = limF === 'act' ? act : all.filter(c => c.flag === limF);
   let h = `<p class="explain">Account customers to look at before more goes out on credit. <b>Credit limit and on-hold come from Cin7; what they owe comes from Xero</b>, because Cin7's own balance is wrong while payments aren't syncing back (see Cin7 ↔ Xero). "Owes" is after their unused credit. The system only flags: putting an account on stop is your and Rose's call, done in Cin7. The same warning shows on Pick &amp; Dispatch, the van list, Collections and Quotes.</p>
     <div class="bar">${F.map(([id, n, c]) => `<button class="chip ${limF === id ? 'on' : ''}" data-lf="${id}">${n} ${c}</button>`).join('')}</div>`;
-  if (!list.length) return h + '<div class="empty">Nobody here. ✓</div>';
+  if (!list.length) return h + '<div class="empty">Nobody here. </div>';
   return h + '<div class="rows">' + list.map(c => `<div class="row lim">
       <div><div class="name" style="font-size:15px">${esc(c.name)}</div><div class="meta">${esc(c.terms || '')}${c.rep ? ' · ' + esc(c.rep) : ''}${c.oldest ? ` · oldest overdue <b class="${c.oldest > 60 ? 'late' : ''}">${c.oldest} days</b>` : ''}</div></div>
       <div class="r"><div class="meta">Owes (Xero)</div>${gbp0(c.net)}</div>
@@ -383,7 +384,7 @@ function ledgerHtml(){
   if (+L.pending_detail) h += `<p class="explain">Still reading ${L.pending_detail} multi-invoice orders from Cin7 (a few every 10 minutes so the warehouse screens aren't slowed down). Numbers will grow a little until that's done.</p>`;
   const C = L.customers || [];
   h += `<h2>Account customers Cin7 overstates<span class="n">${C.length}</span></h2><p class="explain">What Cin7 thinks they owe against what Xero says. The gap is payments that never made it back.</p>`;
-  h += C.length ? `<div class="rows" style="padding:6px 14px"><table class="inv">${'<tr class="meta"><td>Customer</td><td class="r">Cin7 thinks</td><td class="r">Xero says</td><td class="r">Gap</td><td class="r">Limit</td><td></td></tr>' + C.map(c => `<tr><td>${esc(c.name)}</td><td class="r">${gbp0(c.cin7_owed)}</td><td class="r">${gbp0(c.xero_net)}</td><td class="r late">${gbp0(c.gap)}</td><td class="r">${c.limit > 0 ? gbp0(c.limit) : ''}</td><td>${c.false_over ? '<span class="tag green">Only over in Cin7</span>' : ''}</td></tr>`).join('')}</table></div>` : '<div class="empty">None. ✓</div>';
+  h += C.length ? `<div class="rows" style="padding:6px 14px"><table class="inv">${'<tr class="meta"><td>Customer</td><td class="r">Cin7 thinks</td><td class="r">Xero says</td><td class="r">Gap</td><td class="r">Limit</td><td></td></tr>' + C.map(c => `<tr><td>${esc(c.name)}</td><td class="r">${gbp0(c.cin7_owed)}</td><td class="r">${gbp0(c.xero_net)}</td><td class="r late">${gbp0(c.gap)}</td><td class="r">${c.limit > 0 ? gbp0(c.limit) : ''}</td><td>${c.false_over ? '<span class="tag green">Only over in Cin7</span>' : ''}</td></tr>`).join('')}</table></div>` : '<div class="empty">None. </div>';
   const tbl = (title, explain, list, cols) => list.length ? `<h2>${title}<span class="n">${list.length}</span></h2><p class="explain">${explain}</p><details><summary>Show them</summary><table class="inv">${list.map(cols).join('')}</table></details>` : '';
   h += tbl('Invoiced in Cin7, not in Xero', "Cin7 says these were invoiced but Xero hasn't got them. Usually a failed sync: re-send from Cin7, or check they weren't voided.", L.missing || [], i => `<tr><td>${esc(i.invoice)}</td><td>${esc(i.order)}</td><td>${esc(i.customer)}</td><td>${dmy(i.date)}</td><td class="r">${gbp(i.amount)}</td></tr>`);
   h += tbl('Amount differs', 'Same invoice number, different total in Cin7 and Xero. Usually an invoice edited on one side only.', L.amount_diff || [], i => `<tr><td>${esc(i.invoice)}</td><td>${esc(i.order)}</td><td>${esc(i.customer)}</td><td class="r">Cin7 ${gbp(i.cin7)}</td><td class="r">Xero ${gbp(i.xero)}</td></tr>`);
@@ -398,7 +399,7 @@ function payfixHtml(){
   const stripe = (P.blocked || []).find(b => /Stripe GBP/.test(b.reason));
   const list = (P.ready || []).filter(r => payAll || r.account);
   let h = `<h2>Copy payments into Cin7<span class="n">trial</span></h2>`;
-  if (stripe) h += `<div class="warn" style="margin-bottom:10px">🔎 <b>Likely cause of the sync problem:</b> since 18 July, card payments land in a Xero bank account called <b>"Stripe GBP"</b>, which has <b>no account code</b>. Cin7 matches payments by account code, so it can't bring these back. That's <b>${stripe.n.toLocaleString('en-GB')} invoices (${gbp0(stripe.value)})</b>, ${stripe.account_n} of them account customers. Fix: in Xero, Accounting → Chart of accounts → Stripe GBP → give it a code (e.g. 1255), then in Cin7 refresh the accounts on the Xero integration. Talk to your accountant first if you're unsure.</div>`;
+  if (stripe) h += `<div class="warn" style="margin-bottom:10px"><b>Likely cause of the sync problem:</b> since 18 July, card payments land in a Xero bank account called <b>"Stripe GBP"</b>, which has <b>no account code</b>. Cin7 matches payments by account code, so it can't bring these back. That's <b>${stripe.n.toLocaleString('en-GB')} invoices (${gbp0(stripe.value)})</b>, ${stripe.account_n} of them account customers. Fix: in Xero, Accounting → Chart of accounts → Stripe GBP → give it a code (e.g. 1255), then in Cin7 refresh the accounts on the Xero integration. Talk to your accountant first if you're unsure.</div>`;
   h += `<p class="explain">Invoices that are <b>paid and reconciled to the bank in Xero</b>, still unpaid in Cin7, where the amounts match exactly and the payment is at least 3 days old. <b>Add to Cin7</b> records the same payment (date, amount, bank account) in Cin7. Before each one, the system <b>asks Xero live</b> that the invoice is paid with nothing due and the payment is still there and reconciled, then re-reads Cin7, and never adds the same Xero payment twice. Small rounding differences (up to 5p) go in at Cin7's figure. Trial: do one, then check the invoice in Cin7 <b>and in Xero</b> (Cin7 may try to send it back to Xero; Xero should refuse because the invoice is already paid).</p>
     <div class="bar"><button class="chip ${!payAll ? 'on' : ''}" data-pa="0">Account customers ${(P.ready || []).filter(r => r.account).length}</button><button class="chip ${payAll ? 'on' : ''}" data-pa="1">Everyone ${(P.ready || []).length}</button>${list.length > 1 ? `<button class="btn go" id="payall">Add all ${list.length} to Cin7</button>` : ''}</div>`;
   h += list.length ? `<div class="rows" style="padding:6px 14px"><table class="inv"><tr class="meta"><td>Invoice</td><td>Order</td><td>Customer</td><td>Paid in Xero</td><td class="r">Amount</td><td></td></tr>${list.map(r => `<tr>
@@ -408,7 +409,7 @@ function payfixHtml(){
   const B = (P.blocked || []).filter(b => !/Stripe GBP/.test(b.reason));
   if (B.length) h += `<details style="margin-top:8px"><summary>Not copied, and why (${B.reduce((a, b) => a + b.n, 0)})</summary><table class="inv">${B.map(b => `<tr><td>${esc(b.reason)}</td><td class="r">${b.n}</td><td class="r">${gbp0(b.value)}</td></tr>`).join('')}</table></details>`;
   const done = P.done || [];
-  if (done.length) h += `<details style="margin-top:6px"><summary>Payments the system has added (${done.length})</summary><table class="inv">${done.map(d => `<tr><td>${esc(d.invoice)}</td><td>${esc(d.customer)}</td><td class="r">${gbp(d.amount)}</td><td class="${d.status === 'failed' ? 'late' : ''}">${esc(d.status === 'done' ? 'Added ✓' : d.message || d.status)}</td><td>${esc(d.by || '')} ${ago(d.at)}</td></tr>`).join('')}</table></details>`;
+  if (done.length) h += `<details style="margin-top:6px"><summary>Payments the system has added (${done.length})</summary><table class="inv">${done.map(d => `<tr><td>${esc(d.invoice)}</td><td>${esc(d.customer)}</td><td class="r">${gbp(d.amount)}</td><td class="${d.status === 'failed' ? 'late' : ''}">${esc(d.status === 'done' ? 'Added ' : d.message || d.status)}</td><td>${esc(d.by || '')} ${ago(d.at)}</td></tr>`).join('')}</table></details>`;
   return h;
 }
 async function addPay(no){

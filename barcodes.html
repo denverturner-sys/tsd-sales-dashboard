@@ -23,7 +23,7 @@ button,input,select,textarea{font-family:inherit;font-size:17px}
 .k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 input,select,textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:13px}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
-.btn{width:100%;background:var(--accent);color:#262727;border:0;border-radius:10px;padding:14px;font-weight:800;cursor:pointer;margin-top:10px}
+.btn{width:100%;background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:14px;font-weight:800;cursor:pointer;margin-top:10px}
 .btn.alt{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
 .btn:disabled{opacity:.5}
 .hit{display:block;width:100%;text-align:left;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;cursor:pointer}
@@ -33,7 +33,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
 .seg{display:flex;gap:6px;margin-bottom:12px}
 .seg button{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:10px;font-weight:700}
-.seg button.on{background:var(--accent);color:#262727;border-color:var(--accent)}
+.seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .msg{padding:10px 12px;border-radius:10px;margin-bottom:12px;font-weight:600}
 .msg.ok{background:rgba(125,219,152,.15);color:var(--good)} .msg.bad{background:rgba(255,122,107,.15);color:var(--bad)}
 .tr{padding:10px 0;border-bottom:1px solid var(--line)} .tr:last-child{border-bottom:0}
@@ -44,6 +44,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-c
 .pill{display:inline-block;background:var(--bg);border-radius:999px;padding:3px 10px;font-size:13px;color:var(--muted);margin:2px 4px 0 0}
 .bar{height:10px;background:var(--bg);border-radius:6px;overflow:hidden;margin:8px 0 4px}.bar i{display:block;height:100%;background:var(--accent)}
 </style>
+<script src="theme.js?v=20261125"></script>
 </head>
 <body>
 <div id="login"><div id="lerr"></div></div>
@@ -80,7 +81,7 @@ function homeView(){
   const s = D.stats, pc = s.products ? Math.min(100, Math.round(100 * s.barcodes / s.products)) : 0;
   return banner() + `<div class="card"><div class="k">Barcodes saved in the system</div><div class="big">${num(s.barcodes)} <span class="m" style="font-family:var(--body);font-size:15px">of ${num(s.products)} products</span></div>
     <div class="bar"><i style="width:${pc}%"></i></div><div class="m">${pc}% covered · you've added ${num(s.mine_today)} today</div></div>
-    <button class="btn" onclick="startScan()">📷 Scan a barcode</button>
+    <button class="btn" onclick="startScan()">Scan a barcode</button>
     <div class="card" style="margin-top:12px"><div class="k">Or type / use a handheld scanner</div>
       <form onsubmit="event.preventDefault();manual()"><input id="mc" inputmode="numeric" placeholder="Barcode number" autocomplete="off"><button class="btn alt" type="submit">Look it up</button></form></div>
     ${recent()}` + (D.me.admin ? adminCard() : '');
@@ -101,7 +102,7 @@ function pickView(){
     : `<div class="m" style="margin-top:4px">${found && found.valid === false ? 'Heads up: the check digit looks wrong, so this may be a bad read. ' : ''}Not saved against any product yet.</div>`) + `</div>`;
   const search = `<div class="card"><div class="k">${known ? 'Wrong product? Save it against a different one' : 'Which product is this?'}</div><input id="q" type="search" placeholder="SKU or name" autocomplete="off" oninput="search(this.value)">
     <div id="hits"></div></div>`;
-  return banner() + top + search + `<button class="btn" onclick="startScan()">📷 Scan next</button><button class="btn alt" onclick="view='home';msg=null;refresh()">Done</button>`;
+  return banner() + top + search + `<button class="btn" onclick="startScan()">Scan next</button><button class="btn alt" onclick="view='home';msg=null;refresh()">Done</button>`;
 }
 function paintHits(){
   const h = document.getElementById('hits'); if (!h) return;
