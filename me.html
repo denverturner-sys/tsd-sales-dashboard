@@ -957,14 +957,16 @@ async function helpApi(body){
 const helpFmt = (t, plain) => {
   let h = tmEsc(t);
   if (!plain) h = h.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/^\s*[*-]\s+/gm, '• ').replace(/\[\[go:([a-z0-9]+)\]\]/gi, (m, id) => {
-    const sc = DEPTS.flatMap(d => d.screens).find(x => x.id === id.toLowerCase()); return sc ? ` <a class="hg" data-go="${esc(sc.id)}">Open ${esc(sc.name)} &rarr;</a>` : '';
+    const sid = id.toLowerCase(); return SCREENS.has(sid) ? ` <a class="hg" data-go="${esc(sid)}">Open ${esc(lbl(sid, (locate(sid) || {}).d))} &rarr;</a>` : '';
   });
+  if (!plain) h = h.replace(/\[\[sop:([0-9a-f-]{36})(?:\|([^\]]{1,160}))?\]\]/gi, (m, id, t) => ` <a class="hg" data-sop="${esc(id)}">Open the SOP${t ? ': ' + t : ''} &rarr;</a>`);
   h = h.replace(/@?\b(SO-\d{3,})\b/gi, (m, no) => `<a class="hg" data-so="${no.toUpperCase()}">${no.toUpperCase()}</a>`);
   return h.replace(/\n/g, '<br>');
 };
 function helpClick(e){
   const a = e.target.closest('a.hg'); if (!a) return; e.preventDefault();
   if (a.dataset.so) { if (!DEPTS.some(d => d.screens.some(s => s.id === 'orders'))) { alert("You don't have the Sales orders screen, ask Denver if you need it."); return; } toggleHelp(false); gotoNotif(0, 'orders', a.dataset.so, false); }
+  else if (a.dataset.sop) { toggleHelp(false); gotoNotif(0, 'sops', a.dataset.sop, false); }
   else if (a.dataset.go) { toggleHelp(false); gotoNotif(0, a.dataset.go, '', false); }
 }
 async function mountHelp(){
@@ -996,7 +998,7 @@ async function mountHelp(){
   const b = document.createElement('button'); b.id = 'hlpBtn'; b.title = 'Ask Bob for help'; b.setAttribute('aria-label', 'Ask Bob for help'); b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2l2.2 6.3L20.5 10l-6.3 1.7L12 18l-2.2-6.3L3.5 10l6.3-1.7z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg><span>Ask Bob</span>'; b.onclick = () => toggleHelp(); b.style.order = '3'; (document.getElementById('tbSlot') || document.body).appendChild(b);
   const box = document.createElement('div'); box.id = 'hlpBox';
   box.innerHTML = `<div id="hlpHead"><b>Ask Bob</b><span id="hlpLeft"></span><button id="hlpBig" aria-label="Make bigger" title="Bigger / smaller">&#x2922;</button><button id="hlpX" aria-label="Close">×</button></div>
-    <div id="hlpMsgs"><div class="m b">Hi, I'm Bob. Ask me how to do something in the system, like "how do I move an order to the van?" or "where do I find stock count?"</div></div>
+    <div id="hlpMsgs"><div class="m b">Hi, I'm Bob. Ask me how to do something in the system, like "how do I move an order to the van?", "where do I find stock count?" or "what's the process for booking in a pallet?"</div></div>
     <form id="hlpForm"><input id="hlpQ" maxlength="600" placeholder="Ask how to do something…" autocomplete="off"><button type="submit">Send</button></form>
     <div id="hlpNote">I only know how the system works. I can't see orders, stock or customers, so don't paste any in. I can be wrong: if it matters, check with someone.</div>`;
   document.body.appendChild(box);
@@ -1036,6 +1038,7 @@ async function askHelp(e){
 // 11 Nov: system-wide search, a button beside Ask Bob (or press / or Ctrl+K). Finds orders (SO- number, website order number, customer, postcode),
 // customers and pages. Each order result links straight to the Sales orders pop-out, to the warehouse screen it's sitting in, and to the courier's tracking page.
 const GS_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/gsearch';
+const SOP_API = 'https://uppxdrihpxsygaorffro.supabase.co/functions/v1/sops';   // 25 Nov: Checklists & SOPs show up in Search too
 const GS_ALIAS = { stockcount: 'stock take count stocktake', goodsin: 'deliveries book in receiving delivery', pick: 'dispatch pick pack courier send', van: 'van drivers delivery runs', tracking: 'track parcel courier where is my order',
   orders: 'orders order search so sales order print invoice', support: 'report problem help request issue bug', board: 'holiday holidays off leave notices', backorders: 'backorder waiting stock', collections: 'collection collect trade counter',
   wbcoll: 'wootton bassett collection', barcodes: 'barcode scan', transfer: 'transfers move stock between sites', stockadj: 'adjustments adjust stock', purchasing: 'purchase orders suppliers buying', quotes: 'quote quotes hubspot follow up',
@@ -1089,7 +1092,7 @@ function mountSearch(){
     slot.appendChild(pb); document.body.appendChild(pm);
   }
   const w = document.createElement('div'); w.id = 'gsWrap';
-  w.innerHTML = `<div id="gsBox"><div id="gsHead"><input id="gsQ" placeholder="Search an order, customer or page" autocomplete="off" maxlength="60"><button id="gsX" aria-label="Close">×</button></div><div id="gsRes"><div class="gm">Type an SO- number, a website order number, a customer name, a postcode, or the name of a page.</div></div></div>`;
+  w.innerHTML = `<div id="gsBox"><div id="gsHead"><input id="gsQ" placeholder="Search an order, customer, page or SOP" autocomplete="off" maxlength="60"><button id="gsX" aria-label="Close">×</button></div><div id="gsRes"><div class="gm">Type an SO- number, a website order number, a customer name, a postcode, the name of a page or an SOP.</div></div></div>`;
   document.body.appendChild(w);
   w.addEventListener('click', e => { if (e.target === w) gsOpen(false); });
   document.getElementById('gsX').onclick = () => gsOpen(false);
@@ -1118,11 +1121,13 @@ function gsScreens(q){
 }
 async function gsRun(q){
   q = (q || '').trim(); const res = document.getElementById('gsRes'), my = ++GS.n;
-  if (q.length < 2) { res.innerHTML = '<div class="gm">Type an SO- number, a website order number, a customer name, a postcode, or the name of a page.</div>'; return; }
+  if (q.length < 2) { res.innerHTML = '<div class="gm">Type an SO- number, a website order number, a customer name, a postcode, the name of a page or an SOP.</div>'; return; }
   const scr = gsScreens(q);
   res.innerHTML = '<div class="gm">Searching…</div>';
-  let j = { orders: [], customers: [] }, err = '';
+  let j = { orders: [], customers: [] }, err = '', sops = [];
+  const sopP = fetch(SOP_API + '?q=' + encodeURIComponent(q), { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' }).then(r => r.json()).then(x => { sops = (x && x.sops) || []; }).catch(() => {});
   try { const r = await fetch(GS_API + '?q=' + encodeURIComponent(q), { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' }); const x = await r.json().catch(() => ({})); if (r.status === 401) err = 'Please log in again.'; else if (x.error) err = x.error; else j = { orders: x.orders || [], customers: x.customers || [] }; } catch(e){ err = "Couldn't reach the search."; }
+  await sopP;
   if (my !== GS.n) return;   // a newer search has started
   const canO = hasScreen('orders');
   let h = '';
@@ -1140,6 +1145,7 @@ async function gsRun(q){
     }).join('');
   }
   if (j.customers.length && canO) h += '<div class="gh">Customers</div>' + j.customers.map(c => `<a class="gi" data-cust="${esc(c)}"${!j.orders.length && !scr.length && c === j.customers[0] ? ' data-first="1"' : ''}>${esc(c)}<small>see their orders →</small></a>`).join('');
+  if (sops.length) h += '<div class="gh">Checklists & SOPs</div>' + sops.slice(0, 5).map((x, i) => `<a class="gi" data-sop="${esc(x.id)}"${!j.orders.length && !scr.length && i === 0 ? ' data-first="1"' : ''}>${esc(x.title)}<small>SOP${x.summary ? ' · ' + esc(String(x.summary).slice(0, 70)) : ''}</small></a>`).join('');
   if (scr.length) h += '<div class="gh">Pages</div>' + scr.map((s, i) => `<a class="gi" data-go="${esc(s.id)}"${!j.orders.length && i === 0 ? ' data-first="1"' : ''}>${esc(s.name)}<small>${esc(s.dept)}</small></a>`).join('');
   if (!h) h = `<div class="gm">${err ? esc(err) : 'Nothing found for “' + esc(q) + '”.' + (canO ? ' Orders can be found by SO- number, website order number, customer name or postcode.' : '')}</div>`;
   else if (err) h += `<div class="gm">${esc(err)}</div>`;
@@ -1148,6 +1154,7 @@ async function gsRun(q){
 function gsClick(e){
   const a = e.target.closest('a'); if (!a || a.classList.contains('trk')) return; e.preventDefault();
   if (a.dataset.so) { gsOpen(false); gotoNotif(0, 'orders', a.dataset.so, false); }
+  else if (a.dataset.sop) { gsOpen(false); gotoNotif(0, 'sops', a.dataset.sop, false); }
   else if (a.dataset.wh) { gsOpen(false); gotoNotif(0, a.dataset.wh, a.dataset.no, false); }
   else if (a.dataset.cust) { gsOpen(false); gotoNotif(0, 'orders', 'q:' + a.dataset.cust, false); }
   else if (a.dataset.go) { gsOpen(false); const at = locate(a.dataset.go); if (at) showPage(at.m, at.d, a.dataset.go); else if (a.dataset.go.startsWith('@')) showPage(CUR.m, CUR.d, a.dataset.go); }

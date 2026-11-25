@@ -19,6 +19,7 @@
     try { var q = new URLSearchParams(location.search).get('theme'); if (q === 'dark' || q === 'light') p.theme = q; } catch (e) {}
     return p;
   }
+  var framed = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   var LIGHT = '--bg:#F4F3EF;--panel:#FFFFFF;--panel2:#F6F5F1;--line:#E3E1DB;--ink:#151617;--muted:#6C6F73;' +
     '--good:#2F6B4A;--bad:#C2352B;--warn:#8A6200;--blue:#3B5B8C;--accent-text:#151617;' +
@@ -39,7 +40,9 @@
       (p.text === 'large' ? 'body{zoom:1.07}' : '') +
       (p.motion === false ? '*{transition:none!important;animation:none!important}' : '') +
       'button{transition:border-color .15s,box-shadow .15s,background .15s}' +
-      'input,select,textarea{color-scheme:' + (dark ? 'dark' : 'light') + '}';
+      'input,select,textarea{color-scheme:' + (dark ? 'dark' : 'light') + '}' +
+      // inside the main page the top bar already carries the name and logo, so screens drop their own old logo
+      (framed ? 'header img[alt="TSD"],header img[alt="Tiling Supplies Direct"]{display:none!important}' : '');
   }
   function apply() {
     var p = prefs(), r = document.documentElement;

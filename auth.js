@@ -13,10 +13,20 @@
   const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
   const css = `
-  .ta{width:100%;max-width:560px;background:var(--panel);border-radius:16px;padding:24px 22px;display:flex;flex-direction:column;gap:14px;color:var(--ink);font-family:Barlow,'Segoe UI',Arial,sans-serif}
+  .ta{width:100%;max-width:560px;background:var(--panel);border-radius:16px;padding:24px 22px;display:flex;flex-direction:column;gap:14px;color:var(--ink);font-family:var(--body,Inter,'Segoe UI',Arial,sans-serif);border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.08)}
   .ta .ta-top{display:flex;align-items:center;gap:14px}
   .ta .ta-top img{height:46px}
-  .ta h1{margin:0;font-family:'Bebas Neue','Arial Narrow',Arial,sans-serif;font-weight:400;font-size:34px;letter-spacing:1px;line-height:1}
+  .ta h1{margin:0;font-family:var(--num,'Inter Tight',Arial,sans-serif);font-weight:700;font-size:24px;letter-spacing:-.3px;line-height:1.15}
+  .ta .ta-brand{display:flex;align-items:center;gap:11px;font-family:var(--num,'Inter Tight',Arial,sans-serif);font-weight:700;font-size:12.5px;letter-spacing:2.2px}
+  .ta .ta-brand img{height:26px!important;align-self:center!important}
+  #login .ta .ta-names button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:15px 10px;font-size:16.5px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  #login .ta .ta-names button:hover,#login .ta .ta-names button:focus{border-color:var(--ink);outline:none}
+  #login .ta .ta-names button.last{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  #login .ta .ta-pad button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:16px 0;font-size:24px;font-weight:600}
+  #login .ta .ta-pad button:active{background:var(--accent);color:var(--on-accent)}
+  #login .ta .ta-pad button.s{font-size:15px;color:var(--muted)}
+  #login .ta .ta-link{background:none;border:0;color:var(--muted);padding:0;font-size:14px;text-decoration:underline}
+  .ta .ta-closed{background:var(--tint-bad,rgba(255,106,92,.12));color:var(--bad);border-radius:10px;padding:10px 12px;font-weight:600;font-size:14.5px;line-height:1.4}
   .ta .ta-sub{color:var(--muted);font-size:14px}
   .ta .ta-names{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
   .ta .ta-names button{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:16px 10px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}
@@ -137,11 +147,15 @@
     }
     const logo = logoSrc();
     let names = null;
-    const shell = inner => `<div class="ta">${logo ? `<div class="ta-top"><img src="${logo}" alt="TSD"><h1>TSD Systems</h1></div>` : '<h1>TSD Systems</h1>'}${inner}</div>`;
+    const ICON = 'data:image/png;base64,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';
+    const shell = inner => `<div class="ta"><div class="ta-brand"><img src="${ICON}" alt="">TILING SUPPLIES DIRECT</div><h1>Log in</h1><div data-closed></div>${inner}</div>`;
+    // 25 Nov: while the system is closed for an update, say so before anyone tries their PIN (admins can still log in)
+    const closedNote = () => fetch(ME + '?status=1', { cache: 'no-store' }).then(r => r.json()).then(j => { const c = box.querySelector('[data-closed]');
+      if (c && j && j.closed) c.innerHTML = `<div class="ta-closed">${esc(j.message || 'The system is closed while we update it. Please try again shortly.')}<br><span style="font-weight:400;font-size:13px">Admins can still log in.</span></div>`; }).catch(() => {});
     const showNames = msg => {
       box.innerHTML = shell(`<div class="ta-sub">Tap your name</div><div class="ta-names" data-n>${names ? '' : '<span class="ta-sub">Loading…</span>'}</div>
         <div id="lerr" class="ta-err">${esc(msg || '')}</div><div id="err" class="ta-err"></div>`);
-      const g = box.querySelector('[data-n]');
+      const g = box.querySelector('[data-n]'); closedNote();
       const last = store.get('tsd_last_name');
       const fill = () => { g.innerHTML = names.map(n => `<button type="button" class="${n === last ? 'last' : ''}" data-name="${esc(n)}">${esc(n)}</button>`).join('');
         g.querySelectorAll('[data-name]').forEach(b => b.onclick = () => showPad(b.dataset.name)); };
