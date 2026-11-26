@@ -9,7 +9,10 @@
 // Remember this screen's access key on this device, so the short address (and the installed app) work without the long link.
 (function(){ try { var p = new URLSearchParams(location.search), K = 'tsd_key_dash';
   if (p.get('k')) localStorage.setItem(K, p.get('k'));
-  else { var s = localStorage.getItem(K); if (s) { p.set('k', s); history.replaceState(null, '', location.pathname + '?' + p.toString() + location.hash); } }
+  else { var s = localStorage.getItem(K); if (s) p.set('k', s); }
+  // 26 Nov (Denver): the office TV always runs dark, whatever a device's own saved preference is — not just a fallback like other screens
+  if (!p.get('theme')) { p.set('theme', 'dark'); }
+  history.replaceState(null, '', location.pathname + '?' + p.toString() + location.hash);
 } catch(e){} })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -85,7 +88,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family
 @keyframes tsdpulse{50%{transform:scale(1.06)}}
 .bar .fill.hit{background:var(--good)}
 </style>
-<script src="theme.js?v=20261126a"></script>
+<script src="theme.js?v=20261126b"></script>
 </head>
 <body>
 <div id="party"><canvas></canvas><div class="banner"><div class="big">TARGET HIT!</div><div class="sub"></div></div></div>
@@ -290,7 +293,7 @@ setTimeout(() => location.reload(), 6*60*60*1000); // pick up page updates a few
 <script>
 // Self-update: every 2 minutes, check GitHub for a newer copy of this page and reload into it.
 (function(){
-  const BUILD = '20261126001';
+  const BUILD = '20261126002';
   setInterval(async () => { try { const t = await (await fetch(location.href, {cache:'reload'})).text(); const m = t.match(/const BUILD = '(\d+)'/); if (m && m[1] !== BUILD) location.reload(); } catch(e){} }, 120000);
 })();
 </script>
