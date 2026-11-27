@@ -373,11 +373,19 @@ async function placeSale(method, override){
   if (j.printed_to === 'here') printHere(j.id, 'order').catch(x => toast(x.message));
 }
 // 16 Nov: "This computer (print box)": fetch the document and open Chrome's own print box (card/cash sales orders come as 2 copies in one go)
+// 27 Nov (Denver reported it stopped popping up automatically): Chrome only opens the print box while the click that led here is still "live" -
+// the longer we wait after that click, the more likely Chrome quietly drops it. So wait for the iframe to actually be ready (two paints, not a
+// guessed 300ms) and go as fast as we can. The "Open print box" button next to the printer name is the guaranteed fallback either way.
 async function printHere(id, doc){
   const j = await api('?pos=' + id + '&doc=' + doc);
   let f = document.getElementById('phf');
   if (!f) { f = document.createElement('iframe'); f.id = 'phf'; f.style.cssText = 'position:fixed;width:0;height:0;border:0;right:0;bottom:0'; document.body.appendChild(f); }
-  await new Promise((res, rej) => { f.onload = () => { setTimeout(() => { try { f.contentWindow.focus(); f.contentWindow.print(); res(); } catch(e){ rej(new Error("Couldn't open the print box")); } }, 300); }; f.srcdoc = j.html; });
+  await new Promise((res, rej) => {
+    f.onload = () => { requestAnimationFrame(() => requestAnimationFrame(() => {
+      try { f.contentWindow.focus(); f.contentWindow.print(); res(); } catch(e){ rej(new Error("Couldn't open the print box")); }
+    })); };
+    f.srcdoc = j.html;
+  });
 }
 function backToBasket(snap, msg){
   const ov = $('ov'); if (ov) ov.remove();
@@ -393,7 +401,7 @@ function chargeScreen(){
     // 13 Nov (Denver): calmer, premium layout; the amount is big but not shouting
     ov.innerHTML = `<div class="charge">
       <div class="hd"><div><div class="no">${d.pre ? 'Ready to charge' : esc(d.number)}</div><div class="who">${esc(d.cust)}</div></div>
-        <div class="prn">${d.pre ? `<a href="#" id="back" class="lnk" style="margin:0">← Back to basket</a>` : pn ? `<i></i>Sales order · ${d.copies || 1} cop${(d.copies || 1) === 1 ? 'y' : 'ies'} · ${esc(pn)}` : 'Not printed'}</div></div>
+        <div class="prn">${d.pre ? `<a href="#" id="back" class="lnk" style="margin:0">← Back to basket</a>` : pn ? `<i></i>Sales order · ${d.copies || 1} cop${(d.copies || 1) === 1 ? 'y' : 'ies'} · ${esc(pn)}${d.printed_to === 'here' ? ` <a href="#" id="reprint" class="lnk" style="margin:0 0 0 10px">Open print box</a>` : ''}` : 'Not printed'}</div></div>
       <div class="amtbox"><div class="lbl">Amount to charge</div><div class="amt">${gbp(d.total_inc)}</div>${d.total_ex != null ? `<div class="vat">${gbp(d.total_ex)} + VAT ${gbp(d.total_inc - d.total_ex)}</div>` : ''}</div>
       <div class="step ${d.paid ? 'done' : ''}"><div class="lbl"><b>${d.paid ? '' : '1'}</b>Payment</div>${d.pre ? '<div class="sub" style="margin:-4px 0 10px">Press once the card has gone through. That puts the order into Cin7 and prints it.</div>' : ''}
         <div class="seg">${[['card', 'Card'], ['cash', 'Cash'], ['account', 'On account']].map(([v, t]) => `<button class="${d.paid === v ? 'on' : ''}" data-pay="${v}" ${d.paid ? 'disabled' : ''}>${t}</button>`).join('')}</div></div>
@@ -416,6 +424,7 @@ function chargeScreen(){
       }
     });
     if ($('back')) $('back').onclick = e => { e.preventDefault(); backToBasket(d.snap); };
+    if ($('reprint')) $('reprint').onclick = e => { e.preventDefault(); printHere(d.id, 'order').catch(x => toast(x.message)); };
     if ($('undo')) $('undo').onclick = async () => {
       const ok = await modal('Undo this sale?', `${esc(d.number)} will be cancelled in Cin7 and the basket comes back so you can change it and authorise again. Bin the printed copies.${d.paid === 'card' ? '<br><br><b>If the card has already been charged</b>, refund it on the card machine or charge the difference.' : ''}`, [{ t: 'Keep the sale', v: false }, { t: 'Undo and change it', v: true, cls: 'y' }]);
       if (!ok) return;
